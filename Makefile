@@ -1,42 +1,48 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.8 2003/06/05 16:13:33 reid Exp $
+# $Id: Makefile,v 1.9 2004/02/26 13:31:47 ross Exp $
 
-TOP = .
+TOP = ..
 include $(TOP)/mk/boilerplate.mk
+
+include mk/version.mk
 
 # -----------------------------------------------------------------------------
 
 # Comment out if you want to do initial debugging on Unix systems
-SUBDIRS = cbits
+SUBDIRS = cbits include
 
 ALL_DIRS = \
+	Graphics \
+	Graphics/Win32 \
+	Graphics/Win32/GDI \
 	System \
 	System/Win32 
 
 PACKAGE = Win32
-PACKAGE_DEPS = greencard
+PACKAGE_DEPS = base
 
-SRC_CC_OPTS += -Icbits
-# SRC_HC_OPTS += -Wall 
-SRC_HC_OPTS += -optc-Icbits
-SRC_HC_OPTS += -cpp -fglasgow-exts -fffi 
+SRC_HSC2HS_OPTS += -Iinclude
+SRC_CC_OPTS += -Iinclude
+SRC_HC_OPTS += -Wall 
+SRC_HC_OPTS += -optc-Iinclude -Iinclude
+SRC_HC_OPTS += -fffi -O
 
 SRC_HADDOCK_OPTS += -t "Win32 Libraries ($(PACKAGE) package)"
 
 # _stub.o files are a side-effect from compiling .hs files that
 # contain 'foreign export' declarations.
-EXTRA_C_OBJS += System/Win32/Dialogue_stub.o System/Win32/Window_stub.o
+EXTRA_C_OBJS += Graphics/Win32/Dialogue_stub.o Graphics/Win32/Window_stub.o
 
 STUBOBJS    += $(filter-out $(EXTRA_C_OBJS), $(patsubst %.c, %.o, $(C_SRCS))) $(EXTRA_C_OBJS)
 
-System/Win32/Dialogue_stub.o : System/Win32/Dialogue.o
+Graphics/Win32/Dialogue_stub.o : Graphics/Win32/Dialogue.o
 	@:
-System/Win32/Window_stub.o : System/Win32/Window.o
+Graphics/Win32/Window_stub.o : Graphics/Win32/Window.o
 	@:
 
 # -----------------------------------------------------------------------------
 
-DONT_WANT_STD_GHCI_LIB_RULE=YES
+# DONT_WANT_STD_GHCI_LIB_RULE=YES
 include $(TOP)/mk/target.mk
 
 #

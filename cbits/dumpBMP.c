@@ -18,6 +18,7 @@
 \**************************************************************************/
 #include <windows.h>
 #include <stdio.h>
+#include "dumpBMP.h"
 
 /******************************Public*Routine******************************\
 * SaveBitmapFile
@@ -32,7 +33,7 @@
 
 //typedef LPBITMAPINFO PBITMAPINFO; // hack to keep cygwin32b17 happy
 
-void CreateBMPFile(PSTR pszFileName, HBITMAP hBmp, HDC hDC)
+void CreateBMPFile(LPCSTR pszFileName, HBITMAP hBmp, HDC hDC)
 {
     int         hFile;
     OFSTRUCT    ofReOpenBuff;
