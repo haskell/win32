@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------------
 
 module System.Win32
-	( module System.Win32.StdDIS
+	( module Foreign.GreenCard
 	, module System.Win32.GDITypes
 	, module System.Win32.Bitmap
 	, module System.Win32.Brush
