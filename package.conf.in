@@ -29,6 +29,6 @@ Package {
 	c_includes	= [ "HsWin32.h", "WndProc.h" ],
 	package_deps	= [ "base" ],
 	extra_ghc_opts	= [],
-	extra_cc_opts	= [],
+	extra_cc_opts	= [ "-DUNICODE" ],
 	extra_ld_opts	= []
 }
