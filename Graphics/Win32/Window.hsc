@@ -211,7 +211,7 @@ createWindowEx estyle cname wname wstyle mb_x mb_y mb_w mb_h mb_parent mb_menu i
       (maybePtr mb_parent) (maybePtr mb_menu) inst nullPtr
   setWindowClosure wnd closure
   return wnd
-foreign import stdcall unsafe "windows.h CreateWindowExW"
+foreign import stdcall "windows.h CreateWindowExW"
   c_CreateWindowEx
     :: WindowStyle -> ClassName -> LPCTSTR -> WindowStyle
     -> Pos -> Pos -> Pos -> Pos
