@@ -17,14 +17,24 @@ module System.Win32.Mem where
 import System.Win32.Types
 
 import Foreign
+import Foreign.C.Types
 
 #include <windows.h>
 
-foreign import stdcall unsafe "windows.h CopyMemory"
-  copyMemory :: Addr -> Addr -> DWORD -> IO ()
+copyMemory :: Ptr a -> Ptr a -> DWORD -> IO ()
+copyMemory dest src nbytes = copyBytes dest src (fromIntegral nbytes)
 
-foreign import stdcall unsafe "windows.h FillMemory"
-  fillMemory :: Addr -> DWORD -> BYTE -> IO ()
+moveMemory :: Ptr a -> Ptr a -> DWORD -> IO ()
+moveMemory dest src nbytes = moveBytes dest src (fromIntegral nbytes)
+
+fillMemory :: Ptr a -> DWORD -> BYTE -> IO ()
+fillMemory dest nbytes val =
+  memset dest (fromIntegral val) (fromIntegral nbytes)
+
+zeroMemory :: Ptr a -> DWORD -> IO ()
+zeroMemory dest nbytes = memset dest 0 (fromIntegral nbytes)
+
+foreign import ccall unsafe "string.h" memset :: Ptr a -> CInt -> CSize -> IO ()
 
 foreign import stdcall unsafe "windows.h GetProcessHeap"
   getProcessHeap :: IO HANDLE
@@ -174,9 +184,6 @@ foreign import stdcall unsafe "windows.h HeapUnlock"
 foreign import stdcall unsafe "windows.h HeapValidate"
   heapValidate :: HANDLE -> HeapAllocFlags -> Addr -> IO Bool
 
-foreign import stdcall unsafe "windows.h MoveMemory"
-  moveMemory :: Addr -> Addr -> DWORD -> IO ()
-
 type VirtualAllocFlags = DWORD
 
 #{enum VirtualAllocFlags,
@@ -258,6 +265,3 @@ virtualUnlock addr size =
   failIfFalse_ "VirtualUnlock" $ c_VirtualUnlock addr size
 foreign import stdcall unsafe "windows.h VirtualUnlock"
   c_VirtualUnlock :: Addr -> DWORD -> IO Bool
-
-foreign import stdcall unsafe "windows.h ZeroMemory"
-  zeroMemory :: Addr -> DWORD -> IO ()
