@@ -75,14 +75,6 @@ type LPCTSTR_      = LPCTSTR
 
 -- Optional things with defaults
 
-withMaybePtr :: (a -> (Ptr b -> IO c) -> IO c) ->
-                Maybe a -> (Ptr b -> IO c) -> IO c
-withMaybePtr _withX Nothing f = f nullPtr
-withMaybePtr withX (Just x) f = withX x f
-
-withMaybeForeignPtr :: Maybe (ForeignPtr a) -> (Ptr a -> IO b) -> IO b
-withMaybeForeignPtr = withMaybePtr withForeignPtr
-
 maybePtr :: Maybe (Ptr a) -> Ptr a
 maybePtr = maybe nullPtr id
 

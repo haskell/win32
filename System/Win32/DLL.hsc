@@ -43,7 +43,7 @@ foreign import stdcall unsafe "windows.h GetModuleFileNameW"
 
 getModuleHandle :: Maybe String -> IO HMODULE
 getModuleHandle mb_name =
-  withMaybePtr withTString mb_name $ \ c_name ->
+  maybeWith withTString mb_name $ \ c_name ->
   failIfNull "GetModuleHandle" $ c_GetModuleHandle c_name
 foreign import stdcall unsafe "windows.h GetModuleHandleW"
   c_GetModuleHandle :: LPCTSTR -> IO HMODULE

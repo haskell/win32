@@ -429,7 +429,7 @@ foreign import stdcall unsafe "windows.h GetLogicalDrives"
 
 getDiskFreeSpace :: Maybe String -> IO (DWORD,DWORD,DWORD,DWORD)
 getDiskFreeSpace path =
-  withMaybePtr withTString path $ \ c_path ->
+  maybeWith withTString path $ \ c_path ->
   alloca $ \ p_sectors ->
   alloca $ \ p_bytes ->
   alloca $ \ p_nfree ->

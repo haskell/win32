@@ -86,7 +86,7 @@ foreign import stdcall unsafe "windows.h RegCloseKey"
 regConnectRegistry :: Maybe String -> HKEY -> IO HKEY
 regConnectRegistry mb_machine key =
   withForeignPtr key $ \ p_key ->
-  withMaybePtr withTString mb_machine $ \ c_machine ->
+  maybeWith withTString mb_machine $ \ c_machine ->
   alloca $ \ p_out_key -> do
   failUnlessSuccess "RegConnectRegistry" $
     c_RegConnectRegistry c_machine p_key p_out_key
@@ -372,7 +372,7 @@ foreign import stdcall unsafe "windows.h RegQueryInfoKeyW"
 regQueryValueKey :: HKEY -> Maybe String -> IO String
 regQueryValueKey key mb_subkey =
   withForeignPtr key $ \ p_key ->
-  withMaybePtr withTString mb_subkey $ \ c_subkey ->
+  maybeWith withTString mb_subkey $ \ c_subkey ->
   alloca $ \ p_value_len -> do
   failUnlessSuccess "RegQueryValue" $
     c_RegQueryValue p_key c_subkey nullPtr p_value_len
@@ -387,7 +387,7 @@ foreign import stdcall unsafe "windows.h RegQueryValueW"
 regQueryValue :: HKEY -> Maybe String -> IO String
 regQueryValue key mb_subkey =
   withForeignPtr key $ \ p_key ->
-  withMaybePtr withTString mb_subkey $ \ c_subkey ->
+  maybeWith withTString mb_subkey $ \ c_subkey ->
   alloca $ \ p_ty ->
   alloca $ \ p_value_len -> do
   failUnlessSuccess "RegQueryValue" $

@@ -433,7 +433,7 @@ withTPMPARAMS p_rect f =
 
 trackPopupMenuEx :: HMENU -> TrackMenuFlag -> Int -> Int -> HWND -> Maybe (Ptr RECT) -> IO ()
 trackPopupMenuEx menu flags x y wnd mb_p_rect =
-  withMaybePtr withTPMPARAMS mb_p_rect $ \ p_ptmp ->
+  maybeWith withTPMPARAMS mb_p_rect $ \ p_ptmp ->
   failIfFalse_ "TrackPopupMenuEx" $ c_TrackPopupMenuEx menu flags x y wnd p_ptmp
 foreign import stdcall unsafe "windows.h TrackPopupMenuEx"
   c_TrackPopupMenuEx :: HMENU -> TrackMenuFlag -> Int -> Int -> HWND -> Ptr TPMPARAMS -> IO Bool

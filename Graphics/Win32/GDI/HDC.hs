@@ -253,14 +253,14 @@ foreign import stdcall unsafe "windows.h SelectObject"
 
 selectClipRgn :: HDC -> Maybe HRGN -> IO RegionType
 selectClipRgn dc mb_rgn =
-  withMaybeForeignPtr mb_rgn $ \ p_rgn ->
+  maybeWith withForeignPtr mb_rgn $ \ p_rgn ->
   failIfZero "SelectClipRgn" $ c_SelectClipRgn dc p_rgn
 foreign import stdcall unsafe "windows.h SelectClipRgn"
   c_SelectClipRgn :: HDC -> PRGN -> IO RegionType
 
 extSelectClipRgn :: HDC -> Maybe HRGN -> ClippingMode -> IO RegionType
 extSelectClipRgn dc mb_rgn mode =
-  withMaybeForeignPtr mb_rgn $ \ p_rgn ->
+  maybeWith withForeignPtr mb_rgn $ \ p_rgn ->
   failIfZero "ExtSelectClipRgn" $ c_ExtSelectClipRgn dc p_rgn mode
 foreign import stdcall unsafe "windows.h ExtSelectClipRgn"
   c_ExtSelectClipRgn :: HDC -> PRGN -> ClippingMode -> IO RegionType
