@@ -1,13 +1,13 @@
 
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.3 2004/02/26 13:31:53 ross Exp $
+# $Id: Makefile,v 1.4 2004/05/06 17:25:44 ross Exp $
 
 TOP = ../..
 include $(TOP)/mk/boilerplate.mk
 
 # -----------------------------------------------------------------------------
 
-SRC_CC_OPTS += -Wall -I../include
+SRC_CC_OPTS += -Wall -I../include -DUNICODE
 
 LIBRARY = libHSWin32_cbits.a
 LIBOBJS = $(C_OBJS)
