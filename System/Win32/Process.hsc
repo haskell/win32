@@ -52,9 +52,9 @@ spawn :: String
 	      )
 spawn cmd = 
   withCString cmd $ \ p_cmd ->
-   withObject 0 $ \ p_wIn  ->
-    withObject 0 $ \ p_rOut ->
-     withObject 0 $ \ p_rErr -> do
+   with 0 $ \ p_wIn  ->
+    with 0 $ \ p_rOut ->
+     with 0 $ \ p_rErr -> do
        rc  <- spawnProc p_cmd p_wIn p_rOut p_rErr
        when (rc /= 0) (ioError (userError ("runProc: unable to spawn " ++ show cmd)))
        wIn <- peek p_wIn
