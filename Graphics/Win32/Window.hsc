@@ -61,7 +61,7 @@ type WNDCLASS =
   Maybe HICON,   -- hIcon
   Maybe HCURSOR, -- hCursor
   Maybe HBRUSH,  -- hbrBackground
-  Maybe LPCSTR,  -- lpszMenuName
+  Maybe LPCTSTR, -- lpszMenuName
   ClassName)     -- lpszClassName
 
 --ToDo!
@@ -191,8 +191,11 @@ createWindow
      Maybe Pos -> Maybe Pos -> Maybe Pos -> Maybe Pos ->
      Maybe HWND -> Maybe HMENU -> HINSTANCE -> WindowClosure ->
      IO HWND
-createWindow cname wname style mb_x mb_y mb_w mb_h mb_parent mb_menu inst closure =
-  withTString wname $ \ c_wname -> do
+createWindow cname wname style mb_x mb_y mb_w mb_h mb_parent mb_menu inst closure = do
+  -- Freeing the title/window name has been reported
+  -- to cause a crash, so let's not do it.
+  -- withTString wname $ \ c_wname -> do
+  c_wname <- newTString wname
   wnd <- failIfNull "CreateWindow" $
     c_CreateWindow cname c_wname style
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
@@ -206,17 +209,15 @@ foreign import stdcall unsafe "windows.h CreateWindowW"
        HWND -> HMENU -> HINSTANCE -> LPVOID ->
        IO HWND
 
--- Freeing the title/window name has been reported
--- to cause a crash, so let's not do it.
--- %end free(windowName)  /* I think this is safe... */
-
 createWindowEx
   :: WindowStyle -> ClassName -> String -> WindowStyle
   -> Maybe Pos -> Maybe Pos -> Maybe Pos -> Maybe Pos
   -> Maybe HWND -> Maybe HMENU -> HINSTANCE -> WindowClosure
   -> IO HWND
-createWindowEx estyle cname wname wstyle mb_x mb_y mb_w mb_h mb_parent mb_menu inst closure =
-  withTString wname $ \ c_wname -> do
+createWindowEx estyle cname wname wstyle mb_x mb_y mb_w mb_h mb_parent mb_menu inst closure = do
+  -- see CreateWindow comment.
+  -- withTString wname $ \ c_wname -> do
+  c_wname <- newTString wname
   wnd <- failIfNull "CreateWindowEx" $
     c_CreateWindowEx estyle cname c_wname wstyle
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
@@ -229,9 +230,6 @@ foreign import stdcall unsafe "windows.h CreateWindowExW"
     -> Pos -> Pos -> Pos -> Pos
     -> HWND -> HMENU -> HINSTANCE -> LPVOID
     -> IO HWND
-
--- see CreateWindow comment.
--- %end free(wname)  /* I think this is safe... */
 
 ----------------------------------------------------------------
 
