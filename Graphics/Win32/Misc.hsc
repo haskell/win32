@@ -17,6 +17,7 @@ module Graphics.Win32.Misc where
 import Graphics.Win32.GDI.Types
 import System.Win32.Types
 
+import Data.Maybe
 import Foreign
 
 #include <windows.h>
@@ -235,14 +236,14 @@ type Beep = UINT
 type MbBeep = Maybe Beep
 
 maybeBeep :: Maybe Beep -> Beep
-maybeBeep = maybe 0xffffffff id
+maybeBeep = fromMaybe 0xffffffff
 
 type Duration   = Int
 
 type MbDuration   = Maybe Duration
 
 maybeDuration :: Maybe Duration -> Duration
-maybeDuration = maybe (-1) id
+maybeDuration = fromMaybe (-1)
 
 messageBeep :: Maybe Beep -> IO ()
 messageBeep mb_beep =

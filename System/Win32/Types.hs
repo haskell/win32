@@ -17,6 +17,7 @@ module System.Win32.Types
 	, nullPtr
 	) where
 
+import Data.Maybe
 import Foreign
 import Foreign.C
 import Numeric (showHex)
@@ -76,13 +77,13 @@ type LPCTSTR_      = LPCTSTR
 -- Optional things with defaults
 
 maybePtr :: Maybe (Ptr a) -> Ptr a
-maybePtr = maybe nullPtr id
+maybePtr = fromMaybe nullPtr
 
 ptrToMaybe :: Ptr a -> Maybe (Ptr a)
 ptrToMaybe p = if p == nullPtr then Nothing else Just p
 
 maybeNum :: Num a => Maybe a -> a
-maybeNum = maybe 0 id
+maybeNum = fromMaybe 0
 
 numToMaybe :: Num a => a -> Maybe a
 numToMaybe n = if n == 0 then Nothing else Just n

@@ -19,6 +19,7 @@ import Graphics.Win32.GDI.Types
 import Graphics.Win32.Message
 
 import Control.Monad
+import Data.Maybe
 import Foreign
 
 #include <windows.h>
@@ -171,7 +172,7 @@ type Pos = Int
 type MbPos = Maybe Pos
 
 maybePos :: Maybe Pos -> Pos
-maybePos = maybe cW_USEDEFAULT id
+maybePos = fromMaybe cW_USEDEFAULT
 
 type WindowClosure = HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
