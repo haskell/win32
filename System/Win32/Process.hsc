@@ -15,7 +15,9 @@
 module System.Win32.Process
   ( sleep       -- :: DWORD -> IO ()
   , iNFINITE    -- :: DWORD
+#ifdef __GLASGOW_HASKELL__
   , spawn       -- :: String -> IO (Handle, Handle, Handle)
+#endif
   ) where
 
 import System.Win32.Types
