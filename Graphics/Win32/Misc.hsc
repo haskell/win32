@@ -170,7 +170,7 @@ transformedEllipse dc (x0,y0) (x1,y1) (x2,y2) =
 foreign import ccall unsafe "ellipse.h transformedEllipse"
   c_transformedEllipse :: HDC -> LONG -> LONG -> LONG -> LONG -> LONG -> LONG -> IO Bool
 
-{-# CBITS ellipse.c #-}
+{-# CFILES cbits/ellipse.c #-}
 
 ----------------------------------------------------------------
 -- Cursor

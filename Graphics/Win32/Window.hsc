@@ -90,7 +90,7 @@ withWNDCLASS (style, inst, mb_icon, mb_cursor, mb_bg, mb_menu, cls) f =
 foreign import ccall unsafe "WndProc.h &genericWndProc"
   genericWndProc_p :: FunPtr WindowClosure
 
-{-# CBITS WndProc.c #-}
+{-# CFILES cbits/WndProc.c #-}
 
 registerClass :: WNDCLASS -> IO (Maybe ATOM)
 registerClass cls =

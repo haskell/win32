@@ -206,12 +206,12 @@ foreign import stdcall unsafe "windows.h LocalFree"
 foreign import stdcall unsafe "windows.h GetLastError"
   getLastError :: IO ErrCode
 
-{-# CBITS errors.c #-}
+{-# CFILES cbits/errors.c #-}
 
 foreign import ccall unsafe "errors.h"
   getErrorMessage :: DWORD -> IO LPWSTR
 
-{-# CBITS HsWin32.c #-}
+{-# CFILES cbits/HsWin32.c #-}
 
 foreign import ccall unsafe "HsWin32.h"
   lOWORD :: DWORD -> WORD

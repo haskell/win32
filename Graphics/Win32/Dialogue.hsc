@@ -187,7 +187,7 @@ foreign import ccall unsafe "diatemp.h addDiaControl"
   addDiaControl :: Ptr DIA_TEMPLATE -> LPCWSTR -> Int -> LPCWSTR -> DWORD ->
         Int -> Int -> Int -> Int -> DWORD -> IO (Ptr DIA_TEMPLATE)
 
-{-# CBITS diatemp.c #-}
+{-# CFILES cbits/diatemp.c #-}
 
 marshall_res :: Either ResourceID String -> IO LPCWSTR
 marshall_res (Left r)  = mkResource r

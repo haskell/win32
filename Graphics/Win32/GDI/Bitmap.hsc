@@ -381,7 +381,7 @@ createBMPFile name bm dc =
 foreign import ccall unsafe "dumpBMP.h CreateBMPFile"
   c_CreateBMPFile :: LPCSTR -> HBITMAP -> HDC -> IO ()
 
-{-# CBITS dumpBMP.c #-}
+{-# CFILES cbits/dumpBMP.c #-}
 
 ----------------------------------------------------------------
 -- Device Independent Bitmaps

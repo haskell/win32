@@ -58,7 +58,7 @@ import Foreign
 
 #include <windows.h>
 
-{-# CBITS HsGDI.c #-}
+{-# CFILES cbits/HsGDI.c #-}
 
 ----------------------------------------------------------------
 --
