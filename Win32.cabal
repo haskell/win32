@@ -39,7 +39,8 @@ exposed-modules:
 	System.Win32.Process,
 	System.Win32.Registry,
 	System.Win32.Types
-extra-libs:	"user32", "gdi32", "winmm", "kernel32", "advapi32"
+extra-libraries:
+	"user32", "gdi32", "winmm", "kernel32", "advapi32"
 include-dirs: 	include
 includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
 c-sources:
