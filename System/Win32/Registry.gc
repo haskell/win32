@@ -16,8 +16,8 @@ module System.Win32.Registry
         , regDeleteKey       -- :: HKEY -> String -> IO ()
 	, regDeleteValue     -- :: HKEY -> String -> IO ()
 	, regEnumKeys	     -- :: HKEY -> IO [String]
-	, regEnumKey 	     -- :: HKEY -> DWORD -> Ptr () -> DWORD -> IO String
-	, regEnumKeyValue    -- :: HKEY -> DWORD -> Ptr () -> DWORD -> Ptr () -> DWORD -> IO String
+	, regEnumKey 	     -- :: HKEY -> DWORD -> Addr -> DWORD -> IO String
+	, regEnumKeyValue    -- :: HKEY -> DWORD -> Addr -> DWORD -> Addr -> DWORD -> IO String
 	, regFlushKey        -- :: HKEY -> IO ()
 	, regLoadKey         -- :: HKEY -> String -> String -> IO ()
 	, regNotifyChangeKeyValue -- :: HKEY -> Bool -> RegNotifyOptions 
@@ -27,12 +27,12 @@ module System.Win32.Registry
 	, regQueryInfoKey    -- :: HKEY -> IO RegInfoKey
 	, regQueryValue      -- :: HKEY -> MbString -> IO String
 	, regQueryValueKey   -- :: HKEY -> MbString -> IO String
-	, regQueryValueEx    -- :: HKEY -> String -> Ptr () -> Int -> IO RegValueType
+	, regQueryValueEx    -- :: HKEY -> String -> Addr -> Int -> IO RegValueType
 	, regReplaceKey      -- :: HKEY -> String -> String -> String -> IO ()
 	, regRestoreKey      -- :: HKEY -> String -> RegRestoreFlags -> IO ()
 	, regSaveKey         -- :: HKEY -> String -> MbLPSECURITY_ATTRIBUTES -> IO ()
 	, regSetValue        -- :: HKEY -> String -> String -> IO ()
-	, regSetValueEx      -- :: HKEY -> String -> RegValueType -> Ptr () -> Int -> IO ()
+	, regSetValueEx      -- :: HKEY -> String -> RegValueType -> Addr -> Int -> IO ()
 	, regSetStringValue  -- :: HKEY -> String -> String -> IO ()
 	, regUnloadKey       -- :: HKEY -> String -> IO ()
 	) where

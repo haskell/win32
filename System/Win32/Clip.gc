@@ -74,7 +74,7 @@ type ClipboardFormat = UINT
 %fun GetClipboardData :: ClipboardFormat -> IO HANDLE
 %fail {res1==NULL}{ErrorWin("GetClipboardData")}
 
-%fun GetClipboardFormatName :: ClipboardFormat -> Ptr () -> Int -> IO Int
+%fun GetClipboardFormatName :: ClipboardFormat -> Addr -> Int -> IO Int
 %fail {res1==0}{ErrorWin("GetClipboardFormatName")}
 
 %fun GetClipboardOwner :: IO HWND
@@ -86,7 +86,7 @@ type ClipboardFormat = UINT
 %fun GetOpenClipboardWindow :: IO HWND
 %fail {res1==NULL}{ErrorWin("GetClipboardWindow")}
 
-%fun GetPriorityClipboardFormat :: Ptr () -> Int -> IO Int
+%fun GetPriorityClipboardFormat :: Addr -> Int -> IO Int
 %fail {res1==-1}{ErrorWin("GetPriorityClipboardFormat")}
 
 %fun IsClipboardFormatAvailable :: ClipboardFormat -> IO BOOL

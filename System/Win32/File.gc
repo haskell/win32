@@ -309,7 +309,7 @@ type MbLPOVERLAPPED = Maybe LPOVERLAPPED
 --Sigh - I give up & prefix win32_ to the next two to avoid
 -- senseless Prelude name clashes. --sof.
 
-%fun win32_ReadFile :: HANDLE -> Ptr () -> DWORD -> MbLPOVERLAPPED -> IO DWORD
+%fun win32_ReadFile :: HANDLE -> Addr -> DWORD -> MbLPOVERLAPPED -> IO DWORD
 %code BOOL success = ReadFile(arg1,arg2,arg3,&res1,arg4);
 %fail { !success } { ErrorString("ReadFile") }
 

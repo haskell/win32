@@ -87,13 +87,13 @@ type LoadImageFlags = UINT
 %fun LoadResource :: HMODULE -> HRSRC -> IO HGLOBAL
 %fail {res1 == NULL} {ErrorWin("LoadResource")}
 
-%fun LockResource :: HGLOBAL -> IO (Ptr ())
+%fun LockResource :: HGLOBAL -> IO Addr
 %fail {res1 == NULL} {ErrorWin("LockResource")}
 
 %fun SizeofResource :: HMODULE -> HRSRC -> IO DWORD
 %fail {res1 == 0} {ErrorWin("SizeofResource")}
 
-%fun UpdateResource :: HANDLE -> LPCTSTR_ -> ResourceType -> WORD -> Ptr () -> DWORD -> IO ()
+%fun UpdateResource :: HANDLE -> LPCTSTR_ -> ResourceType -> WORD -> Addr -> DWORD -> IO ()
 %code BOOL res1 = UpdateResource(arg1,arg2,arg3,arg4,arg5,arg6);
 %fail { res1 == FALSE } {ErrorWin("UpdateResource")}
 

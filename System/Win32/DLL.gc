@@ -42,7 +42,7 @@ import System.Win32.Types
 %fun GetModuleHandle :: MbString -> IO HMODULE
 %fail {res1 == NULL} {ErrorWin("GetModuleHandle")}
 
-%fun GetProcAddress :: HMODULE -> String -> IO (Ptr ())
+%fun GetProcAddress :: HMODULE -> String -> IO Addr
 %fail {res1 == NULL} {ErrorWin("GetProcAddress")}
 
 %fun LoadLibrary :: String -> IO HINSTANCE

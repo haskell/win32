@@ -23,15 +23,15 @@ import System.Win32.GDITypes
 %#include "win32debug.h"
 %#include "finalizers.h"
 
-%fun CopyMemory :: Ptr () -> Ptr () -> DWORD -> IO ()
+%fun CopyMemory :: Addr -> Addr -> DWORD -> IO ()
 
-%fun FillMemory :: Ptr () -> DWORD -> BYTE -> IO ()
+%fun FillMemory :: Addr -> DWORD -> BYTE -> IO ()
 
 %fun GetProcessHeap :: IO HANDLE
 
-%fun GetProcessHeaps :: DWORD -> Ptr () -> IO DWORD
+%fun GetProcessHeaps :: DWORD -> Addr -> IO DWORD
 
-type   HGLOBAL   = Ptr ()
+type   HGLOBAL   = Addr
 %dis   hGLOBAL x = ptr ({HGLOBAL} x)
 
 type GlobalAllocFlags = UINT
@@ -66,10 +66,10 @@ type GlobalAllocFlags = UINT
 %fun GlobalFree :: HGLOBAL -> IO HGLOBAL
 %fail {res1==NULL}{ErrorWin("GlobalFree")}
 
-%fun GlobalHandle :: Ptr () -> IO HGLOBAL
+%fun GlobalHandle :: Addr -> IO HGLOBAL
 %fail {res1==NULL}{ErrorWin("GlobalHandle")}
 
-%fun GlobalLock :: HGLOBAL -> IO (Ptr ())
+%fun GlobalLock :: HGLOBAL -> IO Addr
 %fail {res1==NULL}{ErrorWin("GlobalLock")}
 
 -- %fun GlobalMemoryStatus :: IO MEMORYSTATUS
@@ -93,7 +93,7 @@ type HeapAllocFlags = DWORD
 % , HEAP_ZERO_MEMORY
 % ]
 
-%fun HeapAlloc :: HANDLE -> HeapAllocFlags -> DWORD -> IO (Ptr ())
+%fun HeapAlloc :: HANDLE -> HeapAllocFlags -> DWORD -> IO Addr
 %fail {res1==NULL}{ErrorWin("HeapAlloc")}
 
 %fun HeapCompact :: HANDLE -> HeapAllocFlags -> IO UINT
@@ -106,7 +106,7 @@ type HeapAllocFlags = DWORD
 %code BOOL res1=HeapDestroy(arg1);
 %fail {res1==0}{ErrorWin("HeapDestroy")}
 
-%fun HeapFree :: HANDLE -> HeapAllocFlags -> Ptr () -> IO ()
+%fun HeapFree :: HANDLE -> HeapAllocFlags -> Addr -> IO ()
 %code BOOL res1=HeapFree(arg1,arg2,arg3);
 %fail {res1==0}{ErrorWin("HeapFree")}
 
@@ -114,19 +114,19 @@ type HeapAllocFlags = DWORD
 %code BOOL res1=HeapLock(arg1);
 %fail {res1==0}{ErrorWin("HeapLock")}
 
-%fun HeapReAlloc :: HANDLE -> HeapAllocFlags -> Ptr () -> DWORD -> IO (Ptr ())
+%fun HeapReAlloc :: HANDLE -> HeapAllocFlags -> Addr -> DWORD -> IO Addr
 %fail {res1==NULL}{ErrorWin("HeapReAlloc")}
 
-%fun HeapSize :: HANDLE -> HeapAllocFlags -> Ptr () -> IO DWORD
+%fun HeapSize :: HANDLE -> HeapAllocFlags -> Addr -> IO DWORD
 %fail {res1==NULL}{ErrorWin("HeapSize")}
 
 %fun HeapUnlock :: HANDLE -> IO ()
 %code BOOL res1=HeapUnlock(arg1);
 %fail {res1==0}{ErrorWin("HeapUnlock")}
 
-%fun HeapValidate :: HANDLE -> HeapAllocFlags -> Ptr () -> IO Bool
+%fun HeapValidate :: HANDLE -> HeapAllocFlags -> Addr -> IO Bool
 
-%fun MoveMemory :: Ptr () -> Ptr () -> DWORD -> IO ()
+%fun MoveMemory :: Addr -> Addr -> DWORD -> IO ()
 
 type VirtualAllocFlags = DWORD
 %dis virtualAllocFlags x = dWORD x
@@ -158,41 +158,41 @@ type FreeFlags = DWORD
 %const FreeFlags
 % [ MEM_DECOMMIT, MEM_RELEASE ]
 
-%fun VirtualAlloc :: Ptr () -> DWORD -> VirtualAllocFlags -> ProtectFlags -> IO (Ptr ())
+%fun VirtualAlloc :: Addr -> DWORD -> VirtualAllocFlags -> ProtectFlags -> IO Addr
 %fail {res1==NULL}{ErrorWin("VirtualAlloc")}
 
 
--- %fun VirtualAllocEx :: HANDLE -> Ptr () -> DWORD -> VirtualAllocFlags -> ProtectFlags ->IO (Ptr ())
+-- %fun VirtualAllocEx :: HANDLE -> Addr -> DWORD -> VirtualAllocFlags -> ProtectFlags ->IO Addr
 -- %code extern LPVOID WINAPI VirtualAllocEx(HANDLE,LPVOID,DWORD,DWORD,DWORD);
 -- %     LPVOID res1=VirtualAllocEx(arg1,arg2,arg3,arg4,arg5);
 -- %fail {res1==NULL}{ErrorWin("VirtualAllocEx")}
 
-%fun VirtualFree :: Ptr () -> DWORD -> FreeFlags -> IO ()
+%fun VirtualFree :: Addr -> DWORD -> FreeFlags -> IO ()
 %code BOOL res1=VirtualFree(arg1,arg2,arg3);
 %fail {res1=0}{ErrorWin("VirtualFree")}
 
--- %fun VirtualFreeEx :: HANDLE -> Ptr () -> DWORD -> FreeFlags -> IO ()
+-- %fun VirtualFreeEx :: HANDLE -> Addr -> DWORD -> FreeFlags -> IO ()
 -- %code extern BOOL WINAPI VirtualFreeEx(HANDLE,LPVOID,DWORD,DWORD);
 -- %     BOOL res1=VirtualFreeEx(arg1,arg2,arg3,arg4);
 -- %fail {res1=0}{ErrorWin("VirtualFreeEx")}
 
-%fun VirtualLock :: Ptr () -> DWORD -> IO ()
+%fun VirtualLock :: Addr -> DWORD -> IO ()
 %code BOOL res1=VirtualLock(arg1,arg2);
 %fail {res1=0}{ErrorWin("VirtualLock")}
 
-%fun VirtualProtect :: Ptr () -> DWORD -> ProtectFlags -> IO ()
+%fun VirtualProtect :: Addr -> DWORD -> ProtectFlags -> IO ()
 %code BOOL res1=VirtualLock(arg1,arg2);
 %fail {res1=0}{ErrorWin("VirtualProtect")}
 
-%fun VirtualProtectEx :: HANDLE -> Ptr () -> DWORD -> ProtectFlags -> Ptr () -> IO ()
+%fun VirtualProtectEx :: HANDLE -> Addr -> DWORD -> ProtectFlags -> Addr -> IO ()
 %code BOOL res1=VirtualProtectEx(arg1,arg2,arg3,arg4,arg5);
 %fail {res1=0}{ErrorWin("VirtualProtectEx")}
 
 -- No VirtualQuery..()
 
-%fun VirtualUnlock :: Ptr () -> DWORD -> IO ()
+%fun VirtualUnlock :: Addr -> DWORD -> IO ()
 %code BOOL res1=VirtualUnlock(arg1,arg2);
 %fail {res1=0}{ErrorWin("VirtualUnlock")}
 
-%fun ZeroMemory :: Ptr () -> DWORD -> IO ()
+%fun ZeroMemory :: Addr -> DWORD -> IO ()
 

@@ -95,7 +95,7 @@ import System.Win32.GDITypes
 ----------------------------------------------------------------
 
 -- Yoiks - name clash
--- %dis bitmap x = addr ({LPTSTR} x)
+-- %dis bitmap x = ptr ({LPTSTR} x)
 -- 
 -- type Bitmap = LPCTSTR
 -- 

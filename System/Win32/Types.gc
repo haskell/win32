@@ -41,7 +41,7 @@ import Foreign.GreenCard
 %dis lONG x        = int32  ({LONG}   x)
 %dis wORD x        = word16 ({WORD}   x)
 %dis dWORD x       = word32 ({DWORD}  x)
-	           
+
 type BOOL          = Bool
 type BYTE          = Word8
 type USHORT        = Word16
@@ -54,6 +54,9 @@ type FLOAT         = Float
 	           
 type MbINT         = Maybe INT
 %dis mbINT x       = maybeT {0} (iNT x)
+
+type Addr          = Ptr ()
+%dis addr x        = ptr ({HsPtr} x)
 
 ----------------------------------------------------------------
 
@@ -97,7 +100,7 @@ type LPBYTE        = Ptr BYTE
 -- (in all situations).
 
 %fun unmarshall_lpctstr_ :: Ptr CChar -> IO String
-%call (ptr arg1)
+%call (ptr ({LPCTSTR} arg1))
 %code char* res1;
 %     size_t l = wcstombs(NULL,arg1,-1);
 %     if ((res1=malloc(sizeof(char)*l)) == NULL ) {
@@ -120,7 +123,7 @@ type LPBYTE        = Ptr BYTE
 %        mbstowcs(res1,arg1,-1);
 %     }
 %fail { res1 == NULL } {ErrorWithCode("marshall_lpctstr_",0)}
-%result (ptr res1)
+%result (ptr ({LPCTSTR} res1))
 
 type MbLPVOID      = Maybe LPVOID
 %dis mbLPVOID x    = maybeT {nullPtr} (lPVOID x)
@@ -144,7 +147,7 @@ type   HKEY      = ForeignPtr Stub_KEY
 data Stub_KEY
 %dis   hKEY x    = %ForeignPtr {HKEY} x {deleteObj}
 		   
-%const Ptr () [ nullHANDLE = {(HANDLE) NULL} ]
+%const Addr [ nullHANDLE = {(HANDLE) NULL} ]
 
 type MbHANDLE      = Maybe HANDLE
 %dis mbHANDLE x    = maybeT {nullHANDLE} (hANDLE x)
@@ -159,10 +162,9 @@ type   HMODULE     = Ptr ()
 type MbHMODULE     = Maybe HMODULE
 %dis mbHMODULE x   = maybeT {nullHANDLE} (hMODULE x)
 
-nullFinalHANDLE :: ForeignPtr a
-nullFinalHANDLE = unsafePerformIO (newForeignPtr nullPtr nullFunPtr)
+-- nullFinalHANDLE :: ForeignPtr a
+-- nullFinalHANDLE = unsafePerformIO (newForeignPtr nullPtr nullFunPtr)
 
 ----------------------------------------------------------------
 -- End
 ----------------------------------------------------------------
-

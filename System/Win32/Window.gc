@@ -44,7 +44,7 @@ type ClassStyle   = UINT
 % , CS_GLOBALCLASS
 % ]
 
-%dis wNDCLASS x = wndClass_ (ptr ({WNDCLASS *} x))
+%dis wNDCLASS x = wndClass_ (addr ({WNDCLASS *} x))
 
 type WNDCLASS =
  (ClassStyle,  -- style
@@ -62,7 +62,7 @@ type WNDCLASS =
 -- %code
 -- %result ((HBRUSH)($0+1));
 
-%fun marshall_wndClass_ :: WNDCLASS -> IO (Ptr ())
+%fun marshall_wndClass_ :: WNDCLASS -> IO (Addr)
 %call	( classStyle 	style
 %     	, hINSTANCE  	hInstance
 %     	, mbHICON    	hIcon
@@ -82,7 +82,7 @@ type WNDCLASS =
 %	  c->lpszClassName = lpszClassName;
 %     }
 %fail {c==0} { MallocError("marshall_WNDCLASS") }
-%result (ptr ({WNDCLASS*} c))
+%result (addr ({WNDCLASS*} c))
 
 %#include "WndProc.h"
 
@@ -168,9 +168,9 @@ type MbPos = Maybe Pos
 
 type WindowClosure = HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
-%dis windowClosure x = windowClosure_ (ptr x)
+%dis windowClosure x = windowClosure_ (addr x)
  
-marshall_windowClosure_ :: WindowClosure -> IO (Ptr ())
+marshall_windowClosure_ :: WindowClosure -> IO (Addr)
 marshall_windowClosure_ cl = fmap funPtrToPtr (mkWindowClosure cl)
 
 foreign import ccall "wrapper" mkWindowClosure :: WindowClosure -> IO (FunPtr WindowClosure)
@@ -267,8 +267,8 @@ type PAINTSTRUCT =
  , RECT  -- rcPaint
  )
 
-%dis lPPAINTSTRUCT x = ptr ({LPPAINTSTRUCT} x)
-type LPPAINTSTRUCT   = Ptr ()
+%dis lPPAINTSTRUCT x = addr ({LPPAINTSTRUCT} x)
+type LPPAINTSTRUCT   = Addr
 
 %fun sizeofPAINTSTRUCT :: DWORD
 %code
@@ -529,8 +529,8 @@ type GetDCExFlags   = DWORD
 --   , POINT  -- pt;
 --   )
 
-%dis lPMSG x = ptr ({MSG *} x)
-type LPMSG   = Ptr ()
+%dis lPMSG x = addr ({MSG *} x)
+type LPMSG   = Addr
 
 -- A NULL window requests messages for any window belonging to this thread.
 -- a "success" value of 0 indicates that WM_QUIT was received
