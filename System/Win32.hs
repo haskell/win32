@@ -1,3 +1,17 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32
+-- Copyright   :  (c) Alastair Reid, 1999-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- An ffi binding to the Win32 API.
+--
+-----------------------------------------------------------------------------
+
 module System.Win32
 	( module System.Win32.StdDIS
 	, module System.Win32.GDITypes
