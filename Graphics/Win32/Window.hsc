@@ -223,7 +223,7 @@ foreign import stdcall unsafe "windows.h CreateWindowExW"
 defWindowProc :: Maybe HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 defWindowProc mb_wnd msg w l =
   c_DefWindowProc (maybePtr mb_wnd) msg w l
-foreign import stdcall unsafe "windows.h DefWindowProcW"
+foreign import stdcall "windows.h DefWindowProcW"
   c_DefWindowProc :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
 ----------------------------------------------------------------
@@ -329,7 +329,7 @@ type ShowWindowControl   = DWORD
  , sW_RESTORE           = SW_RESTORE
  }
 
-foreign import stdcall unsafe "windows.h ShowWindow"
+foreign import stdcall "windows.h ShowWindow"
   showWindow :: HWND  -> ShowWindowControl  -> IO Bool
 
 ----------------------------------------------------------------
@@ -641,7 +641,7 @@ getMessage msg mb_wnd = do
   res <- failIf (== -1) "GetMessage" $
     c_GetMessage msg (maybePtr mb_wnd) 0 0
   return (res /= 0)
-foreign import stdcall unsafe "windows.h GetMessageW"
+foreign import stdcall "windows.h GetMessageW"
   c_GetMessage :: LPMSG -> HWND -> UINT -> UINT -> IO LONG
 
 -- A NULL window requests messages for any window belonging to this thread.
@@ -664,15 +664,15 @@ foreign import stdcall unsafe "windows.h TranslateMessage"
 updateWindow :: HWND -> IO ()
 updateWindow wnd =
   failIfFalse_ "UpdateWindow" $ c_UpdateWindow wnd
-foreign import stdcall unsafe "windows.h UpdateWindow"
+foreign import stdcall "windows.h UpdateWindow"
   c_UpdateWindow :: HWND -> IO Bool
 
 -- Return value of DispatchMessage is usually ignored
 
-foreign import stdcall unsafe "windows.h DispatchMessageW"
+foreign import stdcall "windows.h DispatchMessageW"
   dispatchMessage :: LPMSG -> IO LONG
 
-foreign import stdcall unsafe "windows.h SendMessageW"
+foreign import stdcall "windows.h SendMessageW"
   sendMessage :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
 ----------------------------------------------------------------
