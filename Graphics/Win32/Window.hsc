@@ -76,8 +76,8 @@ withWNDCLASS (style, inst, mb_icon, mb_cursor, mb_bg, mb_menu, cls) f =
   allocaBytes #{size WNDCLASS} $ \ p -> do
   #{poke WNDCLASS,style} p style
   #{poke WNDCLASS,lpfnWndProc} p genericWndProc_p
-  #{poke WNDCLASS,cbClsExtra} p (0::Int)
-  #{poke WNDCLASS,cbWndExtra} p (0::Int)
+  #{poke WNDCLASS,cbClsExtra} p (0::INT)
+  #{poke WNDCLASS,cbWndExtra} p (0::INT)
   #{poke WNDCLASS,hInstance} p inst
   #{poke WNDCLASS,hIcon} p (maybePtr mb_icon)
   #{poke WNDCLASS,hCursor} p (maybePtr mb_cursor)
@@ -184,7 +184,7 @@ setWindowClosure wnd closure = do
   c_SetWindowLong wnd (#{const GWL_USERDATA}) (castFunPtrToLONG fp)
   return ()
 foreign import stdcall unsafe "windows.h SetWindowLongW"
-  c_SetWindowLong :: HWND -> Int -> LONG -> IO LONG
+  c_SetWindowLong :: HWND -> INT -> LONG -> IO LONG
 
 createWindow
   :: ClassName -> String -> WindowStyle ->
@@ -659,7 +659,7 @@ getMessage mb_wnd = do
     c_GetMessage getMessage_msg (maybePtr mb_wnd) 0 0
   return getMessage_msg
 foreign import stdcall unsafe "windows.h GetMessageW"
-  c_GetMessage :: LPMSG -> HWND -> UINT -> UINT -> IO Int
+  c_GetMessage :: LPMSG -> HWND -> UINT -> UINT -> IO LONG
 
 getMessage2 :: Maybe HWND -> IO (LPMSG, Bool)
 getMessage2 mb_wnd = do
@@ -677,7 +677,7 @@ peekMessage mb_wnd filterMin filterMax remove = do
     c_PeekMessage peekMessage_msg (maybePtr mb_wnd) filterMin filterMax remove
   return peekMessage_msg
 foreign import stdcall unsafe "windows.h PeekMessageW"
-  c_PeekMessage :: LPMSG -> HWND -> UINT -> UINT -> UINT -> IO Int
+  c_PeekMessage :: LPMSG -> HWND -> UINT -> UINT -> UINT -> IO LONG
 
 -- Note: you're not supposed to call this if you're using accelerators
 

@@ -28,16 +28,16 @@ import Foreign
 --  Graphics.Win32.{Icon,Cursor,Accelerator,Menu,...})
 ----------------------------------------------------------------
 
-type Accelerator = LPCSTR
+type Accelerator = LPCTSTR
 -- intToAccelerator :: Int -> Accelerator
 -- intToAccelerator i = makeIntResource (toWord i)
 
 -- cursor and icon should not be const pointer; GSL ???
-type Cursor = LPSTR
+type Cursor = LPTSTR
 -- intToCursor :: Int -> Cursor
 -- intToCursor i = makeIntResource (toWord i)
 
-type Icon = LPSTR
+type Icon = LPTSTR
 -- intToIcon :: Int -> Icon
 -- intToIcon i = makeIntResource (toWord i)
 

@@ -224,7 +224,7 @@ type MbHMENU      = Maybe HMENU
 -- COLORREF
 ----------------------------------------------------------------
 
-type COLORREF   = DWORD
+type COLORREF   = #{type COLORREF}
 
 foreign import ccall unsafe "HsWin32.h"
   rgb :: BYTE -> BYTE -> BYTE -> COLORREF
@@ -242,7 +242,7 @@ foreign import ccall unsafe "HsWin32.h"
 -- Miscellaneous enumerations
 ----------------------------------------------------------------
 
-type PolyFillMode   = WORD
+type PolyFillMode   = INT
 #{enum PolyFillMode,
  , aLTERNATE        = ALTERNATE
  , wINDING          = WINDING
@@ -250,7 +250,7 @@ type PolyFillMode   = WORD
 
 ----------------------------------------------------------------
 
-type ArcDirection = WORD
+type ArcDirection   = INT
 type MbArcDirection = Maybe ArcDirection
 #{enum ArcDirection,
  , aD_COUNTERCLOCKWISE = AD_COUNTERCLOCKWISE
@@ -268,7 +268,7 @@ type MbGraphicsMode = Maybe GraphicsMode
 
 ----------------------------------------------------------------
 
-type BackgroundMode   = UINT
+type BackgroundMode = INT
 #{enum BackgroundMode,
  , tRANSPARENT  = TRANSPARENT
  , oPAQUE       = OPAQUE
@@ -276,7 +276,7 @@ type BackgroundMode   = UINT
 
 ----------------------------------------------------------------
 
-type HatchStyle   = WORD
+type HatchStyle   = INT
 #{enum HatchStyle,
  , hS_HORIZONTAL  = HS_HORIZONTAL
  , hS_VERTICAL    = HS_VERTICAL
@@ -288,7 +288,7 @@ type HatchStyle   = WORD
 
 ----------------------------------------------------------------
 
-type StretchBltMode    = UINT
+type StretchBltMode    = INT
 #{enum StretchBltMode,
  , bLACKONWHITE        = BLACKONWHITE
  , wHITEONBLACK        = WHITEONBLACK
@@ -315,7 +315,7 @@ type TextAlignment = UINT
 
 ----------------------------------------------------------------
 
-type ClippingMode  = UINT
+type ClippingMode  = INT
 #{enum ClippingMode,
  , rGN_AND         = RGN_AND
  , rGN_OR          = RGN_OR
@@ -326,7 +326,7 @@ type ClippingMode  = UINT
 
 ----------------------------------------------------------------
 
-type RegionType    = WORD
+type RegionType    = INT
 #{enum RegionType,
  , eRROR           = ERROR
  , nULLREGION      = NULLREGION

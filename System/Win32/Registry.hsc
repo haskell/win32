@@ -107,14 +107,14 @@ regCreateKey key subkey =
 foreign import stdcall unsafe "windows.h RegCreateKeyW"
   c_RegCreateKey :: PKEY -> LPCTSTR -> Ptr PKEY -> IO ErrCode
 
-type RegCreateOptions = Int32
+type RegCreateOptions = DWORD
 
 #{enum RegCreateOptions,
  , rEG_OPTION_NON_VOLATILE      = REG_OPTION_NON_VOLATILE
  , rEG_OPTION_VOLATILE          = REG_OPTION_VOLATILE
  }
 
-type REGSAM = Int32
+type REGSAM = #{type REGSAM}
 
 #{enum REGSAM,
  , kEY_ALL_ACCESS       = KEY_ALL_ACCESS
@@ -258,7 +258,7 @@ foreign import stdcall unsafe "windows.h RegLoadKeyW"
 
 -- ifdef FOR_WINDOWS_NT
 
-type RegNotifyOptions = Int32
+type RegNotifyOptions = DWORD
 
 #{enum RegNotifyOptions,
  , rEG_NOTIFY_CHANGE_NAME       = REG_NOTIFY_CHANGE_NAME
@@ -423,7 +423,7 @@ regReplaceKey key subkey newfile oldfile =
 foreign import stdcall unsafe "windows.h RegReplaceKeyW"
   c_RegReplaceKey :: PKEY -> LPCTSTR -> LPCTSTR -> LPCTSTR -> IO ErrCode
 
-type RegRestoreFlags = Int32
+type RegRestoreFlags = DWORD
 
 #{enum RegRestoreFlags,
  , rEG_WHOLE_HIVE_VOLATILE = REG_WHOLE_HIVE_VOLATILE

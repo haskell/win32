@@ -25,7 +25,7 @@ import Foreign
 -- Stock Objects
 ----------------------------------------------------------------
 
-type StockPen   = WORD
+type StockPen   = INT
 
 #{enum StockPen,
  , wHITE_PEN    = WHITE_PEN
@@ -49,7 +49,7 @@ foreign import stdcall unsafe "windows.h DeleteObject"
 -- Creating pens
 ----------------------------------------------------------------
 
-type PenStyle   = Int32
+type PenStyle   = INT
 
 #{enum PenStyle,                              // Pick one of these
  , pS_SOLID             = PS_SOLID            // default

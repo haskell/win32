@@ -178,7 +178,7 @@ peekWStringLen (c_str, len) = do
   wcs <- peekArray len c_str
   return (fromUTF16 wcs)
 
-newWString :: String -> IO LPCTSTR
+newWString :: String -> IO (Ptr WCHAR)
 newWString str =
   newArray0 0 (toUTF16 str)
 

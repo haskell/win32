@@ -49,7 +49,7 @@ foreign import stdcall unsafe "windows.h DeleteObject"
 
 ----------------------------------------------------------------
 
-type StockBrush   = WORD
+type StockBrush   = INT
 
 #{enum StockBrush,
  , wHITE_BRUSH  = WHITE_BRUSH
