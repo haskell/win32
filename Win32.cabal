@@ -5,7 +5,7 @@ author:		Alastair Reid
 copyright:	Alastair Reid, 1999-2003
 maintainer:	<libraries@haskell.org>
 category:	System, Graphics
-description:	A Haskell binding to part of the Win32 library.
+synopsis:	A binding to part of the Win32 library
 build-depends:	base
 exposed-modules:
 	Graphics.Win32.GDI,
