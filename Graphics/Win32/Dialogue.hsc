@@ -21,6 +21,7 @@ import Graphics.Win32.Window
 import System.Win32.Types
 
 import Foreign
+import Foreign.C
 
 #include <windows.h>
 
@@ -198,7 +199,7 @@ foreign import ccall unsafe "diatemp.h addDiaControl"
 
 marshall_res :: Either ResourceID String -> IO LPCWSTR
 marshall_res (Left r)  = mkResource r
-marshall_res (Right s) = newWString s
+marshall_res (Right s) = newCWString s
 
 -- modeless dialogs
 
