@@ -51,7 +51,7 @@ createButton
 createButton nm wstyle bstyle mb_x mb_y mb_w mb_h mb_parent mb_menu h =
   withTString nm $ \ c_nm ->
   failIfNull "CreateButton" $
-    c_CreateWindow buttonStyle c_nm (wstyle .|. bstyle)
+    c_CreateWindowEx 0 buttonStyle c_nm (wstyle .|. bstyle)
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
       (maybePtr mb_parent) (maybePtr mb_menu) h nullPtr
 
@@ -112,7 +112,7 @@ createComboBox
 createComboBox nm wstyle cstyle mb_x mb_y mb_w mb_h parent mb_menu h =
   withTString nm $ \ c_nm ->
   failIfNull "CreateComboBox" $
-    c_CreateWindow comboBoxStyle c_nm (wstyle .|. cstyle)
+    c_CreateWindowEx 0 comboBoxStyle c_nm (wstyle .|. cstyle)
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
       parent (maybePtr mb_menu) h nullPtr
 
@@ -153,7 +153,7 @@ createEditWindow
 createEditWindow nm wstyle estyle mb_x mb_y mb_w mb_h parent mb_menu h =
   withTString nm $ \ c_nm ->
   failIfNull "CreateEditWindow" $
-    c_CreateWindow editStyle c_nm (wstyle .|. estyle)
+    c_CreateWindowEx 0 editStyle c_nm (wstyle .|. estyle)
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
       parent (maybePtr mb_menu) h nullPtr
 
@@ -194,7 +194,7 @@ createListBox
 createListBox nm wstyle lstyle mb_x mb_y mb_w mb_h parent mb_menu h =
   withTString nm $ \ c_nm ->
   failIfNull "CreateListBox" $
-    c_CreateWindow listBoxStyle c_nm (wstyle .|. lstyle)
+    c_CreateWindowEx 0 listBoxStyle c_nm (wstyle .|. lstyle)
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
       parent (maybePtr mb_menu) h nullPtr
 
@@ -231,7 +231,7 @@ createScrollbar
 createScrollbar nm wstyle sstyle mb_x mb_y mb_w mb_h parent mb_menu h =
   withTString nm $ \ c_nm ->
   failIfNull "CreateScrollbar" $
-    c_CreateWindow scrollBarStyle c_nm (wstyle .|. sstyle)
+    c_CreateWindowEx 0 scrollBarStyle c_nm (wstyle .|. sstyle)
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
       parent (maybePtr mb_menu) h nullPtr
 
@@ -272,7 +272,7 @@ createStaticWindow
 createStaticWindow nm wstyle sstyle mb_x mb_y mb_w mb_h parent mb_menu h =
   withTString nm $ \ c_nm ->
   failIfNull "CreateStaticWindow" $
-    c_CreateWindow staticStyle c_nm (wstyle .|. sstyle)
+    c_CreateWindowEx 0 staticStyle c_nm (wstyle .|. sstyle)
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
       parent (maybePtr mb_menu) h nullPtr
 

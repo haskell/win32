@@ -191,23 +191,8 @@ createWindow
      Maybe Pos -> Maybe Pos -> Maybe Pos -> Maybe Pos ->
      Maybe HWND -> Maybe HMENU -> HINSTANCE -> WindowClosure ->
      IO HWND
-createWindow cname wname style mb_x mb_y mb_w mb_h mb_parent mb_menu inst closure = do
-  -- Freeing the title/window name has been reported
-  -- to cause a crash, so let's not do it.
-  -- withTString wname $ \ c_wname -> do
-  c_wname <- newTString wname
-  wnd <- failIfNull "CreateWindow" $
-    c_CreateWindow cname c_wname style
-      (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
-      (maybePtr mb_parent) (maybePtr mb_menu) inst nullPtr
-  setWindowClosure wnd closure
-  return wnd
-foreign import stdcall unsafe "windows.h CreateWindowW"
-  c_CreateWindow
-    :: ClassName -> LPCTSTR -> WindowStyle ->
-       Pos -> Pos -> Pos -> Pos ->
-       HWND -> HMENU -> HINSTANCE -> LPVOID ->
-       IO HWND
+createWindow = createWindowEx 0
+-- apparently CreateWindowA/W are just macros for CreateWindowExA/W
 
 createWindowEx
   :: WindowStyle -> ClassName -> String -> WindowStyle
@@ -215,7 +200,8 @@ createWindowEx
   -> Maybe HWND -> Maybe HMENU -> HINSTANCE -> WindowClosure
   -> IO HWND
 createWindowEx estyle cname wname wstyle mb_x mb_y mb_w mb_h mb_parent mb_menu inst closure = do
-  -- see CreateWindow comment.
+  -- Freeing the title/window name has been reported
+  -- to cause a crash, so let's not do it.
   -- withTString wname $ \ c_wname -> do
   c_wname <- newTString wname
   wnd <- failIfNull "CreateWindowEx" $
