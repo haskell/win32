@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.11 2004/05/05 14:59:02 ross Exp $
+# $Id: Makefile,v 1.12 2004/05/06 19:10:05 ross Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -22,9 +22,9 @@ PACKAGE = Win32
 PACKAGE_DEPS = base
 
 SRC_HSC2HS_OPTS += -Iinclude
-SRC_CC_OPTS += -Iinclude
 SRC_HC_OPTS += -Wall 
 SRC_HC_OPTS += -optc-Iinclude -Iinclude
+SRC_HC_OPTS += -optc-DUNICODE
 SRC_HC_OPTS += -fffi -O
 
 SRC_HADDOCK_OPTS += -t "Win32 Libraries ($(PACKAGE) package)"
