@@ -58,15 +58,15 @@ spawn cmd =
        rc  <- spawnProc p_cmd p_wIn p_rOut p_rErr
        when (rc /= 0) (ioError (userError ("runProc: unable to spawn " ++ show cmd)))
        wIn <- peek p_wIn
-       hIn <- openFd (fromIntegral wIn) (Just RegularFile) 
+       hIn <- openFd (fromIntegral wIn) (Just RegularFile) False
 		     ("<fd " ++ show wIn ++ ">") WriteMode False False
        hSetBuffering hIn NoBuffering
        rOut <- peek p_rOut
-       hOut <- openFd (fromIntegral rOut) (Just RegularFile) 
+       hOut <- openFd (fromIntegral rOut) (Just RegularFile) False
 		      ("<fd " ++ show rOut ++ ">") ReadMode True False
        hSetBuffering hOut NoBuffering
        rErr <- peek p_rErr
-       hErr <- openFd (fromIntegral rErr) (Just RegularFile) 
+       hErr <- openFd (fromIntegral rErr) (Just RegularFile) False
 		      ("<fd " ++ show rErr ++ ">") ReadMode True False
        hSetBuffering hErr NoBuffering
        return (hIn, hOut, hErr)
