@@ -13,7 +13,7 @@ Package {
 	library_dirs	= [ "$libdir/libraries/Win32"
                           , "$libdir/libraries/Win32/cbits" ],
 #endif
-	hs_libraries	= [ "HSWin32", "HSWin32_2" ],
+	hs_libraries	= [ "HSWin32_1", "HSWin32_2" ],
 	extra_libraries	= [ "HSWin32_cbits"
                           , "user32"
                           , "gdi32"
