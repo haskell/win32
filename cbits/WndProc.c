@@ -71,7 +71,7 @@ LRESULT CALLBACK genericWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
     LRESULT lr;
 
     if (hwnd) {
-	int wndprocptr = (int) GetWindowLong(hwnd,GWL_USERDATA);
+	LONG wndprocptr = GetWindowLong(hwnd,GWL_USERDATA);
 	if (wndprocptr) {
 	    lr = ((LRESULT (*)(HWND,UINT,WPARAM,LPARAM))(wndprocptr))(hwnd,msg,wParam,lParam);
 #if 0
