@@ -42,7 +42,7 @@ module System.Win32
 	, module System.Win32.Window
 	) where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.GDITypes
 import System.Win32.Bitmap
 import System.Win32.Brush
