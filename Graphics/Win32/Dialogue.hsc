@@ -56,12 +56,8 @@ foreign import ccall "wrapper"
   mkDialogClosure :: DialogProc -> IO (FunPtr DialogProc)
 
 dialogBox :: HINSTANCE -> DTemplate -> Maybe HWND -> DialogProc -> IO Int
-dialogBox inst template mb_parent dia_fn = do
-  c_dia_fn <- mkDialogClosure dia_fn
-  failIf (== -1) "DialogBox" $
-    c_DialogBox inst template (maybePtr mb_parent) c_dia_fn
-foreign import stdcall unsafe "windows.h DialogBoxW"
-  c_DialogBox :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> IO Int
+dialogBox inst template mb_parent dia_fn =
+  dialogBoxParam inst template mb_parent dia_fn 0
 
 dialogBoxParam :: HINSTANCE -> DTemplate -> Maybe HWND -> DialogProc -> LPARAM -> IO Int
 dialogBoxParam inst template mb_parent dia_fn init_val = do
@@ -72,12 +68,8 @@ foreign import stdcall unsafe "windows.h DialogBoxParamW"
   c_DialogBoxParam :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> LPARAM -> IO Int
 
 dialogBoxIndirect :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> IO Int
-dialogBoxIndirect inst template mb_parent dia_fn = do
-  c_dia_fn <- mkDialogClosure dia_fn
-  failIf (== -1) "DialogBoxIndirect" $
-    c_DialogBoxIndirect inst template (maybePtr mb_parent) c_dia_fn
-foreign import stdcall unsafe "windows.h DialogBoxIndirectW"
-  c_DialogBoxIndirect :: HINSTANCE -> DTemplateMem -> HWND -> FunPtr DialogProc -> IO Int
+dialogBoxIndirect inst template mb_parent dia_fn =
+  dialogBoxIndirectParam inst template mb_parent dia_fn 0
 
 dialogBoxIndirectParam :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> LPARAM -> IO Int
 dialogBoxIndirectParam inst template mb_parent dia_fn init_val = do
@@ -204,12 +196,8 @@ marshall_res (Right s) = newCWString s
 -- modeless dialogs
 
 createDialog :: HINSTANCE -> DTemplate -> Maybe HWND -> DialogProc -> IO HWND
-createDialog inst template mb_parent dia_fn = do
-  c_dia_fn <- mkDialogClosure dia_fn
-  failIfNull "CreateDialog" $
-    c_CreateDialog inst template (maybePtr mb_parent) c_dia_fn
-foreign import stdcall unsafe "windows.h CreateDialogW"
-  c_CreateDialog :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> IO HWND
+createDialog inst template mb_parent dia_fn =
+  createDialogParam inst template mb_parent dia_fn 0
 
 createDialogParam :: HINSTANCE -> DTemplate -> Maybe HWND -> DialogProc -> LPARAM -> IO HWND
 createDialogParam inst template mb_parent dia_fn init_val = do
@@ -220,12 +208,8 @@ foreign import stdcall unsafe "windows.h CreateDialogParamW"
   c_CreateDialogParam :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> LPARAM -> IO HWND
 
 createDialogIndirect :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> IO HWND
-createDialogIndirect inst template mb_parent dia_fn = do
-  c_dia_fn <- mkDialogClosure dia_fn
-  failIfNull "CreateDialogIndirect" $
-    c_CreateDialogIndirect inst template (maybePtr mb_parent) c_dia_fn
-foreign import stdcall unsafe "windows.h CreateDialogIndirectW"
-  c_CreateDialogIndirect :: HINSTANCE -> DTemplateMem -> HWND -> FunPtr DialogProc -> IO HWND
+createDialogIndirect inst template mb_parent dia_fn =
+  createDialogIndirectParam inst template mb_parent dia_fn 0
 
 createDialogIndirectParam :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> LPARAM -> IO HWND
 createDialogIndirectParam inst template mb_parent dia_fn init_val = do
