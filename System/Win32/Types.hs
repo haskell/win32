@@ -17,7 +17,6 @@ module System.Win32.Types
 	, nullPtr
 	) where
 
-import Data.Char (chr, ord)
 import Foreign
 import Foreign.C
 import Numeric (showHex)
