@@ -1,6 +1,6 @@
 module Win32Resource where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.Types
 
 %#include <windows.h>
@@ -14,11 +14,11 @@ import System.Win32.Types
 type ResourceImageType = UINT
 %dis resourceImageType x = uINT x
 
-type   HRSRC      = Addr
-%dis   hRSRC x    = addr ({HRSRC} x)
+type   HRSRC      = Ptr ()
+%dis   hRSRC x    = ptr ({HRSRC} x)
 
-type   HGLOBAL    = Addr
-%dis   hGLOBAL x  = addr ({HGLOBAL} x)
+type   HGLOBAL    = Ptr ()
+%dis   hGLOBAL x  = ptr ({HGLOBAL} x)
 
 %const ResourceImageType [IMAGE_BITMAP, IMAGE_ICON, IMAGE_CURSOR]
 
@@ -29,9 +29,9 @@ type   HGLOBAL    = Addr
 %code BOOL res1 = EndUpdateResource(arg1,arg2);
 %fail {res1 == FALSE} {ErrorWin("EndUpdateResource")}
 
-type ResourceType = Addr
+type ResourceType = Ptr ()
 
-%dis resourceType x = addr x
+%dis resourceType x = ptr x
 --lPCTSTR_ x
 
 %const ResourceType
@@ -87,13 +87,13 @@ type LoadImageFlags = UINT
 %fun LoadResource :: HMODULE -> HRSRC -> IO HGLOBAL
 %fail {res1 == NULL} {ErrorWin("LoadResource")}
 
-%fun LockResource :: HGLOBAL -> IO Addr
+%fun LockResource :: HGLOBAL -> IO (Ptr ())
 %fail {res1 == NULL} {ErrorWin("LockResource")}
 
 %fun SizeofResource :: HMODULE -> HRSRC -> IO DWORD
 %fail {res1 == 0} {ErrorWin("SizeofResource")}
 
-%fun UpdateResource :: HANDLE -> LPCTSTR_ -> ResourceType -> WORD -> Addr -> DWORD -> IO ()
+%fun UpdateResource :: HANDLE -> LPCTSTR_ -> ResourceType -> WORD -> Ptr () -> DWORD -> IO ()
 %code BOOL res1 = UpdateResource(arg1,arg2,arg3,arg4,arg5,arg6);
 %fail { res1 == FALSE } {ErrorWin("UpdateResource")}
 

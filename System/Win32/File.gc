@@ -22,7 +22,7 @@ module System.Win32.File
 where
 
 import System.Win32.Types
-import System.Win32.StdDIS
+import Foreign.GreenCard
 
 %#include <windows.h>
 %#include "errors.h"
@@ -204,8 +204,8 @@ type FileType = DWORD
 
 ----------------------------------------------------------------
 
-type LPSECURITY_ATTRIBUTES = Addr
-%dis mbLPSECURITY_ATTRIBUTES x = maybeT {nullAddr} (addr x)
+type LPSECURITY_ATTRIBUTES = Ptr
+%dis mbLPSECURITY_ATTRIBUTES x = maybeT {nullPtr} (ptr x)
 type MbLPSECURITY_ATTRIBUTES = Maybe LPSECURITY_ATTRIBUTES
 
 ----------------------------------------------------------------
@@ -300,20 +300,20 @@ type MbLPSECURITY_ATTRIBUTES = Maybe LPSECURITY_ATTRIBUTES
 --  DWORD,  -- OffsetHigh
 --  HANDLE) -- hEvent
 
-%dis lPOVERLAPPED x = addr ({LPOVERLAPPED} x)
-type LPOVERLAPPED = Addr
+%dis lPOVERLAPPED x = ptr ({LPOVERLAPPED} x)
+type LPOVERLAPPED = Ptr ()
 
-%dis mbLPOVERLAPPED x = maybeT {nullAddr} (lPOVERLAPPED x)
+%dis mbLPOVERLAPPED x = maybeT {nullPtr} (lPOVERLAPPED x)
 type MbLPOVERLAPPED = Maybe LPOVERLAPPED
 
 --Sigh - I give up & prefix win32_ to the next two to avoid
 -- senseless Prelude name clashes. --sof.
 
-%fun win32_ReadFile :: HANDLE -> Addr -> DWORD -> MbLPOVERLAPPED -> IO DWORD
+%fun win32_ReadFile :: HANDLE -> Ptr () -> DWORD -> MbLPOVERLAPPED -> IO DWORD
 %code BOOL success = ReadFile(arg1,arg2,arg3,&res1,arg4);
 %fail { !success } { ErrorString("ReadFile") }
 
-%fun win32_WriteFile :: HANDLE -> Addr -> DWORD -> MbLPOVERLAPPED -> IO DWORD
+%fun win32_WriteFile :: HANDLE -> Ptr -> DWORD -> MbLPOVERLAPPED -> IO DWORD
 %code  BOOL success = WriteFile(arg1,arg2,arg3,&res1,arg4);
 %fail { !success } { ErrorString("WriteFile") }
 

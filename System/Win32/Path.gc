@@ -17,7 +17,7 @@ module System.Win32.Path
 	, pathToRegion, strokeAndFillPath, strokePath, widenPath
 	) where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.GDITypes
 import System.Win32.Types
 

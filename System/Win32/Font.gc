@@ -30,7 +30,7 @@ module System.Win32.Font
 -}
 	where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.Types
 import System.Win32.GDITypes
 
@@ -50,7 +50,7 @@ type FontQuality    = UINT
 type FontWeight     = Word32
 type FaceName       = String
 
-%dis hFONT          x = addr ({HFONT} x)
+%dis hFONT          x = ptr ({HFONT} x)
 %dis charSet        x = uINT x
 %dis pitchAndFamily x = uINT x
 %dis outPrecision   x = uINT x

@@ -14,10 +14,10 @@
 
 module System.Win32.Types
 	( module System.Win32.Types
-	, nullAddr
+	, nullPtr
 	) where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 
 %#include <stdlib.h>
 %#include <windows.h>
@@ -74,7 +74,7 @@ type MbATOM        = Maybe ATOM
 -- Pointers
 ----------------------------------------------------------------
 
-type LPVOID        = Addr
+type LPVOID        = Ptr ()
 type LPCTSTR       = Ptr CChar
 type LPCTSTR_      = String
 type LPCSTR        = Ptr CChar
@@ -82,7 +82,7 @@ type LPSTR         = Ptr CChar
 type LPTSTR        = Ptr CChar
 type LPBYTE        = Ptr BYTE
 
-%dis lPVOID x      = addr ({LPVOID} x)
+%dis lPVOID x      = ptr ({LPVOID} x)
 %dis lPCSTR x      = ptr ({LPCSTR} x)
 %dis lPSTR  x      = ptr ({LPSTR} x)
 %dis lPCTSTR x     = ptr ({LPCTSTR} x)
@@ -123,7 +123,7 @@ type LPBYTE        = Ptr BYTE
 %result (ptr res1)
 
 type MbLPVOID      = Maybe LPVOID
-%dis mbLPVOID x    = maybeT {nullAddr} (lPVOID x)
+%dis mbLPVOID x    = maybeT {nullPtr} (lPVOID x)
 		   
 %dis mbLPCSTR x    = maybeT {nullPtr} (lPCSTR x)
 type MbLPCSTR      = Maybe LPCSTR
@@ -134,8 +134,8 @@ type MbLPCTSTR     = Maybe LPCTSTR
 -- Handles
 ----------------------------------------------------------------
 
-type   HANDLE      = Addr
-%dis   hANDLE x    = addr ({HANDLE} x)
+type   HANDLE      = Ptr ()
+%dis   hANDLE x    = ptr ({HANDLE} x)
 
 %fun handleToWord :: HANDLE -> UINT
 %code res1=(UINT)arg1
@@ -144,18 +144,18 @@ type   HKEY      = ForeignPtr Stub_KEY
 data Stub_KEY
 %dis   hKEY x    = %ForeignPtr {HKEY} x {deleteObj}
 		   
-%const Addr [ nullHANDLE = {(HANDLE) NULL} ]
+%const Ptr () [ nullHANDLE = {(HANDLE) NULL} ]
 
 type MbHANDLE      = Maybe HANDLE
 %dis mbHANDLE x    = maybeT {nullHANDLE} (hANDLE x)
 
-type   HINSTANCE   = Addr
-%dis   hINSTANCE x = addr ({HINSTANCE} x)
+type   HINSTANCE   = Ptr ()
+%dis   hINSTANCE x = ptr ({HINSTANCE} x)
 type MbHINSTANCE   = Maybe HINSTANCE
 %dis mbHINSTANCE x = maybeT {nullHANDLE} (hINSTANCE x)
 
-type   HMODULE     = Addr
-%dis   hMODULE x   = addr ({HMODULE} x)
+type   HMODULE     = Ptr ()
+%dis   hMODULE x   = ptr ({HMODULE} x)
 type MbHMODULE     = Maybe HMODULE
 %dis mbHMODULE x   = maybeT {nullHANDLE} (hMODULE x)
 

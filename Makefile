@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.2 2003/05/17 00:53:51 ross Exp $
+# $Id: Makefile,v 1.3 2003/05/28 19:35:36 reid Exp $
 
-TOP = ..
+TOP = .
 include $(TOP)/mk/boilerplate.mk
 
 # -----------------------------------------------------------------------------
@@ -17,10 +17,7 @@ PACKAGE = Win32
 PACKAGE_DEPS = base
 
 SRC_CC_OPTS += -Wall -I../include -I.
-SRC_CC_OPTS += -I$(GHC_INCLUDE_DIR) -I$(GHC_RUNTIME_DIR)
-
-SRC_HC_OPTS += -Wall -fffi -cpp -fglasgow-exts -package lang
-GC_OPTS += --target=ffi 
+SRC_HC_OPTS += -Wall -fffi -cpp -fglasgow-exts
 
 SRC_HADDOCK_OPTS += -t "Win32 Libraries (Win32 package)"
 

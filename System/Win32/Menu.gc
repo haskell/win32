@@ -60,7 +60,7 @@ module System.Win32.Menu
        
        ) -} where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
   
 import System.Win32.Types
 import System.Win32.GDITypes
@@ -243,10 +243,10 @@ data MenuItemInfo
       menuItemTypeData :: String
    }
 
-%dis menuItemInfo x = << marshall_menuItemInfo / unmarshall_menuItemInfo >> (addr x)
+%dis menuItemInfo x = << marshall_menuItemInfo / unmarshall_menuItemInfo >> (ptr x)
 
 
-marshall_menuItemInfo :: MenuItemInfo -> IO Addr
+marshall_menuItemInfo :: MenuItemInfo -> IO (Ptr ())
 marshall_menuItemInfo (MenuItemInfo miType 
 				    miState
 				    miItemID
@@ -262,24 +262,24 @@ marshall_menuItemInfo (MenuItemInfo miType
                      miChecked miUnchecked miData pstr (length miTypeData)
   return ptr
 
-unmarshall_menuItemInfo :: Addr -> IO MenuItemInfo
+unmarshall_menuItemInfo :: Ptr () -> IO MenuItemInfo
 unmarshall_menuItemInfo ptr = do
    mi <- unravelItemInfo ptr
    free ptr
    return mi
 
-%fun unravelItemInfo :: Addr -> IO MenuItemInfo
+%fun unravelItemInfo :: Ptr () -> IO MenuItemInfo
 %code MENUITEMINFO* res1=arg1;
 %result (MenuItemInfo (uINT {res1->fType}) (uINT {res1->fState}) (uINT {res1->wID}) (hMENU {res1->hSubMenu}) (hBITMAP {res1->hbmpChecked}) (hBITMAP {res1->hbmpUnchecked}) (dWORD {res1->dwItemData}) (stringLen {res1->dwTypeData} {res1->cch}))
 
-%fun mallocMenuItemInfo :: IO Addr
+%fun mallocMenuItemInfo :: IO (Ptr ())
 %code mp = (MENUITEMINFO*) malloc(sizeof(MENUITEMINFO));
 %     if (mp!=NULL) mp->cbSize = sizeof(MENUITEMINFO);
 %fail {mp==NULL} { MallocError("mallocMenuItemInfo") }
-%result (addr ({MENUITEMINFO*} mp))
+%result (ptr ({MENUITEMINFO*} mp))
 
-%fun assignMenuItemInfo :: Addr -> UINT -> UINT -> UINT -> HMENU -> HBITMAP -> HBITMAP -> DWORD -> CString -> Int -> IO ()
-%call (addr arg1) (uINT arg2) (uINT arg3) (uINT arg4) (hMENU arg5) (hBITMAP arg6) (hBITMAP arg7) (dWORD arg8) (cString arg9) (int arg10)
+%fun assignMenuItemInfo :: Ptr () -> UINT -> UINT -> UINT -> HMENU -> HBITMAP -> HBITMAP -> DWORD -> CString -> Int -> IO ()
+%call (ptr arg1) (uINT arg2) (uINT arg3) (uINT arg4) (hMENU arg5) (hBITMAP arg6) (hBITMAP arg7) (dWORD arg8) (cString arg9) (int arg10)
 %code MENUITEMINFO* ptr;
 %     ptr=(MENUITEMINFO*)arg1;
 %     ptr->fType         = arg2;

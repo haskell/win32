@@ -16,7 +16,7 @@ module System.Win32.Key where
 
 import System.Win32.Types
 import System.Win32.GDITypes
-import System.Win32.StdDIS
+import Foreign.GreenCard
 
 %#include <windows.h>
 %#include "win32debug.h"

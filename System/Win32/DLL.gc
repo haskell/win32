@@ -14,7 +14,7 @@
 
 module System.Win32.DLL where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.Types
 
 %#include <windows.h>
@@ -42,7 +42,7 @@ import System.Win32.Types
 %fun GetModuleHandle :: MbString -> IO HMODULE
 %fail {res1 == NULL} {ErrorWin("GetModuleHandle")}
 
-%fun GetProcAddress :: HMODULE -> String -> IO Addr
+%fun GetProcAddress :: HMODULE -> String -> IO (Ptr ())
 %fail {res1 == NULL} {ErrorWin("GetProcAddress")}
 
 %fun LoadLibrary :: String -> IO HINSTANCE

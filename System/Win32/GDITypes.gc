@@ -19,7 +19,7 @@ module System.Win32.GDITypes
 	, ListLenPOINT, marshall_ListLenPOINT_
 	, RECT,         marshall_rect, unmarshall_rect
 	, SIZE,         marshall_size, unmarshall_size
-	, nullAddr
+	, nullPtr
 	, HBITMAP	, MbHBITMAP
 	, HFONT		, MbHFONT
 	, HCURSOR	, MbHCURSOR
@@ -49,12 +49,10 @@ module System.Win32.GDITypes
 -}
 	where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.Types
 import Monad( zipWithM_ )
 import Foreign
-import Int
-import Word
 
 %#include <windows.h>
 %#include "errors.h"
@@ -86,39 +84,39 @@ type SIZE =
 
 ----------------------------------------------------------------
 
-%dis listPOINT x      = listPOINT_    (addr ({POINT *} x))
-%dis listLenPOINT x l = listLenPOINT_ (addr ({POINT *} x), int l)
+%dis listPOINT x      = listPOINT_    (ptr ({POINT *} x))
+%dis listLenPOINT x l = listLenPOINT_ (ptr ({POINT *} x), int l)
 
-marshall_listPOINT_ :: [POINT] -> IO Addr
+marshall_listPOINT_ :: [POINT] -> IO (Ptr ())
 marshall_listPOINT_ cs = do
   let l = length cs
   ps <- mallocPOINTs l
   zipWithM_ (setPOINT ps) [0..] cs
   return ps
 
-marshall_listLenPOINT_ :: [POINT] -> IO (Addr, Int)
+marshall_listLenPOINT_ :: [POINT] -> IO (Ptr (), Int)
 marshall_listLenPOINT_ cs = do
   let l = length cs
   ps <- mallocPOINTs l
   zipWithM_ (setPOINT ps) [0..] cs
   return (ps,l)
   
-%fun mallocPOINTs :: Int -> IO Addr
+%fun mallocPOINTs :: Int -> IO Ptr ()
 %code ps = (POINT*) malloc(arg1 * sizeof(POINT));
 %fail {ps==0} { MallocError("mallocPOINTs") }
-%result (addr ({POINT*} ps))
+%result (ptr ({POINT*} ps))
 
-%fun setPOINT :: Addr -> Int -> POINT -> IO ()
-%call (addr ({POINT*} ps)) (int i) (point {ps[i]})
+%fun setPOINT :: Ptr () -> Int -> POINT -> IO ()
+%call (ptr ({POINT*} ps)) (int i) (point {ps[i]})
 %code
 
-%dis   lPRECT x = addr ({LPRECT} x)
-type   LPRECT   = Addr
+%dis   lPRECT x = ptr ({LPRECT} x)
+type   LPRECT   = Ptr ()
 type MbLPRECT   = Maybe LPRECT
-%dis mbLPRECT x = maybeT {nullAddr} (lPRECT x)
+%dis mbLPRECT x = maybeT {nullPtr} (lPRECT x)
 
 %fun getRECT :: LPRECT -> IO RECT
-%call (addr ({RECT*} r))
+%call (ptr ({RECT*} r))
 %code
 %result (rect {*r})
 
@@ -126,23 +124,23 @@ type MbLPRECT   = Maybe LPRECT
 -- (GDI related) Handles
 ----------------------------------------------------------------
 
-type   HBITMAP    = Addr
-%dis   hBITMAP  x = addr ({HBITMAP} x)
+type   HBITMAP    = Ptr ()
+%dis   hBITMAP  x = ptr ({HBITMAP} x)
 type MbHBITMAP    = Maybe HBITMAP
 %dis mbHBITMAP  x = maybeT {nullHANDLE} (hBITMAP x)
 
-type   HFONT      = Addr
-%dis   hFONT    x = addr ({HFONT} x)
+type   HFONT      = Ptr ()
+%dis   hFONT    x = ptr ({HFONT} x)
 type MbHFONT      = Maybe HFONT
 %dis mbHFONT    x = maybeT {nullHANDLE} (hFONT x)
 
-type   HCURSOR    = Addr
-%dis   hCURSOR  x = addr ({HCURSOR} x)
+type   HCURSOR    = Ptr ()
+%dis   hCURSOR  x = ptr ({HCURSOR} x)
 type MbHCURSOR    = Maybe HCURSOR
 %dis mbHCURSOR  x = maybeT {nullHANDLE} (hCURSOR x)
 
-type   HICON      = Addr
-%dis   hICON    x = addr ({HICON} x)
+type   HICON      = Ptr ()
+%dis   hICON    x = ptr ({HICON} x)
 type MbHICON      = Maybe HICON
 %dis mbHICON    x = maybeT {nullHANDLE} (hICON x)
 
@@ -157,36 +155,36 @@ data Stub_RGN
 type MbHRGN       = Maybe HRGN
 %dis mbHRGN     x = maybeT {nullPtr} (hRGN x)
 
-type   HPALETTE   = Addr
-%dis   hPALETTE x = addr ({HPALETTE} x)
+type   HPALETTE   = Ptr ()
+%dis   hPALETTE x = ptr ({HPALETTE} x)
 type MbHPALETTE   = Maybe HPALETTE
 %dis mbHPALETTE x = maybeT {nullHANDLE} (hPALETTE x)
 
-type   HBRUSH     = Addr
-%dis   hBRUSH   x = addr ({HBRUSH} x)
+type   HBRUSH     = Ptr ()
+%dis   hBRUSH   x = ptr ({HBRUSH} x)
 type MbHBRUSH     = Maybe HBRUSH
 %dis mbHBRUSH   x = maybeT {nullHANDLE} (hBRUSH x)
 
-type   HPEN       = Addr
-%dis   hPEN     x = addr ({HPEN} x)
+type   HPEN       = Ptr ()
+%dis   hPEN     x = ptr ({HPEN} x)
 type MbHPEN       = Maybe HPEN
 %dis mbHPEN     x = maybeT {nullHANDLE} (hPEN x)
 
-type   HACCEL     = Addr
-%dis   hACCEL   x = addr ({HACCEL} x)
+type   HACCEL     = Ptr ()
+%dis   hACCEL   x = ptr ({HACCEL} x)
 
-type   HDC        = Addr
-%dis   hDC      x = addr ({HDC} x)
+type   HDC        = Ptr ()
+%dis   hDC      x = ptr ({HDC} x)
 type MbHDC        = Maybe HDC
 %dis mbHDC      x = maybeT {nullHANDLE} (hDC x)
 
-type   HDWP        = Addr
-%dis   hDWP     x  = addr ({HDWP} x)
+type   HDWP        = Ptr ()
+%dis   hDWP     x  = ptr ({HDWP} x)
 type MbHDWP        = Maybe HDWP
 %dis mbHDWP      x = maybeT {nullHANDLE} (hDWP x)
 
-type   HWND       = Addr
-%dis   hWND     x = addr ({HWND} x)
+type   HWND       = Ptr ()
+%dis   hWND     x = ptr ({HWND} x)
 type MbHWND       = Maybe HWND
 %dis mbHWND     x = maybeT {nullHANDLE} (hWND x)
 
@@ -197,8 +195,8 @@ type MbHWND       = Maybe HWND
 % , HWND_TOPMOST
 % ]
 
-type   HMENU      = Addr
-%dis   hMENU    x = addr ({HMENU} x)
+type   HMENU      = Ptr ()
+%dis   hMENU    x = ptr ({HMENU} x)
 type MbHMENU      = Maybe HMENU
 %dis mbHMENU    x = maybeT {nullHANDLE} (hMENU x)
 

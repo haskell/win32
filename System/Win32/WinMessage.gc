@@ -14,7 +14,7 @@
 
 module System.Win32.WinMessage where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.Types
 
 %#include <windows.h>

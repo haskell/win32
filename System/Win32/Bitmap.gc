@@ -80,7 +80,7 @@ module System.Win32.Bitmap(
 
         ) where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.Types
 import System.Win32.GDITypes
 
@@ -196,8 +196,8 @@ type BITMAP =
 % , lPVOID {(%x).bmBits}
 % )
 
-%dis lPBITMAP x = addr ({BITMAP *} x)
-type LPBITMAP = Addr
+%dis lPBITMAP x = ptr ({BITMAP *} x)
+type LPBITMAP = Ptr ()
 
 %fun setBITMAP :: LPBITMAP -> BITMAP -> IO ()
 %call (lPBITMAP arg1) (bitmap {*arg1})
@@ -280,8 +280,8 @@ type ColorFormat = DWORD
 -- BITMAPINFO
 ----------------------------------------------------------------
 
-type LPBITMAPINFO = Addr
-%dis lPBITMAPINFO x = addr ({BITMAPINFO *} x)
+type LPBITMAPINFO = Ptr
+%dis lPBITMAPINFO x = ptr ({BITMAPINFO *} x)
 
 ----------------------------------------------------------------
 -- BITMAPINFOHEADER
@@ -314,8 +314,8 @@ type BITMAPINFOHEADER =
  , Maybe DWORD        -- biClrImportant
  )
 
-%dis lPBITMAPINFOHEADER x = addr ({BITMAPINFOHEADER *} x)
-type LPBITMAPINFOHEADER   = Addr
+%dis lPBITMAPINFOHEADER x = ptr ({BITMAPINFOHEADER *} x)
+type LPBITMAPINFOHEADER   = Ptr ()
 
 %fun getBITMAPINFOHEADER_ :: LPBITMAPINFOHEADER -> IO BITMAPINFOHEADER
 %code
@@ -341,8 +341,8 @@ type BITMAPFILEHEADER =
 % , dWORD {(%x).bfOffBits}
 % )
 
-type LPBITMAPFILEHEADER = Addr
-%dis lPBITMAPFILEHEADER x = addr ({BITMAPFILEHEADER *} x)
+type LPBITMAPFILEHEADER = Ptr ()
+%dis lPBITMAPFILEHEADER x = ptr ({BITMAPFILEHEADER *} x)
 
 %fun getBITMAPFILEHEADER :: LPBITMAPFILEHEADER -> IO BITMAPFILEHEADER
 %code

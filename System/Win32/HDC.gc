@@ -17,7 +17,7 @@ module System.Win32.HDC
 	) where
 
 import System.Win32.Types
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.GDITypes
 
 %#include <windows.h>

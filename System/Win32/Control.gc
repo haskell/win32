@@ -14,7 +14,7 @@
 
 module System.Win32.Control where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.Types
 import System.Win32.GDITypes
 import System.Win32.Window
@@ -266,8 +266,8 @@ type StaticControlStyle = WindowStyle
 
 {- UNTESTED - leave out
 
-type CommonControl   = Addr
-%dis commonControl x = addr ({LPCTSTR} x)
+type CommonControl   = Ptr ()
+%dis commonControl x = ptr ({LPCTSTR} x)
 
 %const CommonControl
 % [ ToolTipsControl = {TOOLTIPS_CLASS}

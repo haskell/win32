@@ -16,7 +16,7 @@
 
 module System.Win32.Dialogue where
 
-import System.Win32.StdDIS
+import Foreign.GreenCard
 import System.Win32.Types
 import System.Win32.GDITypes
 import System.Win32.Window
@@ -60,7 +60,7 @@ marshall_dialogProc_ cl = mkDialogClosure cl
 -- ToDo: this was declared as a stdcall not a ccall - let's
 -- hope and pray that it makes no difference - ADR
 foreign import ccall "wrapper" mkDialogClosure :: DialogProc -> IO (FunPtr DialogProc)
---marshall_dialogProc_ x = return nullAddr
+--marshall_dialogProc_ x = return nullPtr
 
 %fun DialogBox :: HINSTANCE -> DTemplate -> MbHWND -> DialogProc -> IO Int
 %call (hINSTANCE hInst) (dTemplate lpTemp) (mbHWND hWndParent) (dialogProc diaFun)
@@ -169,11 +169,11 @@ scrollBarControl x y cx cy style estyle id lab =
   DialogControl x y cx cy (Left 0x0084) (Right lab)
   		(style) estyle id
 
-%fun getFinalDialog :: Addr -> IO DTemplateMem
+%fun getFinalDialog :: Ptr () -> IO DTemplateMem
 
-%fun mkDiaTemplate :: Int -> Int -> Int -> Int -> Int -> WindowStyle -> DWORD -> Ptr a -> Ptr b -> Ptr c -> Ptr d -> Int -> IO Addr
+%fun mkDiaTemplate :: Int -> Int -> Int -> Int -> Int -> WindowStyle -> DWORD -> Ptr a -> Ptr b -> Ptr c -> Ptr d -> Int -> IO (Ptr ())
 
-addControl :: Addr -> DialogControl -> IO ()
+addControl :: Ptr () -> DialogControl -> IO ()
 addControl dtemp (DialogControl x y cx cy mb_text mb_class
 				style exstyle
 				id) = do
@@ -183,7 +183,7 @@ addControl dtemp (DialogControl x y cx cy mb_text mb_class
   		 x y cx cy exstyle
    return ()
 
-%fun addDiaControl :: Addr -> Ptr a -> Int -> Ptr b -> DWORD -> Int -> Int -> Int -> Int -> DWORD -> IO Addr
+%fun addDiaControl :: Ptr () -> Ptr a -> Int -> Ptr b -> DWORD -> Int -> Int -> Int -> Int -> DWORD -> IO (Ptr ())
 
 marshall_res :: Either ResourceID String -> IO (Ptr a)
 marshall_res (Left r)  = mkResource r
