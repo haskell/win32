@@ -144,9 +144,6 @@ import Foreign.C
 -- Raster Ops
 ----------------------------------------------------------------
 
-type RasterOp3 = Word32
-type RasterOp4 = Word32
-
 #{enum RasterOp3,
  , sRCCOPY      = SRCCOPY
  , sRCPAINT     = SRCPAINT
@@ -164,11 +161,6 @@ type RasterOp4 = Word32
  , bLACKNESS    = BLACKNESS
  , wHITENESS    = WHITENESS
  }
-
--- macro
-
-foreign import ccall unsafe "HsWin32.h"
-  mAKEROP4 :: RasterOp3 -> RasterOp3 -> RasterOp4
 
 ----------------------------------------------------------------
 -- BITMAP

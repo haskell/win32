@@ -41,14 +41,6 @@ deletePalette p =
 foreign import stdcall unsafe "windows.h DeleteObject"
   c_DeletePalette :: HPALETTE -> IO Bool
 
--- macros
-
-foreign import ccall unsafe "HsWin32.h"
-  pALETTERGB :: BYTE -> BYTE -> BYTE -> COLORREF
-
-foreign import ccall unsafe "HsWin32.h"
-  pALETTEINDEX :: WORD -> COLORREF
-
 ----------------------------------------------------------------
 -- End
 ----------------------------------------------------------------

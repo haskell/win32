@@ -373,13 +373,11 @@ foreign import stdcall unsafe "windows.h LoadMenuW"
 -- so we'll leave this one out for now.
 -- %fun LoadMenuIndirect :: MenuTemplate -> IO HMENU
 
--- Can't pass structs with current FFI, so use a C wrapper
+-- Can't pass structs with current FFI, so use a C wrapper (from Types)
 menuItemFromPoint :: HWND -> HMENU -> POINT -> IO UINT
 menuItemFromPoint wnd menu pt =
   withPOINT pt $ \ p_pt ->
   prim_MenuItemFromPoint wnd menu p_pt
-foreign import ccall unsafe "HsWin32.h"
-  prim_MenuItemFromPoint :: HWND -> HMENU -> Ptr POINT -> IO UINT
 
 setMenuDefaultItem :: HMENU -> MenuItem -> Bool -> IO ()
 setMenuDefaultItem menu item bypos =

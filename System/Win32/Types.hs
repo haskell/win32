@@ -40,12 +40,6 @@ type DWORD         = Word32
 type LONG          = Int32
 type FLOAT         = Float
 
-foreign import ccall unsafe "HsWin32.h"
-  lOWORD :: DWORD -> WORD
-
-foreign import ccall unsafe "HsWin32.h"
-  hIWORD :: DWORD -> WORD
-
 ----------------------------------------------------------------
 
 type MbString      = Maybe String
@@ -88,15 +82,6 @@ maybeNum = fromMaybe 0
 numToMaybe :: Num a => a -> Maybe a
 numToMaybe n = if n == 0 then Nothing else Just n
 
-foreign import ccall unsafe "HsWin32.h"
-  castUINTToPtr :: UINT -> Ptr a
-
-foreign import ccall unsafe "HsWin32.h"
-  castPtrToUINT :: Ptr s -> UINT
-
-foreign import ccall unsafe "HsWin32.h"
-  castFunPtrToLONG :: FunPtr a -> LONG
-
 type MbLPVOID      = Maybe LPVOID
 type MbLPCSTR      = Maybe LPCSTR
 type MbLPCTSTR     = Maybe LPCTSTR
@@ -137,9 +122,6 @@ type   ForeignHANDLE = ForeignPtr ()
 
 newForeignHANDLE :: HANDLE -> IO ForeignHANDLE
 newForeignHANDLE = newForeignPtr deleteObject_p
-
-foreign import stdcall unsafe "windows.h &DeleteObject"
-  deleteObject_p :: FunPtr (HANDLE -> IO ())
 
 handleToWord :: HANDLE -> UINT
 handleToWord = castPtrToUINT
@@ -211,16 +193,66 @@ failWith fn_name err_code =
   localFree c_msg
   fail (fn_name ++ ": " ++ msg ++ " (error code: " ++ showHex err_code ")")
 
-{-# CBITS errors.c #-}
+----------------------------------------------------------------
+-- Primitives
+----------------------------------------------------------------
 
-foreign import ccall unsafe "errors.h"
-  getErrorMessage :: DWORD -> IO LPWSTR
+foreign import stdcall unsafe "windows.h &DeleteObject"
+  deleteObject_p :: FunPtr (HANDLE -> IO ())
 
 foreign import stdcall unsafe "windows.h LocalFree"
   localFree :: Ptr a -> IO (Ptr a)
 
 foreign import stdcall unsafe "windows.h GetLastError"
   getLastError :: IO ErrCode
+
+{-# CBITS errors.c #-}
+
+foreign import ccall unsafe "errors.h"
+  getErrorMessage :: DWORD -> IO LPWSTR
+
+{-# CBITS HsWin32.c #-}
+
+foreign import ccall unsafe "HsWin32.h"
+  lOWORD :: DWORD -> WORD
+
+foreign import ccall unsafe "HsWin32.h"
+  hIWORD :: DWORD -> WORD
+
+foreign import ccall unsafe "HsWin32.h"
+  castUINTToPtr :: UINT -> Ptr a
+
+foreign import ccall unsafe "HsWin32.h"
+  castPtrToUINT :: Ptr s -> UINT
+
+foreign import ccall unsafe "HsWin32.h"
+  castFunPtrToLONG :: FunPtr a -> LONG
+
+type LCID = DWORD
+
+type LANGID = WORD
+type SortID = WORD
+
+foreign import ccall unsafe "HsWin32.h prim_MAKELCID"
+  mAKELCID :: LANGID -> SortID -> LCID
+
+foreign import ccall unsafe "HsWin32.h prim_LANGIDFROMLCID"
+  lANGIDFROMLCID :: LCID -> LANGID
+
+foreign import ccall unsafe "HsWin32.h prim_SORTIDFROMLCID"
+  sORTIDFROMLCID :: LCID -> SortID
+
+type SubLANGID = WORD
+type PrimaryLANGID = WORD
+
+foreign import ccall unsafe "HsWin32.h prim_MAKELANGID"
+  mAKELANGID :: PrimaryLANGID -> SubLANGID -> LANGID
+
+foreign import ccall unsafe "HsWin32.h prim_PRIMARYLANGID"
+  pRIMARYLANGID :: LANGID -> PrimaryLANGID
+
+foreign import ccall unsafe "HsWin32.h prim_SUBLANGID"
+  sUBLANGID :: LANGID -> SubLANGID
 
 ----------------------------------------------------------------
 -- End

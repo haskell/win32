@@ -398,21 +398,17 @@ bringWindowToTop wnd =
 foreign import stdcall unsafe "windows.h BringWindowToTop"
   c_BringWindowToTop :: HWND -> IO Bool
 
--- Can't pass structs with current FFI, so use a C wrapper
+-- Can't pass structs with current FFI, so use a C wrapper (in Types)
 childWindowFromPoint :: HWND -> POINT -> IO (Maybe HWND)
 childWindowFromPoint wnd pt =
   withPOINT pt $ \ p_pt ->
   liftM ptrToMaybe $ prim_ChildWindowFromPoint wnd p_pt
-foreign import ccall unsafe "HsWin32.h"
-  prim_ChildWindowFromPoint :: HWND -> Ptr POINT -> IO HWND
 
--- Can't pass structs with current FFI, so use a C wrapper
+-- Can't pass structs with current FFI, so use a C wrapper (in Types)
 childWindowFromPointEx :: HWND -> POINT -> DWORD -> IO (Maybe HWND)
 childWindowFromPointEx parent pt flags =
   withPOINT pt $ \ p_pt ->
   liftM ptrToMaybe $ prim_ChildWindowFromPointEx parent p_pt flags
-foreign import ccall unsafe "HsWin32.h"
-  prim_ChildWindowFromPointEx :: HWND -> Ptr POINT -> DWORD -> IO HWND
 
 closeWindow :: HWND -> IO ()
 closeWindow wnd =

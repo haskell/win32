@@ -58,6 +58,8 @@ import Foreign
 
 #include <windows.h>
 
+{-# CBITS HsGDI.c #-}
+
 ----------------------------------------------------------------
 --
 ----------------------------------------------------------------
@@ -226,17 +228,33 @@ type MbHMENU      = Maybe HMENU
 
 type COLORREF   = #{type COLORREF}
 
-foreign import ccall unsafe "HsWin32.h"
+foreign import ccall unsafe "HsGDI.h"
   rgb :: BYTE -> BYTE -> BYTE -> COLORREF
 
-foreign import ccall unsafe "HsWin32.h"
+foreign import ccall unsafe "HsGDI.h"
   getRValue :: COLORREF -> BYTE
 
-foreign import ccall unsafe "HsWin32.h"
+foreign import ccall unsafe "HsGDI.h"
   getGValue :: COLORREF -> BYTE
 
-foreign import ccall unsafe "HsWin32.h"
+foreign import ccall unsafe "HsGDI.h"
   getBValue :: COLORREF -> BYTE
+
+foreign import ccall unsafe "HsGDI.h"
+  pALETTERGB :: BYTE -> BYTE -> BYTE -> COLORREF
+
+foreign import ccall unsafe "HsGDI.h"
+  pALETTEINDEX :: WORD -> COLORREF
+
+----------------------------------------------------------------
+-- RasterOp macro
+----------------------------------------------------------------
+
+type RasterOp3 = Word32
+type RasterOp4 = Word32
+
+foreign import ccall unsafe "HsGDI.h"
+  mAKEROP4 :: RasterOp3 -> RasterOp3 -> RasterOp4
 
 ----------------------------------------------------------------
 -- Miscellaneous enumerations
@@ -357,6 +375,19 @@ cLR_INVALID = #{const CLR_INVALID}
  , oBJ_ENHMETADC   = OBJ_ENHMETADC
  , oBJ_ENHMETAFILE = OBJ_ENHMETAFILE
  }
+
+----------------------------------------------------------------
+-- Miscellaneous primitives
+----------------------------------------------------------------
+
+-- Can't pass structs with current FFI, so use C wrappers
+
+foreign import ccall unsafe "HsGDI.h"
+  prim_ChildWindowFromPoint :: HWND -> Ptr POINT -> IO HWND
+foreign import ccall unsafe "HsGDI.h"
+  prim_ChildWindowFromPointEx :: HWND -> Ptr POINT -> DWORD -> IO HWND
+foreign import ccall unsafe "HsGDI.h"
+  prim_MenuItemFromPoint :: HWND -> HMENU -> Ptr POINT -> IO UINT
 
 ----------------------------------------------------------------
 -- End

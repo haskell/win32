@@ -12,7 +12,14 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.NLS where
+module System.Win32.NLS  (
+	module System.Win32.NLS,
+
+	-- defined in System.Win32.Types
+	LCID, LANGID, SortID, SubLANGID, PrimaryLANGID,
+	mAKELCID, lANGIDFROMLCID, sORTIDFROMLCID,
+	mAKELANGID, pRIMARYLANGID, sUBLANGID
+	) where
 
 import System.Win32.Types
 
@@ -21,8 +28,6 @@ import Foreign
 #include <windows.h>
 #include "errors.h"
 #include "win32debug.h"
-
-type LCID = DWORD
 
 #{enum LCID,
  , lOCALE_SYSTEM_DEFAULT = LOCALE_SYSTEM_DEFAULT
@@ -152,15 +157,6 @@ foreign import stdcall unsafe "windows.h GetSystemDefaultLangID"
 foreign import stdcall unsafe "windows.h GetOEMCP"
   getOEMCP :: CodePage
 
-type LANGID = WORD
-
-foreign import ccall unsafe "HsWin32.h prim_LANGIDFROMLCID"
-  lANGIDFROMLCID :: LCID -> LANGID
-
-type SubLANGID = WORD
-
-type PrimaryLANGID = WORD
-
 #{enum PrimaryLANGID,
  , lANG_NEUTRAL         = LANG_NEUTRAL
  , lANG_BULGARIAN       = LANG_BULGARIAN
@@ -233,23 +229,6 @@ type PrimaryLANGID = WORD
  , lANG_KASHMIRI        = LANG_KASHMIRI
  , lANG_NEPALI          = LANG_NEPALI
  }
-
-foreign import ccall unsafe "HsWin32.h prim_MAKELANGID"
-  c_MAKELANGID :: PrimaryLANGID -> SubLANGID -> LANGID
-
-foreign import ccall unsafe "HsWin32.h prim_MAKELCID"
-  c_MAKELCID :: LANGID -> SortID -> LCID
-
-foreign import ccall unsafe "HsWin32.h prim_PRIMARYLANGID"
-  c_PRIMARYLANGID :: LANGID -> PrimaryLANGID
-
-foreign import ccall unsafe "HsWin32.h prim_SUBLANGID"
-  c_SUBLANGID :: LANGID -> SubLANGID
-
-foreign import ccall unsafe "HsWin32.h prim_SORTIDFROMLCID"
-  c_SORTIDFROMLCID :: LCID -> SortID
-
-type SortID = WORD
 
 #{enum SortID,
  , sORT_DEFAULT         = SORT_DEFAULT
