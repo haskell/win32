@@ -1,7 +1,5 @@
-#include "config.h"
-
 Package {
-	name		= "Win32",
+	name		= PACKAGE,
 	auto		= True,
 #ifdef INSTALLING
 	import_dirs	= [ "$libdir/imports" ],
@@ -15,7 +13,7 @@ Package {
 	library_dirs	= [ "$libdir/libraries/Win32"
                           , "$libdir/libraries/Win32/cbits" ],
 #endif
-	hs_libraries	= [ "HSWin32" ],
+	hs_libraries	= [ "HSWin32_1", "HSWin32_2" ],
 	extra_libraries	= [ "HSWin32_cbits"
                           , "user32"
                           , "gdi32"
@@ -29,8 +27,8 @@ Package {
 	include_dirs	= [ "$libdir/libraries/Win32/include" ],
 #endif
 	c_includes	= [ "HsWin32.h" ],
-	package_deps	= [ "base", "greencard" ],
+	package_deps	= [ PACKAGE_DEPS ],
 	extra_ghc_opts	= [],
-	extra_cc_opts	= [ "" WIN32_CFLAGS ],
-	extra_ld_opts	= [ "" WIN32_LIBS ]
+	extra_cc_opts	= [],
+	extra_ld_opts	= []
 }
