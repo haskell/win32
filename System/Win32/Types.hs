@@ -58,8 +58,6 @@ type LRESULT       = LONG
 
 type MbATOM        = Maybe ATOM
 
-type WCHAR         = Word16
-
 ----------------------------------------------------------------
 -- Pointers
 ----------------------------------------------------------------
@@ -70,7 +68,7 @@ type LPVOID        = Ptr ()
 type LPBYTE        = Ptr BYTE
 type LPSTR         = Ptr CChar
 type LPCSTR        = LPSTR
-type LPWSTR        = Ptr WCHAR
+type LPWSTR        = Ptr CWchar
 type LPCWSTR       = LPWSTR
 type LPTSTR        = Ptr TCHAR
 type LPCTSTR       = LPTSTR
@@ -122,12 +120,12 @@ peekTStringLen :: (LPCTSTR, Int) -> IO String
 newTString     :: String -> IO LPCTSTR
 
 -- UTF-16 version:
-type TCHAR     = WCHAR
-withTString    = withWString
-withTStringLen = withWStringLen
-peekTString    = peekWString
-peekTStringLen = peekWStringLen
-newTString     = newWString
+type TCHAR     = CWchar
+withTString    = withCWString
+withTStringLen = withCWStringLen
+peekTString    = peekCWString
+peekTStringLen = peekCWStringLen
+newTString     = newCWString
 
 {- ANSI version:
 type TCHAR     = CChar
@@ -137,50 +135,6 @@ peekTString    = peekCString
 peekTStringLen = peekCStringLen
 newTString     = newCString
 -}
-
-toUTF16 :: String -> [WCHAR]
-toUTF16 = foldr utf16Char [] . map ord
- where
-  utf16Char c wcs
-    | c < 0x10000 = fromIntegral c : wcs
-    | otherwise   = let c' = c - 0x10000 in
-                    fromIntegral (c' `div` 0x400 + 0xd800) :
-                    fromIntegral (c' `mod` 0x400 + 0xdc00) : wcs
-
--- coding errors generate Chars in the surrogate range
-fromUTF16 :: [WCHAR] -> String
-fromUTF16 = map chr . fromUTF16' . map fromIntegral
- where
-  fromUTF16' (c1:c2:wcs)
-    | 0xd800 <= c1 && c1 <= 0xdbff && 0xdc00 <= c2 && c2 <= 0xdfff =
-      ((c1 - 0xd800)*0x400 + (c2 - 0xdc00) + 0x10000) : fromUTF16' wcs
-  fromUTF16' (c:wcs) =
-    c : fromUTF16' wcs
-  fromUTF16' [] =
-    []
-
-withWString :: String -> (Ptr WCHAR -> IO a) -> IO a
-withWString str =
-  withArray0 0 (toUTF16 str)
-
-withWStringLen :: String -> ((Ptr WCHAR, Int) -> IO a) -> IO a
-withWStringLen str f =
-  withArray (toUTF16 str) $ \ c_str ->
-  f (c_str, length str)
-
-peekWString :: Ptr WCHAR -> IO String
-peekWString c_str = do
-  wcs <- peekArray0 0 c_str
-  return (fromUTF16 wcs)
-
-peekWStringLen :: (Ptr WCHAR, Int) -> IO String
-peekWStringLen (c_str, len) = do
-  wcs <- peekArray len c_str
-  return (fromUTF16 wcs)
-
-newWString :: String -> IO (Ptr WCHAR)
-newWString str =
-  newArray0 0 (toUTF16 str)
 
 ----------------------------------------------------------------
 -- Handles
