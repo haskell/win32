@@ -15,16 +15,16 @@
  * sof 9/98 : Removed use of non-standard (and wimpy :-) snprintf().
  */
 
-LPWSTR getErrorMessage(DWORD err)
+LPTSTR getErrorMessage(DWORD err)
 {
-    LPWSTR what;
+    LPTSTR what;
 
-    FormatMessageW( 
+    FormatMessage( 
 	(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER) ,
 	NULL,
 	err,
 	MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), /* Default language */
-	(LPWSTR) &what,
+	(LPTSTR) &what,
 	0,
 	NULL 
 	);

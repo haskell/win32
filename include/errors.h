@@ -11,6 +11,6 @@
  */
 
 /* result should be freed using LocalFree */
-extern LPWSTR getErrorMessage(DWORD err);
+extern LPTSTR getErrorMessage(DWORD err);
 
 #endif /* _MY_ERRORS_H */
