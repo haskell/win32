@@ -296,6 +296,9 @@ type LPPAINTSTRUCT   = Addr
 sizeofPAINTSTRUCT :: DWORD
 sizeofPAINTSTRUCT = #{size PAINTSTRUCT}
 
+allocaPAINTSTRUCT :: (LPPAINTSTRUCT -> IO a) -> IO a
+allocaPAINTSTRUCT = allocaBytes #{size PAINTSTRUCT}
+
 beginPaint :: HWND -> LPPAINTSTRUCT -> IO HDC
 beginPaint wnd paint =
   failIfNull "BeginPaint" $ c_BeginPaint wnd paint
@@ -631,38 +634,29 @@ foreign import stdcall unsafe "windows.h SetCaretPos"
 
 type LPMSG   = Addr
 
+allocaMessage :: (LPMSG -> IO a) -> IO a
+allocaMessage = allocaBytes #{size MSG}
+
 -- A NULL window requests messages for any window belonging to this thread.
 -- a "success" value of 0 indicates that WM_QUIT was received
 
--- These guys return their data in static storage!?
-getMessage_msg, getMessage2_msg, peekMessage_msg :: LPMSG
-getMessage_msg  = unsafePerformIO (mallocBytes #{size MSG})
-getMessage2_msg = unsafePerformIO (mallocBytes #{size MSG})
-peekMessage_msg = unsafePerformIO (mallocBytes #{size MSG})
-
-getMessage :: Maybe HWND -> IO LPMSG
-getMessage mb_wnd = do
-  failIf (== -1) "GetMessage" $
-    c_GetMessage getMessage_msg (maybePtr mb_wnd) 0 0
-  return getMessage_msg
+getMessage :: LPMSG -> Maybe HWND -> IO Bool
+getMessage msg mb_wnd = do
+  res <- failIf (== -1) "GetMessage" $
+    c_GetMessage msg (maybePtr mb_wnd) 0 0
+  return (res /= 0)
 foreign import stdcall unsafe "windows.h GetMessageW"
   c_GetMessage :: LPMSG -> HWND -> UINT -> UINT -> IO LONG
-
-getMessage2 :: Maybe HWND -> IO (LPMSG, Bool)
-getMessage2 mb_wnd = do
-  res <- failIf (== -1) "GetMessage2" $
-    c_GetMessage getMessage2_msg (maybePtr mb_wnd) 0 0
-  return (getMessage2_msg, res /= 0)
 
 -- A NULL window requests messages for any window belonging to this thread.
 -- Arguably the code block shouldn't be a 'safe' one, but it shouldn't really
 -- hurt.
 
-peekMessage :: Maybe HWND -> UINT -> UINT -> UINT -> IO LPMSG
-peekMessage mb_wnd filterMin filterMax remove = do
+peekMessage :: LPMSG -> Maybe HWND -> UINT -> UINT -> UINT -> IO ()
+peekMessage msg mb_wnd filterMin filterMax remove = do
   failIf (== -1) "PeekMessage" $
-    c_PeekMessage peekMessage_msg (maybePtr mb_wnd) filterMin filterMax remove
-  return peekMessage_msg
+    c_PeekMessage msg (maybePtr mb_wnd) filterMin filterMax remove
+  return ()
 foreign import stdcall unsafe "windows.h PeekMessageW"
   c_PeekMessage :: LPMSG -> HWND -> UINT -> UINT -> UINT -> IO LONG
 

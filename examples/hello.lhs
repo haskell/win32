@@ -20,6 +20,7 @@ import qualified System.Win32.DLL
 import qualified System.Win32.Types
 import Control.Exception (bracket)
 import Foreign
+import System.Exit
 {-import Addr-}
 \end{code}
 
@@ -31,7 +32,7 @@ to repaint messages (WM_PAINT).
 \begin{code}
 main :: IO ()
 main =
-  allocaBytes ( fromIntegral Graphics.Win32.sizeofPAINTSTRUCT ) $ \ lpps -> do
+  Graphics.Win32.allocaPAINTSTRUCT $ \ lpps -> do
   hwnd <- createWindow 200 200 (wndProc lpps onPaint)
   messagePump hwnd
 
@@ -108,14 +109,14 @@ createWindow width height wndProc = do
   return w
 
 messagePump :: Graphics.Win32.HWND -> IO ()
-messagePump hwnd = do
-  msg  <- Graphics.Win32.getMessage (Just hwnd) `catch` \ _ -> return nullPtr
-  if msg == nullPtr then
-    return ()
-   else do
-    Graphics.Win32.translateMessage msg
-    Graphics.Win32.dispatchMessage msg
-    messagePump hwnd
+messagePump hwnd = Graphics.Win32.allocaMessage $ \ msg ->
+  let pump = do
+        Graphics.Win32.getMessage msg (Just hwnd)
+		`catch` \ _ -> exitWith ExitSuccess
+	Graphics.Win32.translateMessage msg
+	Graphics.Win32.dispatchMessage msg
+	pump
+  in pump
 
 paintWith :: Graphics.Win32.LPPAINTSTRUCT -> Graphics.Win32.HWND -> (Graphics.Win32.HDC -> IO a) -> IO a
 paintWith lpps hwnd p =
