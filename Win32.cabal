@@ -1,6 +1,7 @@
 name:		Win32
 version:	1.0
 license:	BSD3
+license-file:	LICENSE
 author:		Alastair Reid
 copyright:	Alastair Reid, 1999-2003
 maintainer:	<libraries@haskell.org>
