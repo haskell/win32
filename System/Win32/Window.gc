@@ -171,7 +171,7 @@ type WindowClosure = HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 %dis windowClosure x = windowClosure_ (addr x)
  
 marshall_windowClosure_ :: WindowClosure -> IO (Addr)
-marshall_windowClosure_ cl = fmap funPtrToPtr (mkWindowClosure cl)
+marshall_windowClosure_ cl = fmap castFunPtrToPtr (mkWindowClosure cl)
 
 foreign import ccall "wrapper" mkWindowClosure :: WindowClosure -> IO (FunPtr WindowClosure)
 

@@ -101,7 +101,7 @@ marshall_listLenPOINT_ cs = do
   zipWithM_ (setPOINT ps) [0..] cs
   return (ps,l)
   
-%fun mallocPOINTs :: Int -> IO Ptr ()
+%fun mallocPOINTs :: Int -> IO Addr
 %code ps = (POINT*) malloc(arg1 * sizeof(POINT));
 %fail {ps==0} { MallocError("mallocPOINTs") }
 %result (ptr ({POINT*} ps))

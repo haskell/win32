@@ -204,7 +204,7 @@ type FileType = DWORD
 
 ----------------------------------------------------------------
 
-type LPSECURITY_ATTRIBUTES = Ptr
+type LPSECURITY_ATTRIBUTES = Ptr ()
 %dis mbLPSECURITY_ATTRIBUTES x = maybeT {nullPtr} (ptr x)
 type MbLPSECURITY_ATTRIBUTES = Maybe LPSECURITY_ATTRIBUTES
 
@@ -313,7 +313,7 @@ type MbLPOVERLAPPED = Maybe LPOVERLAPPED
 %code BOOL success = ReadFile(arg1,arg2,arg3,&res1,arg4);
 %fail { !success } { ErrorString("ReadFile") }
 
-%fun win32_WriteFile :: HANDLE -> Ptr -> DWORD -> MbLPOVERLAPPED -> IO DWORD
+%fun win32_WriteFile :: HANDLE -> Addr -> DWORD -> MbLPOVERLAPPED -> IO DWORD
 %code  BOOL success = WriteFile(arg1,arg2,arg3,&res1,arg4);
 %fail { !success } { ErrorString("WriteFile") }
 

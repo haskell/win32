@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.5 2003/05/28 20:28:28 reid Exp $
+# $Id: Makefile,v 1.6 2003/05/29 13:18:54 reid Exp $
 
 TOP = .
 include $(TOP)/mk/boilerplate.mk
@@ -16,8 +16,10 @@ ALL_DIRS = \
 PACKAGE = Win32
 PACKAGE_DEPS = HSgreencard
 
-SRC_CC_OPTS += -Wall -Iinclude -I.
-SRC_HC_OPTS += -Wall -cpp -fglasgow-exts -fffi
+SRC_CC_OPTS += -Wall -Icbits
+# SRC_HC_OPTS += -Wall 
+SRC_HC_OPTS += -optc-Icbits
+SRC_HC_OPTS += -cpp -fglasgow-exts -fffi 
 SRC_HC_OPTS += -package HSgreencard
 
 SRC_HADDOCK_OPTS += -t "Win32 Libraries (Win32 package)"
