@@ -1,0 +1,61 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.DLL where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+%fun DisableThreadLibraryCalls :: HMODULE -> IO ()
+%code BOOL res1 = DisableThreadLibraryCalls(arg1);
+%fail { res1 == FALSE } { ErrorWin("DisableThreadLibraryCalls")}
+
+%fun FreeLibrary :: HMODULE -> IO ()
+%code BOOL res1 = FreeLibrary(arg1);
+%fail { res1 == FALSE } { ErrorWin("FreeLibrary")}
+
+%fun GetModuleFileName :: HMODULE -> IO String
+%code char* res1; DWORD dw = 1;
+%     if ((res1=malloc(sizeof(char)*512)) == NULL) {
+%        res1=NULL;
+%     } else {
+%        dw = GetModuleFileName(arg1,res1,512);
+%     }
+%fail {res1 == NULL || dw == 0} {ErrorWin("GetModuleFileName")}
+
+%fun GetModuleHandle :: MbString -> IO HMODULE
+%fail {res1 == NULL} {ErrorWin("GetModuleHandle")}
+
+%fun GetProcAddress :: HMODULE -> String -> IO Addr
+%fail {res1 == NULL} {ErrorWin("GetProcAddress")}
+
+%fun LoadLibrary :: String -> IO HINSTANCE
+%fail {res1 == NULL} {ErrorWin("LoadLibrary")}
+
+type LoadLibraryFlags = DWORD
+%dis loadLibraryFlags x = dWORD x
+
+%const LoadLibraryFlags 
+% [ LOAD_LIBRARY_AS_DATAFILE
+% , LOAD_WITH_ALTERED_SEARCH_PATH
+% ]
+
+%fun LoadLibraryEx :: String -> HANDLE -> LoadLibraryFlags -> IO HINSTANCE
+%fail {res1 == NULL} {ErrorWin("LoadLibraryEx")}
+

@@ -1,0 +1,112 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Clip
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Clip where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+import System.Win32.WinMessage
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+type ClipboardFormat = UINT
+%dis clipboardFormat x = uINT x
+
+%const ClipboardFormat
+% [ CF_BITMAP
+% , CF_DIB
+% , CF_DIF
+% , CF_DSPBITMAP
+% , CF_DSPENHMETAFILE
+% , CF_DSPMETAFILEPICT
+% , CF_DSPTEXT
+% , CF_ENHMETAFILE
+% , CF_GDIOBJFIRST
+% , CF_HDROP
+% , CF_LOCALE
+% , CF_METAFILEPICT
+% , CF_OEMTEXT
+% , CF_OWNERDISPLAY
+% , CF_PALETTE
+% , CF_PENDATA
+% , CF_PRIVATEFIRST
+% , CF_PRIVATELAST
+% , CF_RIFF
+% , CF_SYLK
+% , CF_TEXT
+% , CF_WAVE
+% , CF_TIFF
+% ] 
+
+-- % , CF_UNICODETEXT  -- WinNT only
+
+%fun ChangeClipboardChain :: HWND -> HWND -> IO Bool
+
+%fun CloseClipboard :: IO ()
+%code BOOL res1=CloseClipboard()
+%fail {res1==0}{ErrorWin("CloseClipboard")}
+
+%fun CountClipboardFormats :: IO Int
+
+%fun EmptyClipboard :: IO ()
+%code BOOL res1=EmptyClipboard()
+%fail {res1==0}{ErrorWin("EmptyClipboard")}
+
+%fun EnumClipboardFormats :: UINT -> IO UINT
+%code UINT res1=EnumClipboardFormats(arg1);
+%fail {res1==0 && GetLastError() != NO_ERROR}{ErrorWin("EnumClipboardFormats")}
+
+%fun GetClipboardData :: ClipboardFormat -> IO HANDLE
+%fail {res1==NULL}{ErrorWin("GetClipboardData")}
+
+%fun GetClipboardFormatName :: ClipboardFormat -> Addr -> Int -> IO Int
+%fail {res1==0}{ErrorWin("GetClipboardFormatName")}
+
+%fun GetClipboardOwner :: IO HWND
+%fail {res1==NULL}{ErrorWin("GetClipboardOwner")}
+
+%fun GetClipboardViewer :: IO HWND
+%fail {res1==NULL}{ErrorWin("GetClipboardViewer")}
+
+%fun GetOpenClipboardWindow :: IO HWND
+%fail {res1==NULL}{ErrorWin("GetClipboardWindow")}
+
+%fun GetPriorityClipboardFormat :: Addr -> Int -> IO Int
+%fail {res1==-1}{ErrorWin("GetPriorityClipboardFormat")}
+
+%fun IsClipboardFormatAvailable :: ClipboardFormat -> IO BOOL
+
+%fun OpenClipboard :: HWND -> IO ()
+%code BOOL res1=OpenClipboard(arg1);
+%fail {res1==0}{ErrorWin("OpenClipboard")}
+
+%fun RegisterClipboardFormat :: String -> IO ClipboardFormat
+%fail {res1==0}{ErrorWin("RegisterClipboardFormat")}
+
+%fun SetClipboardData :: ClipboardFormat -> HANDLE -> IO HANDLE
+%fail {res1==NULL}{ErrorWin("SetClipboardData")}
+
+%fun SetClipboardViewer :: HWND -> IO HWND
+%fail {res1==NULL}{ErrorWin("SetClipboardViewer")}
+
+
+
+
+
+
+

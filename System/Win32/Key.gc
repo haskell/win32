@@ -1,0 +1,119 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Key
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Key where
+
+import System.Win32.Types
+import System.Win32.GDITypes
+import System.Win32.StdDIS
+
+%#include <windows.h>
+%#include "win32debug.h"
+%#include "errors.h"
+
+%dis vKey x = dWORD x
+type VKey   = DWORD
+
+%const VKey 
+% [ VK_LBUTTON
+% , VK_RBUTTON
+% , VK_CANCEL
+% , VK_MBUTTON
+% , VK_BACK
+% , VK_TAB
+% , VK_CLEAR
+% , VK_RETURN
+% , VK_SHIFT
+% , VK_CONTROL
+% , VK_MENU
+% , VK_PAUSE
+% , VK_CAPITAL
+% , VK_ESCAPE
+% , VK_SPACE
+% , VK_PRIOR
+% , VK_NEXT
+% , VK_END
+% , VK_HOME
+% , VK_LEFT
+% , VK_UP
+% , VK_RIGHT
+% , VK_DOWN
+% , VK_SELECT
+% , VK_EXECUTE  
+% , VK_SNAPSHOT
+% , VK_INSERT
+% , VK_DELETE
+% , VK_HELP
+% , VK_NUMPAD0
+% , VK_NUMPAD1
+% , VK_NUMPAD2
+% , VK_NUMPAD3
+% , VK_NUMPAD4
+% , VK_NUMPAD5
+% , VK_NUMPAD6
+% , VK_NUMPAD7
+% , VK_NUMPAD8
+% , VK_NUMPAD9
+% , VK_MULTIPLY
+% , VK_ADD
+% , VK_SEPARATOR
+% , VK_SUBTRACT
+% , VK_DECIMAL
+% , VK_DIVIDE
+% , VK_F1
+% , VK_F2
+% , VK_F3
+% , VK_F4
+% , VK_F5
+% , VK_F6
+% , VK_F7
+% , VK_F8
+% , VK_F9
+% , VK_F10
+% , VK_F11
+% , VK_F12
+% , VK_F13
+% , VK_F14  
+% , VK_F15
+% , VK_F16
+% , VK_F17
+% , VK_F18
+% , VK_F19
+% , VK_F20
+% , VK_F21
+% , VK_F22
+% , VK_F23
+% , VK_F24
+% , VK_NUMLOCK
+% , VK_SCROLL
+% ]
+
+%fun EnableWindow :: HWND -> Bool -> IO Bool
+
+%fun GetActiveWindow :: IO MbHWND
+
+%fun GetAsyncKeyState :: Int -> IO WORD
+
+%fun GetFocus :: IO MbHWND
+
+%fun GetKBCodePage :: IO UINT
+
+%fun IsWindowEnabled :: HWND -> IO Bool
+
+%fun LOWORD :: DWORD -> WORD
+%code WORD res1=LOWORD(arg1)
+
+%fun HIWORD :: DWORD -> WORD
+%code WORD res1=HIWORD(arg1)
+

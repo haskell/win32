@@ -1,0 +1,319 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.GDITypes
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.GDITypes
+{-  -- still incomplete
+	( POINT,        marshall_point, unmarshall_point
+	, ListPOINT,    marshall_ListPOINT_
+	, ListLenPOINT, marshall_ListLenPOINT_
+	, RECT,         marshall_rect, unmarshall_rect
+	, SIZE,         marshall_size, unmarshall_size
+	, nullAddr
+	, HBITMAP	, MbHBITMAP
+	, HFONT		, MbHFONT
+	, HCURSOR	, MbHCURSOR
+	, HICON		, MbHICON
+	, HRGN		, MbHRGN
+	, HPALETTE	, MbHPALETTE
+	, HBRUSH	, MbHBRUSH
+	, HPEN		, MbHPEN
+	, HACCEL	--, MbHACCEL
+	, HDC		, MbHDC
+	, HDWP          , MbHDWP
+	, HWND		, MbHWND
+	, HMENU		, MbHMENU
+	, PolyFillMode
+	, ArcDirection
+	, MbArcDirection
+	, GraphicsMode
+	, MbGraphicsMode
+	, BackgroundMode
+	, HatchStyle
+	, StretchBltMode
+	, COLORREF
+	, TextAlignment
+	, ClippingMode
+	, RegionType
+	)
+-}
+	where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import Monad( zipWithM_ )
+import Foreign
+import Int
+import Word
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
+
+type POINT =
+  ( LONG  -- x
+  , LONG  -- y
+  )
+type RECT =
+  ( LONG  -- left
+  , LONG  -- top
+  , LONG  -- right
+  , LONG  -- bottom
+  )
+type SIZE =
+  ( LONG  -- cx
+  , LONG  -- cy
+  )
+
+%dis point p = (lONG {(%p).x},    lONG {(%p).y})
+%dis rect  r = (lONG {(%r).left}, lONG {(%r).top}, lONG {(%r).right}, lONG {(%r).bottom})
+%dis size  s = (lONG {(%s).cx},   lONG {(%s).cy})
+
+----------------------------------------------------------------
+
+%dis listPOINT x      = listPOINT_    (addr ({POINT *} x))
+%dis listLenPOINT x l = listLenPOINT_ (addr ({POINT *} x), int l)
+
+marshall_listPOINT_ :: [POINT] -> IO Addr
+marshall_listPOINT_ cs = do
+  let l = length cs
+  ps <- mallocPOINTs l
+  zipWithM_ (setPOINT ps) [0..] cs
+  return ps
+
+marshall_listLenPOINT_ :: [POINT] -> IO (Addr, Int)
+marshall_listLenPOINT_ cs = do
+  let l = length cs
+  ps <- mallocPOINTs l
+  zipWithM_ (setPOINT ps) [0..] cs
+  return (ps,l)
+  
+%fun mallocPOINTs :: Int -> IO Addr
+%code ps = (POINT*) malloc(arg1 * sizeof(POINT));
+%fail {ps==0} { MallocError("mallocPOINTs") }
+%result (addr ({POINT*} ps))
+
+%fun setPOINT :: Addr -> Int -> POINT -> IO ()
+%call (addr ({POINT*} ps)) (int i) (point {ps[i]})
+%code
+
+%dis   lPRECT x = addr ({LPRECT} x)
+type   LPRECT   = Addr
+type MbLPRECT   = Maybe LPRECT
+%dis mbLPRECT x = maybeT {nullAddr} (lPRECT x)
+
+%fun getRECT :: LPRECT -> IO RECT
+%call (addr ({RECT*} r))
+%code
+%result (rect {*r})
+
+----------------------------------------------------------------
+-- (GDI related) Handles
+----------------------------------------------------------------
+
+type   HBITMAP    = Addr
+%dis   hBITMAP  x = addr ({HBITMAP} x)
+type MbHBITMAP    = Maybe HBITMAP
+%dis mbHBITMAP  x = maybeT {nullHANDLE} (hBITMAP x)
+
+type   HFONT      = Addr
+%dis   hFONT    x = addr ({HFONT} x)
+type MbHFONT      = Maybe HFONT
+%dis mbHFONT    x = maybeT {nullHANDLE} (hFONT x)
+
+type   HCURSOR    = Addr
+%dis   hCURSOR  x = addr ({HCURSOR} x)
+type MbHCURSOR    = Maybe HCURSOR
+%dis mbHCURSOR  x = maybeT {nullHANDLE} (hCURSOR x)
+
+type   HICON      = Addr
+%dis   hICON    x = addr ({HICON} x)
+type MbHICON      = Maybe HICON
+%dis mbHICON    x = maybeT {nullHANDLE} (hICON x)
+
+
+-- This is not the only handle / resource that should be
+-- finalised for you, but it's a start.
+-- ToDo.
+
+type   HRGN       = ForeignPtr Stub_RGN
+data Stub_RGN
+%dis   hRGN     x = %ForeignPtr {HRGN} x {deleteObj}
+type MbHRGN       = Maybe HRGN
+%dis mbHRGN     x = maybeT {nullPtr} (hRGN x)
+
+type   HPALETTE   = Addr
+%dis   hPALETTE x = addr ({HPALETTE} x)
+type MbHPALETTE   = Maybe HPALETTE
+%dis mbHPALETTE x = maybeT {nullHANDLE} (hPALETTE x)
+
+type   HBRUSH     = Addr
+%dis   hBRUSH   x = addr ({HBRUSH} x)
+type MbHBRUSH     = Maybe HBRUSH
+%dis mbHBRUSH   x = maybeT {nullHANDLE} (hBRUSH x)
+
+type   HPEN       = Addr
+%dis   hPEN     x = addr ({HPEN} x)
+type MbHPEN       = Maybe HPEN
+%dis mbHPEN     x = maybeT {nullHANDLE} (hPEN x)
+
+type   HACCEL     = Addr
+%dis   hACCEL   x = addr ({HACCEL} x)
+
+type   HDC        = Addr
+%dis   hDC      x = addr ({HDC} x)
+type MbHDC        = Maybe HDC
+%dis mbHDC      x = maybeT {nullHANDLE} (hDC x)
+
+type   HDWP        = Addr
+%dis   hDWP     x  = addr ({HDWP} x)
+type MbHDWP        = Maybe HDWP
+%dis mbHDWP      x = maybeT {nullHANDLE} (hDWP x)
+
+type   HWND       = Addr
+%dis   hWND     x = addr ({HWND} x)
+type MbHWND       = Maybe HWND
+%dis mbHWND     x = maybeT {nullHANDLE} (hWND x)
+
+%const HWND
+% [ HWND_BOTTOM
+% , HWND_NOTOPMOST
+% , HWND_TOP
+% , HWND_TOPMOST
+% ]
+
+type   HMENU      = Addr
+%dis   hMENU    x = addr ({HMENU} x)
+type MbHMENU      = Maybe HMENU
+%dis mbHMENU    x = maybeT {nullHANDLE} (hMENU x)
+
+----------------------------------------------------------------
+-- COLORREF
+----------------------------------------------------------------
+
+%dis cOLORREF x = dWORD x
+type COLORREF   = DWORD
+
+%fun rgb :: BYTE -> BYTE -> BYTE -> COLORREF
+%code res1 = RGB(arg1,arg2,arg3);
+
+%fun GetRValue :: COLORREF -> BYTE
+%fun GetGValue :: COLORREF -> BYTE
+%fun GetBValue :: COLORREF -> BYTE
+
+----------------------------------------------------------------
+-- Miscellaneous enumerations
+----------------------------------------------------------------
+
+type PolyFillMode   = WORD
+%dis polyFillMode x = wORD x
+%const PolyFillMode [ALTERNATE,WINDING]
+
+----------------------------------------------------------------
+
+%dis arcDirection x = wORD x
+type ArcDirection = WORD
+type MbArcDirection = Maybe ArcDirection
+%const ArcDirection [AD_COUNTERCLOCKWISE,AD_CLOCKWISE]
+
+----------------------------------------------------------------
+
+%dis graphicsMode x = dWORD x
+type GraphicsMode   = DWORD
+type MbGraphicsMode = Maybe GraphicsMode
+%const GraphicsMode [GM_COMPATIBLE,GM_ADVANCED]
+
+----------------------------------------------------------------
+
+%dis backgroundMode x = uINT x
+type BackgroundMode   = UINT
+%const BackgroundMode [TRANSPARENT,OPAQUE]
+
+----------------------------------------------------------------
+
+%dis hatchStyle x = wORD x
+type HatchStyle   = WORD
+
+%const HatchStyle 
+% [ HS_HORIZONTAL
+% , HS_VERTICAL
+% , HS_FDIAGONAL
+% , HS_BDIAGONAL
+% , HS_CROSS
+% , HS_DIAGCROSS
+% ]
+
+----------------------------------------------------------------
+
+%dis stretchBltMode x = uINT x
+type StretchBltMode   = UINT
+
+%const StretchBltMode 
+% [ BLACKONWHITE
+% , WHITEONBLACK
+% , COLORONCOLOR
+% , HALFTONE
+% , STRETCH_ANDSCANS
+% , STRETCH_ORSCANS
+% , STRETCH_DELETESCANS
+% ]
+
+----------------------------------------------------------------
+
+%dis textAlignment x = uINT x
+type TextAlignment   = UINT
+
+%const TextAlignment 
+% [ TA_NOUPDATECP
+% , TA_UPDATECP
+% , TA_LEFT
+% , TA_RIGHT
+% , TA_CENTER
+% , TA_TOP
+% , TA_BOTTOM
+% , TA_BASELINE
+% ]
+
+----------------------------------------------------------------
+
+%dis clippingMode x = uINT x
+type ClippingMode   = UINT
+
+%const ClippingMode 
+% [ RGN_AND
+% , RGN_OR
+% , RGN_XOR
+% , RGN_DIFF
+% , RGN_COPY
+% ]
+
+----------------------------------------------------------------
+
+%dis regionType x = wORD x
+type RegionType   = WORD
+
+%const RegionType 
+% [ ERROR
+% , NULLREGION
+% , SIMPLEREGION
+% , COMPLEXREGION
+% ]
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------

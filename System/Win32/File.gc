@@ -1,0 +1,382 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.File
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.File
+{-
+	( AccessMode, ShareMode, CreateMode, FileAttributeOrFlag
+	, CreateFile, CloseHandle, DeleteFile, CopyFile
+	, MoveFileFlag, MoveFile, MoveFileEx, 
+	)
+-}
+where
+
+import System.Win32.Types
+import System.Win32.StdDIS
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+-- Enumeration types
+----------------------------------------------------------------
+
+%dis accessMode x = uINT x
+type AccessMode   = UINT
+
+%const AccessMode
+% [ gENERIC_NONE = { 0 }
+% , GENERIC_READ
+% , GENERIC_WRITE
+% , GENERIC_EXECUTE
+% , GENERIC_ALL
+% , DELETE
+% , READ_CONTROL
+% , WRITE_DAC
+% , WRITE_OWNER
+% , SYNCHRONIZE
+% , STANDARD_RIGHTS_REQUIRED
+% , STANDARD_RIGHTS_READ
+% , STANDARD_RIGHTS_WRITE
+% , STANDARD_RIGHTS_EXECUTE
+% , STANDARD_RIGHTS_ALL
+% , SPECIFIC_RIGHTS_ALL
+% , ACCESS_SYSTEM_SECURITY
+% , MAXIMUM_ALLOWED
+% ]
+
+----------------------------------------------------------------
+
+%dis shareMode x = uINT x
+type ShareMode   = UINT
+
+%const ShareMode
+% [ fILE_SHARE_NONE = { 0 }
+% , FILE_SHARE_READ
+% , FILE_SHARE_WRITE
+% ]
+
+----------------------------------------------------------------
+
+%dis createMode x = uINT x
+type CreateMode   = UINT
+
+%const CreateMode 
+% [ CREATE_NEW
+% , CREATE_ALWAYS
+% , OPEN_EXISTING
+% , OPEN_ALWAYS
+% , TRUNCATE_EXISTING
+% ]
+
+----------------------------------------------------------------
+
+%dis fileAttributeOrFlag x = uINT x
+type FileAttributeOrFlag   = UINT
+
+%const FileAttributeOrFlag 
+% [ FILE_ATTRIBUTE_READONLY
+% , FILE_ATTRIBUTE_HIDDEN
+% , FILE_ATTRIBUTE_SYSTEM
+% , FILE_ATTRIBUTE_DIRECTORY
+% , FILE_ATTRIBUTE_ARCHIVE
+% , FILE_ATTRIBUTE_NORMAL
+% , FILE_ATTRIBUTE_TEMPORARY
+% , FILE_ATTRIBUTE_COMPRESSED
+% , FILE_FLAG_WRITE_THROUGH
+% , FILE_FLAG_OVERLAPPED
+% , FILE_FLAG_NO_BUFFERING
+% , FILE_FLAG_RANDOM_ACCESS
+% , FILE_FLAG_SEQUENTIAL_SCAN
+% , FILE_FLAG_DELETE_ON_CLOSE
+% , FILE_FLAG_BACKUP_SEMANTICS
+% , FILE_FLAG_POSIX_SEMANTICS
+% , SECURITY_ANONYMOUS
+% , SECURITY_IDENTIFICATION
+% , SECURITY_IMPERSONATION
+% , SECURITY_DELEGATION
+% , SECURITY_CONTEXT_TRACKING
+% , SECURITY_EFFECTIVE_ONLY
+% , SECURITY_SQOS_PRESENT
+% , SECURITY_VALID_SQOS_FLAGS
+% ]
+
+----------------------------------------------------------------
+
+%dis moveFileFlag x = dWORD x
+type MoveFileFlag   = DWORD
+
+%const MoveFileFlag
+% [ MOVEFILE_REPLACE_EXISTING
+% , MOVEFILE_COPY_ALLOWED
+% , MOVEFILE_DELAY_UNTIL_REBOOT
+% ]
+
+----------------------------------------------------------------
+
+%dis filePtrDirection x = dWORD x
+type FilePtrDirection   = DWORD
+
+%const FilePtrDirection
+% [ FILE_BEGIN
+% , FILE_CURRENT
+% , FILE_END
+% ]
+
+----------------------------------------------------------------
+
+%dis driveType x = uINT x
+type DriveType = UINT
+
+%const DriveType 
+% [ DRIVE_UNKNOWN
+% , DRIVE_NO_ROOT_DIR
+% , DRIVE_REMOVABLE
+% , DRIVE_FIXED
+% , DRIVE_REMOTE
+% , DRIVE_CDROM
+% , DRIVE_RAMDISK
+% ]
+
+----------------------------------------------------------------
+
+%dis defineDosDeviceFlags x = dWORD x
+type DefineDosDeviceFlags = DWORD
+
+%const DefineDosDeviceFlags 
+% [ DDD_RAW_TARGET_PATH
+% , DDD_REMOVE_DEFINITION
+% , DDD_EXACT_MATCH_ON_REMOVE
+% ]
+
+----------------------------------------------------------------
+
+%dis binaryType x = dWORD x
+type BinaryType = DWORD
+
+%const BinaryType 
+% [ SCS_32BIT_BINARY
+% , SCS_DOS_BINARY
+% , SCS_WOW_BINARY
+% , SCS_PIF_BINARY
+% , SCS_POSIX_BINARY
+% , SCS_OS216_BINARY
+% ]
+
+----------------------------------------------------------------
+
+%dis fileNotificationFlag x= dWORD x
+type FileNotificationFlag = DWORD
+
+%const FileNotificationFlag 
+% [ FILE_NOTIFY_CHANGE_FILE_NAME
+% , FILE_NOTIFY_CHANGE_DIR_NAME
+% , FILE_NOTIFY_CHANGE_ATTRIBUTES
+% , FILE_NOTIFY_CHANGE_SIZE
+% , FILE_NOTIFY_CHANGE_LAST_WRITE
+% , FILE_NOTIFY_CHANGE_SECURITY
+% ]
+
+----------------------------------------------------------------
+
+%dis fileType x = dWORD x
+type FileType = DWORD
+
+%const FileType
+% [ FILE_TYPE_UNKNOWN
+% , FILE_TYPE_DISK
+% , FILE_TYPE_CHAR
+% , FILE_TYPE_PIPE
+% , FILE_TYPE_REMOTE
+% ]
+
+----------------------------------------------------------------
+
+type LPSECURITY_ATTRIBUTES = Addr
+%dis mbLPSECURITY_ATTRIBUTES x = maybeT {nullAddr} (addr x)
+type MbLPSECURITY_ATTRIBUTES = Maybe LPSECURITY_ATTRIBUTES
+
+----------------------------------------------------------------
+-- File operations
+----------------------------------------------------------------
+
+%fun DeleteFile :: String -> IO ()
+%code BOOL success = DeleteFile(arg1);
+%fail { !success } { ErrorWin("DeleteFile") }
+%end free(arg1)
+
+%fun CopyFile :: String -> String -> Bool -> IO ()
+%code BOOL success = CopyFile(arg1, arg2, arg3);
+%fail { !success } { ErrorWin("CopyFile") }
+%end free(arg1); free(arg2)
+
+%fun MoveFile   :: String -> String -> IO ()
+%code BOOL success = MoveFile(arg1, arg2);
+%fail { !success } { ErrorWin("MoveFile") }
+%end free(arg1); free(arg2)
+
+%fun MoveFileEx :: String -> String -> MoveFileFlag -> IO ()
+%code BOOL success = MoveFileEx(arg1, arg2, arg3);
+%fail { !success } { ErrorWin("MoveFileEx") }
+%end free(arg1); free(arg2)
+
+%fun SetCurrentDirectory :: String -> IO ()
+%code BOOL success = SetCurrentDirectory(arg1);
+%fail { !success } { ErrorWin("SetCurrentDirectory") }
+%end free(arg1)
+
+%fun CreateDirectory :: String -> MbLPSECURITY_ATTRIBUTES -> IO ()
+%code BOOL success = CreateDirectory(arg1, arg2);
+%fail { !success } { ErrorWin("CreateDirecotry") }
+%end free(arg1)
+
+%fun CreateDirectoryEx :: String -> String -> MbLPSECURITY_ATTRIBUTES -> IO ()
+%code BOOL success = CreateDirectoryEx(arg1, arg2, arg3);
+%fail { !success } { ErrorWin("CreateDirectoryEx") }
+%end free(arg1); free(arg2)
+
+%fun RemoveDirectory :: String -> IO ()
+%code BOOL success = RemoveDirectory(arg1);
+%fail { !success } { ErrorWin("RemoveDirecotry") }
+%end free(arg1)
+
+%fun getBinaryType :: String -> IO BinaryType
+%code BOOL success = GetBinaryType(arg1,&res1);
+%fail { !success } { ErrorString("GetBinaryType") }
+%end free(arg1)
+
+----------------------------------------------------------------
+-- HANDLE operations
+----------------------------------------------------------------
+
+%fun CreateFile :: String -> AccessMode -> ShareMode -> MbLPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> MbHANDLE -> IO HANDLE
+%fail { res1 == 0 } { ErrorWin("CreateFile") }
+%end free(arg1)
+
+%fun CloseHandle :: HANDLE -> IO ()
+%code BOOL success = CloseHandle(arg1);
+%fail { !success } { ErrorWin("CloseHandle") }
+
+%fun GetFileType :: HANDLE -> IO FileType
+--Apparently no error code
+
+%fun FlushFileBuffers :: HANDLE -> IO ()
+%code BOOL success = FlushFileBuffers(arg1)
+%fail {!success} { ErrorWin("FlushFileBuffers") }
+
+%fun SetEndOfFile :: HANDLE -> IO ()
+%code BOOL success = SetEndOfFile(arg1)
+%fail {!success} { ErrorWin("SetEndOfFile") }
+
+%fun SetFileAttributes :: String -> FileAttributeOrFlag -> IO ()
+%code BOOL success = SetFileAttributes(arg1,arg2)
+%fail {!success} { ErrorWin("SetFileAttributes") }
+%end free(arg1)
+
+%fun GetFileAttributes :: String -> IO FileAttributeOrFlag
+%code res1=GetFileAttributes(arg1)
+%fail {res1 == 0xFFFFFFFF} { ErrorWin("GetFileAttributes") }
+%end free(arg1)
+
+----------------------------------------------------------------
+-- Read/write files
+----------------------------------------------------------------
+
+-- No support for this yet
+--type OVERLAPPED =
+-- (DWORD,  -- Offset
+--  DWORD,  -- OffsetHigh
+--  HANDLE) -- hEvent
+
+%dis lPOVERLAPPED x = addr ({LPOVERLAPPED} x)
+type LPOVERLAPPED = Addr
+
+%dis mbLPOVERLAPPED x = maybeT {nullAddr} (lPOVERLAPPED x)
+type MbLPOVERLAPPED = Maybe LPOVERLAPPED
+
+--Sigh - I give up & prefix win32_ to the next two to avoid
+-- senseless Prelude name clashes. --sof.
+
+%fun win32_ReadFile :: HANDLE -> Addr -> DWORD -> MbLPOVERLAPPED -> IO DWORD
+%code BOOL success = ReadFile(arg1,arg2,arg3,&res1,arg4);
+%fail { !success } { ErrorString("ReadFile") }
+
+%fun win32_WriteFile :: HANDLE -> Addr -> DWORD -> MbLPOVERLAPPED -> IO DWORD
+%code  BOOL success = WriteFile(arg1,arg2,arg3,&res1,arg4);
+%fail { !success } { ErrorString("WriteFile") }
+
+-- missing Seek functioinality; GSL ???
+-- Dont have Word64; ADR
+-- %fun SetFilePointer :: HANDLE -> Word64 -> FilePtrDirection -> IO Word64
+
+----------------------------------------------------------------
+-- File Notifications
+--
+-- Use these to initialise, "increment" and close a HANDLE you can wait
+-- on.
+----------------------------------------------------------------
+
+%fun FindFirstChangeNotification :: String -> Bool -> FileNotificationFlag -> IO HANDLE
+%fail { res1 == 0 } { ErrorString("FindFirstChangeNotification") }
+%end free(arg1)
+
+%fun FindNextChangeNotification  :: HANDLE -> IO ()
+%code BOOL success = FindNextChangeNotification(arg1);
+%fail { !success } { ErrorWin("FindNextChangeNotification") }
+
+%fun FindCloseChangeNotification :: HANDLE -> IO ()
+%code BOOL success = FindCloseChangeNotification(arg1);
+%fail { !success } { ErrorWin("FindCloseChangeNotification") }
+
+----------------------------------------------------------------
+-- DOS Device flags
+----------------------------------------------------------------
+
+%fun DefineDosDevice :: DefineDosDeviceFlags -> String -> String -> IO ()
+%code BOOL success = DefineDosDevice(arg1, arg2, arg3);
+%fail { !success } { ErrorWin("DefineDosDevice") }
+%end free(arg2); free(arg3)
+
+----------------------------------------------------------------
+
+-- These functions are very unusual in the Win32 API:
+-- They dont return error codes
+
+%fun AreFileApisANSI   :: IO Bool
+%fun SetFileApisToOEM  :: IO ()
+%fun SetFileApisToANSI :: IO ()
+%fun SetHandleCount    :: UINT -> IO UINT
+
+----------------------------------------------------------------
+
+%fun GetLogicalDrives :: IO DWORD
+%fail { res1 == 0 } { ErrorString("GetLogicalDrives") }
+
+-- %fun GetDriveType :: MbString -> IO DriveType
+
+%fun GetDiskFreeSpace :: MbString -> IO (DWORD,DWORD,DWORD,DWORD)
+%call (mbString s)
+%code BOOL success = GetDiskFreeSpace(s,&res1,&res2,&res3,&res4)
+%fail { !success} { ErrorWin("GetDiskFreeSpace") }
+%end if (s) { free(s); }
+
+%fun SetVolumeLabel :: String -> String -> IO ()
+%code BOOL success = SetVolumeLabel(arg1, arg2);
+%fail { !success } { ErrorWin("SetVolumeLabel") }
+%end free(arg1); free(arg2)
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------

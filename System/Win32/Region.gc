@@ -1,0 +1,92 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Region
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Region where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+-- Regions
+----------------------------------------------------------------
+
+%fun CombineRgn :: HRGN -> HRGN -> HRGN -> ClippingMode -> IO RegionType
+%fail { BadRgnTest(res1) } { ErrorString("CombineRgn") }
+
+%fun OffsetRgn :: HRGN -> INT -> INT -> IO RegionType
+%fail { BadRgnTest(res1) } { ErrorString("OffsetRgn") }
+
+%fun GetRgnBox :: HRGN -> LPRECT -> IO RegionType
+%fail { BadRgnTest(res1) } { ErrorString("GetRgnBox") }
+
+%fun CreateEllipticRgn :: INT -> INT -> INT -> INT -> IO HRGN
+%fail { res1 == (HRGN) 0 } { ErrorString("CreateEllipticRgn") }
+
+%fun CreateEllipticRgnIndirect :: LPRECT -> IO HRGN
+%fail { res1 == (HRGN) 0 } { ErrorString("CreateEllipticRgnIndirect") }
+
+%fun CreateRectRgn :: INT -> INT -> INT -> INT -> IO HRGN
+%fail { res1 == (HRGN) 0 } { ErrorString("CreateRectRgn") }
+
+%fun CreateRectRgnIndirect :: LPRECT -> IO HRGN
+%fail { res1 == (HRGN) 0 } { ErrorString("CreateRectRgnIndirect") }
+
+%fun CreateRoundRectRgn :: INT -> INT -> INT -> INT -> INT -> INT -> IO HRGN
+%fail { res1 == (HRGN) 0 } { ErrorString("CreateRoundRgn") }
+
+%fun createPolygonRgn :: [POINT] -> PolyFillMode -> IO HRGN
+%call (listLenPOINT ps num_ps) (polyFillMode mode)
+%code h = CreatePolygonRgn(ps,num_ps,mode)
+%fail { h == (HRGN) 0 } { ErrorString("CreatePolygonRgn") }
+%result (hRGN h)
+%end free(ps)
+
+-- Needs to do proper error test for EqualRgn; GSL ???
+%fun EqualRgn   :: HRGN -> HRGN -> IO Bool
+
+%fun FillRgn    :: HDC -> HRGN -> HBRUSH -> IO ()
+%code BOOL success = FillRgn(arg1, arg2, arg3);
+%fail { !success } { ErrorString("FillRgn") }
+
+%fun InvertRgn  :: HDC -> HRGN -> IO ()
+%code BOOL success = InvertRgn(arg1, arg2);
+%fail { !success } { ErrorString("InvertRgn") }
+
+%fun PaintRgn   :: HDC -> HRGN -> IO ()
+%code BOOL success = PaintRgn(arg1, arg2);
+%fail { !success } { ErrorString("PaintRgn") }
+
+%fun FrameRgn   :: HDC -> HRGN -> HBRUSH -> Int -> Int -> IO ()
+%code BOOL success = FrameRgn(arg1, arg2, arg3, arg4, arg5);
+%fail { !success } { ErrorString("FrameRgn") }
+
+%fun PtInRegion :: HRGN -> Int -> Int -> IO Bool
+
+%fun RectInRegion :: HRGN -> RECT -> IO Bool
+%call (hRGN arg1) (declare {RECT} arg2 in (rect arg2))
+%code res1 = RectInRegion(arg1,&arg2)
+
+%fun deleteRegion :: HRGN -> IO ()
+%code BOOL success = DeleteObject(arg1);
+%fail { !success } { ErrorString("DeleteRegion") }
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------

@@ -1,0 +1,72 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Path
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Path
+	( beginPath, closeFigure, endPath, fillPath, flattenPath
+	, pathToRegion, strokeAndFillPath, strokePath, widenPath
+	) where
+
+import System.Win32.StdDIS
+import System.Win32.GDITypes
+import System.Win32.Types
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+-- Paths
+----------------------------------------------------------------
+
+-- %fun AbortPath       :: HDC -> IO ()
+
+%fun BeginPath         :: HDC -> IO ()
+%code BOOL success = BeginPath(arg1);
+%fail { !success } { ErrorWin("BeginPath") }
+
+%fun CloseFigure       :: HDC -> IO ()
+%code BOOL success = CloseFigure(arg1);
+%fail { !success } { ErrorWin("CloseFigure") }
+
+%fun EndPath           :: HDC -> IO ()
+%code BOOL success = EndPath(arg1);
+%fail { !success } { ErrorWin("EndPath") }
+
+%fun FillPath          :: HDC -> IO ()
+%code BOOL success = FillPath(arg1);
+%fail { !success } { ErrorWin("FillPath") }
+
+%fun FlattenPath       :: HDC -> IO ()
+%code BOOL success = FlattenPath(arg1);
+%fail { !success } { ErrorWin("FlattenPath") }
+
+%fun PathToRegion      :: HDC -> IO HRGN
+%fail { res1 == (HRGN) 0 } { ErrorWin("PathToRegion") }
+
+%fun StrokeAndFillPath :: HDC -> IO ()
+%code BOOL success = StrokeAndFillPath(arg1);
+%fail { !success } { ErrorWin("StrokeAndFillPath") }
+
+%fun StrokePath        :: HDC -> IO ()
+%code BOOL success = StrokePath(arg1);
+%fail { !success } { ErrorWin("StrokePath") }
+
+%fun WidenPath         :: HDC -> IO ()
+%code BOOL success = WidenPath(arg1);
+%fail { !success } { ErrorWin("WidenPath") }
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------

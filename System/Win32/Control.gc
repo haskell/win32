@@ -1,0 +1,321 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Control
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Control where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+import System.Win32.Window
+import System.Win32.WinMessage
+
+%#include <windows.h>
+%#include <commctrl.h>
+%#include "errors.h"
+%#include "win32debug.h"
+
+-- Bindings to the various standard Win32 controls
+
+
+-- == Command buttons
+
+%dis buttonStyle x = windowStyle x
+type ButtonStyle   = WindowStyle
+
+%const ButtonStyle 
+% [ BS_PUSHBUTTON
+% , BS_DEFPUSHBUTTON
+% , BS_CHECKBOX
+% , BS_AUTOCHECKBOX
+% , BS_RADIOBUTTON
+% , BS_3STATE
+% , BS_AUTO3STATE
+% , BS_GROUPBOX
+% , BS_AUTORADIOBUTTON
+% , BS_OWNERDRAW
+% , BS_LEFTTEXT
+% , BS_USERBUTTON
+% ]
+
+%fun createButton 
+%    :: String -> WindowStyle -> ButtonStyle 
+%    -> MbPos -> MbPos -> MbPos -> MbPos 
+%    -> MbHWND -> MbHMENU -> HANDLE 
+%    -> IO HWND
+%call (string nm) (windowStyle wstyle) (buttonStyle bstyle) 
+%     (mbPos x) (mbPos y) (mbPos w) (mbPos h) 
+%     (mbHWND parent) (mbHMENU hmenu) (hANDLE handle)
+%code hwnd = CreateWindow("BUTTON",nm,wstyle|bstyle,x,y,w,h,parent,hmenu,handle,NULL);
+%fail { hwnd == NULL } { ErrorWin("CreateButton") }
+%result (hWND hwnd)
+
+type ButtonState = UINT
+%dis buttonState x = uINT x
+
+%const ButtonState [ BST_CHECKED, BST_INDETERMINATE, BST_UNCHECKED ]
+
+%fun CheckDlgButton :: HWND -> Int -> ButtonState -> IO ()
+%code BOOL res1=CheckDlgButton(arg1,arg2,arg3);
+%fail { res1 == FALSE } {ErrorWithCode("CheckDlgButton", res1)}
+
+%fun CheckRadioButton :: HWND -> Int -> Int -> Int -> IO ()
+%code BOOL res1=CheckRadioButton(arg1,arg2,arg3,arg4);
+%fail { res1 == FALSE } {ErrorWithCode("CheckRadioButton", res1)}
+
+%fun IsDlgButtonChecked :: HWND -> Int -> IO ButtonState
+%code BOOL res1=IsDlgButtonChecked(arg1,arg2);
+%fail { res1 == FALSE } {ErrorWithCode("IsDlgButtonChecked", res1)}
+
+
+-- == ComboBoxes aka. pop up list boxes/selectors.
+
+%dis comboBoxStyle x = windowStyle x
+type ComboBoxStyle = WindowStyle
+
+%const ComboBoxStyle 
+% [ CBS_SIMPLE
+% , CBS_DROPDOWN
+% , CBS_DROPDOWNLIST
+% , CBS_OWNERDRAWFIXED
+% , CBS_OWNERDRAWVARIABLE
+% , CBS_AUTOHSCROLL
+% , CBS_OEMCONVERT
+% , CBS_SORT
+% , CBS_HASSTRINGS
+% , CBS_NOINTEGRALHEIGHT
+% , CBS_DISABLENOSCROLL
+% ]
+
+%fun createComboBox 
+%    :: String -> WindowStyle -> ComboBoxStyle 
+%    -> MbPos -> MbPos -> MbPos -> MbPos 
+%    -> HWND -> MbHMENU -> HANDLE 
+%    -> IO HWND
+%call (string nm) (windowStyle wstyle) (comboBoxStyle cstyle) 
+%     (mbPos x) (mbPos y) (mbPos w) (mbPos h) 
+%     (hWND parent) (mbHMENU hmenu) (hANDLE handle)
+%code hwnd = CreateWindow("COMBOBOX",nm,wstyle|cstyle, x,y,w,h,parent,hmenu,handle,NULL);
+%fail { hwnd == NULL } { ErrorWin("CreateComboBox") }
+%result (hWND hwnd)
+
+-- see comment about freeing windowNames in System.Win32.Window.createWindow
+-- %end free(nm)
+
+
+--- == Edit controls
+
+----------------------------------------------------------------
+
+%dis editStyle x = windowStyle x
+type EditStyle = WindowStyle
+
+%const EditStyle 
+% [ ES_LEFT
+% , ES_CENTER
+% , ES_RIGHT
+% , ES_MULTILINE
+% , ES_UPPERCASE
+% , ES_LOWERCASE
+% , ES_PASSWORD
+% , ES_AUTOVSCROLL
+% , ES_AUTOHSCROLL
+% , ES_NOHIDESEL
+% , ES_OEMCONVERT
+% , ES_READONLY
+% , ES_WANTRETURN
+% ]
+
+%fun createEditWindow 
+%    :: String -> WindowStyle -> EditStyle 
+%    -> MbPos -> MbPos -> MbPos -> MbPos 
+%    -> HWND -> MbHMENU -> HANDLE 
+%    -> IO HWND
+%call (string nm) (windowStyle wstyle) (editStyle estyle) 
+%     (mbPos x) (mbPos y) (mbPos w) (mbPos h) 
+%     (hWND parent) (mbHMENU hmenu) (hANDLE handle)
+%code hwnd = CreateWindow("EDIT",nm,wstyle|estyle, x,y,w,h,parent,hmenu,handle,NULL);
+%fail { hwnd == NULL } { ErrorWin("CreateEditWindow") }
+%result (hWND hwnd)
+
+-- see comment about freeing windowNames in System.Win32.Window.createWindow
+-- %end free(nm)
+
+-- == List boxes
+
+
+----------------------------------------------------------------
+
+%dis listBoxStyle x = windowStyle x
+type ListBoxStyle   = WindowStyle
+
+%const ListBoxStyle 
+% [ LBS_NOTIFY
+% , LBS_SORT
+% , LBS_NOREDRAW
+% , LBS_MULTIPLESEL
+% , LBS_OWNERDRAWFIXED
+% , LBS_OWNERDRAWVARIABLE
+% , LBS_HASSTRINGS
+% , LBS_USETABSTOPS
+% , LBS_NOINTEGRALHEIGHT
+% , LBS_MULTICOLUMN
+% , LBS_WANTKEYBOARDINPUT
+% , LBS_DISABLENOSCROLL
+% , LBS_STANDARD
+% ]
+
+%fun createListBox 
+%    :: String -> WindowStyle -> ListBoxStyle 
+%    -> MbPos -> MbPos -> MbPos -> MbPos 
+%    -> HWND -> MbHMENU -> HANDLE 
+%    -> IO HWND
+%call (string nm) (windowStyle wstyle) (listBoxStyle lstyle) 
+%     (mbPos x) (mbPos y) (mbPos w) (mbPos h) 
+%     (hWND parent) (mbHMENU hmenu) (hANDLE handle)
+%code hwnd = CreateWindow("LISTBOX",nm,wstyle|lstyle,x,y,w,h,parent,hmenu,handle,NULL);
+%fail { hwnd == NULL } { ErrorWin("CreateListBox") }
+%result (hWND hwnd)
+
+-- see comment about freeing windowNames in System.Win32.Window.createWindow
+-- %end free(nm)
+
+-- == Scrollbars
+
+
+----------------------------------------------------------------
+
+%dis scrollbarStyle x = windowStyle x
+type ScrollbarStyle = WindowStyle
+
+%const ScrollbarStyle 
+% [ SBS_HORZ
+% , SBS_TOPALIGN
+% , SBS_BOTTOMALIGN
+% , SBS_VERT
+% , SBS_LEFTALIGN
+% , SBS_RIGHTALIGN
+% , SBS_SIZEBOX
+% , SBS_SIZEBOXTOPLEFTALIGN
+% , SBS_SIZEBOXBOTTOMRIGHTALIGN
+% ]
+
+%fun createScrollbar 
+%    :: String -> WindowStyle -> ScrollbarStyle 
+%    -> MbPos -> MbPos -> MbPos -> MbPos 
+%    -> HWND -> MbHMENU -> HANDLE 
+%    -> IO HWND
+%call (string nm) (windowStyle wstyle) (scrollbarStyle sstyle) 
+%     (mbPos x) (mbPos y) (mbPos w) (mbPos h) 
+%     (hWND parent) (mbHMENU hmenu) (hANDLE handle)
+%code hwnd = CreateWindow("SCROLLBAR",nm,wstyle|sstyle, x,y,w,h,parent,hmenu,handle,NULL);
+%fail { hwnd == NULL } { ErrorWin("CreateScrollbar") }
+%result (hWND hwnd)
+
+-- see comment about freeing windowNames in System.Win32.Window.createWindow
+-- %end free(nm)
+
+-- == Static controls aka. labels
+
+
+----------------------------------------------------------------
+
+%dis staticControlStyle x = windowStyle x
+type StaticControlStyle = WindowStyle
+
+%const StaticControlStyle 
+% [ SS_LEFT
+% , SS_CENTER
+% , SS_RIGHT
+% , SS_ICON
+% , SS_BLACKRECT
+% , SS_GRAYRECT
+% , SS_WHITERECT
+% , SS_BLACKFRAME
+% , SS_GRAYFRAME
+% , SS_WHITEFRAME
+% , SS_SIMPLE
+% , SS_LEFTNOWORDWRAP
+% , SS_NOPREFIX
+% ]
+
+%fun createStaticWindow 
+%    :: String -> WindowStyle -> StaticControlStyle 
+%    -> MbPos -> MbPos -> MbPos -> MbPos 
+%    -> HWND -> MbHMENU -> HANDLE 
+%    -> IO HWND
+%call (string nm) (windowStyle wstyle) (staticControlStyle sstyle) 
+%     (mbPos x) (mbPos y) (mbPos w) (mbPos h) 
+%     (hWND parent) (mbHMENU hmenu) (hANDLE handle)
+%code hwnd = CreateWindow("STATIC",nm,wstyle|sstyle, x,y,w,h,parent,hmenu,handle,NULL);
+%fail { hwnd == NULL } { ErrorWin("CreateStaticWindow") }
+%result (hWND hwnd)
+
+-- see comment about freeing windowNames in System.Win32.Window.createWindow
+-- %end free(nm)
+
+{- UNTESTED - leave out
+
+type CommonControl   = Addr
+%dis commonControl x = addr ({LPCTSTR} x)
+
+%const CommonControl
+% [ ToolTipsControl = {TOOLTIPS_CLASS}
+% , TrackBarControl = {TRACKBAR_CLASS}
+% , UpDownControl  = {UPDOWN_CLASS}
+% , ProgressBarControl = {PROGRESS_CLASS}
+% , HotKeyControl  = {HOTKEY_CLASS}
+% , AnimateControl     = {ANIMATE_CLASS}
+% , StatusControl     =  {STATUSCLASSNAME}
+% , HeaderControl     =  {WC_HEADER}
+% , ListViewControl   =  {WC_LISTVIEW}
+% , TabControl        =  {WC_TABCONTROL}
+% , TreeViewControl   =  {WC_TREEVIEW}
+% , MonthCalControl    = {MONTHCAL_CLASS}
+% , DateTimePickControl = {DATETIMEPICK_CLASS}
+% , ReBarControl      =  {REBARCLASSNAME}
+-- Not supplied in mingw-20001111
+--% , ComboBoxExControl =  {WC_COMBOBOXEX}
+--% , IPAddressControl  =  {WC_IPADDRESS}
+--% , PageScrollerControl = {WC_PAGESCROLLER}
+% ]
+
+%fun createCommonControl
+%    :: CommonControl -> WindowStyle -> String -> WindowStyle
+%    -> MbPos -> MbPos -> MbPos -> MbPos 
+%    -> MbHWND -> MbHMENU -> HANDLE 
+%    -> IO HWND
+%call (commonControl c) (windowStyle estyle) (string nm) (windowStyle wstyle)
+%     (mbPos x) (mbPos y) (mbPos w) (mbPos h) 
+%     (mbHWND parent) (mbHMENU hmenu) (hANDLE handle)
+%code hwnd = CreateWindowEx(estyle, c, nm,wstyle,x,y,w,h,parent,hmenu,handle,NULL);
+%fail { hwnd == NULL } { ErrorWin("CreateCommonControl") }
+%result (hWND hwnd)
+
+%fun InitCommonControls :: IO ()
+
+-}
+
+%const WindowMessage
+% [ PBM_DELTAPOS
+% , PBM_SETPOS
+% , PBM_SETRANGE
+% , PBM_SETSTEP
+% , PBM_STEPIT
+% ]
+
+-- % , PBM_GETRANGE
+-- % , PBM_GETPOS
+-- % , PBM_SETBARCOLOR
+-- % , PBM_SETBKCOLOR
+-- % , PBM_SETRANGE32

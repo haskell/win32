@@ -1,0 +1,173 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Graphics2D
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Graphics2D
+	where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+import System.Win32.Bitmap
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+
+----------------------------------------------------------------
+-- 2D graphics operations
+----------------------------------------------------------------
+
+%fun moveToEx :: HDC -> Int32 -> Int32 -> IO POINT
+%code POINT res1;
+%     BOOL success = MoveToEx(arg1,arg2,arg3,&res1);
+%fail { !success } { ErrorString("MoveToEx") }
+%result (point res1)
+
+%fun LineTo :: HDC -> Int32 -> Int32 -> IO ()
+%code BOOL success = LineTo(arg1,arg2,arg3)
+%fail { !success } { ErrorString("LineTo") }
+
+%fun polyline :: HDC -> [POINT] -> IO ()
+%call (hDC hdc) (listLenPOINT ps num_ps)
+%code BOOL success = Polyline(hdc,ps,num_ps)
+%fail { !success } { ErrorString("Polyline") }
+%end free(ps)
+
+%fun polylineTo :: HDC -> [POINT] -> IO ()
+%call (hDC hdc) (listLenPOINT ps num_ps)
+%code BOOL success = PolylineTo(hdc,ps,num_ps)
+%fail { !success } { ErrorString("PolylineTo") }
+%end free(ps)
+
+%fun polygon :: HDC -> [POINT] -> IO ()
+%call (hDC hdc) (listLenPOINT ps num_ps)
+%code BOOL success = Polygon(hdc,ps,num_ps)
+%fail { !success } { ErrorString("Polygon") }
+%end free(ps)
+
+%fun polyBezier :: HDC -> [POINT] -> IO ()
+%call (hDC hdc)  (listLenPOINT ps num_ps)
+%code BOOL success = PolyBezier(hdc, ps, num_ps)
+%fail { !success } { ErrorString("PolyBezier") }
+%end free(ps)
+
+%fun polyBezierTo :: HDC -> [POINT] -> IO ()
+%call (hDC hdc)  (listLenPOINT ps num_ps)
+%code BOOL success = PolyBezierTo(hdc, ps, num_ps)
+%fail { !success } { ErrorString("PolyBezierTo") }
+%end free(ps)
+
+-- ToDo: We ought to be able to specify a colour instead of the
+-- Brush by adding 1 to colour number.
+
+%fun FillRect   :: HDC -> RECT -> HBRUSH -> IO ()
+%call (hDC arg1) (declare {RECT} arg2 in (rect arg2)) (hBRUSH arg3)
+%code BOOL success = FillRect(arg1,&arg2,arg3)
+%fail { !success } { ErrorWin("FillRect") }
+
+%fun FrameRect  :: HDC -> RECT -> HBRUSH -> IO ()
+%call (hDC arg1) (declare {RECT} arg2 in (rect arg2)) (hBRUSH arg3)
+%code BOOL success = FrameRect(arg1,&arg2,arg3)
+%fail { !success } { ErrorWin("FrameRect") }
+
+%fun InvertRect :: HDC -> RECT -> IO ()
+%call (hDC arg1) (declare {RECT} arg2 in (rect arg2))
+%code BOOL success = InvertRect(arg1,&arg2)
+%fail { !success } { ErrorWin("InvertRect") }
+
+%fun Rectangle  :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
+%code BOOL success = Rectangle(arg1,arg2,arg3,arg4,arg5)
+%fail { !success } { ErrorWin("Rectangle") }
+
+%fun RoundRect  :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
+%code BOOL success = RoundRect(arg1,arg2,arg3,arg4,arg5,arg6,arg7)
+%fail { !success } { ErrorWin("RoundRect") }
+
+%fun Ellipse    :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
+%code BOOL success = Ellipse(arg1,arg2,arg3,arg4,arg5)
+%fail { !success } { ErrorWin("Ellipse") }
+
+%fun Arc        :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
+%code BOOL success = Arc(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9)
+%fail { !success } { ErrorWin("Arc") }
+
+%fun ArcTo      :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
+%code BOOL success = ArcTo(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9)
+%fail { !success } { ErrorWin("ArcTo") }
+
+%fun AngleArc   :: HDC -> Int32 -> Int32 -> WORD -> Double -> Double -> IO ()
+%code BOOL success = AngleArc(arg1,arg2,arg3,arg4,arg5,arg6)
+%fail { !success } { ErrorWin("AngleArc") }
+
+%fun Chord      :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
+%code BOOL success = Chord(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9)
+%fail { !success } { ErrorWin("Chord") }
+
+%fun Pie        :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
+%code BOOL success = Pie(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9)
+%fail { !success } { ErrorWin("Pie") }
+
+%fun BitBlt     :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> RasterOp3 -> IO ()
+%code BOOL success = BitBlt(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9)
+%fail { !success } { ErrorWin("BitBlt") }
+
+%fun MaskBlt    :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> HBITMAP -> INT -> INT -> RasterOp4 -> IO ()
+%code BOOL success = MaskBlt(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11, arg12)
+%fail { !success } { ErrorWin("MaskBlt") }
+
+%fun StretchBlt :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> INT -> INT -> RasterOp3 -> IO ()
+%code BOOL success = StretchBlt(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11)
+%fail { !success } { ErrorWin("StretchBlt") }
+
+-- We deviate slightly from the Win32 interface
+
+-- %C typedef POINT ThreePts[3];
+
+-- Old 2nd line: 
+-- %start POINT vertices[3];
+
+%fun plgBlt     :: HDC -> POINT -> POINT -> POINT -> HDC -> INT -> INT -> INT -> INT -> MbHBITMAP -> INT -> INT -> IO ()
+%call (hDC arg1) 
+%     (declare {typedef POINT ThreePts[3]; ThreePts} vertices in (point {vertices[0]})) 
+%     (point {vertices[1]}) 
+%     (point {vertices[2]})
+%     (hDC arg2) (iNT x) (iNT y) (iNT w) (iNT h) 
+%     (mbHBITMAP bm) (iNT sx) (iNT sy)
+%code BOOL success = PlgBlt(arg1,vertices,arg2,x,y,w,h,bm,sx,sy)
+%fail { !success } { ErrorWin("PlgBlt") }
+
+%fun textOut :: HDC -> INT -> INT -> String -> IO ()
+%call (hDC arg1) (iNT arg2) (iNT arg3) (stringLen arg4 arg5)
+%code BOOL success = TextOut(arg1,arg2,arg3,arg4,arg5)
+%fail { !success } { ErrorWin("TextOut") }
+%end  free(arg4)
+
+-- missing TabbedTextOut from WinFonts.ss; GSL ???
+
+%fun getTextExtentPoint32 :: HDC -> String -> IO SIZE
+%call (hDC hdc) (stringLen str l)
+%code SIZE res1;
+%     BOOL success = GetTextExtentPoint32(hdc,str,l,&res1);
+%fail { !success } { ErrorWin("TextOut") }
+%result (size res1)
+%end free(str)
+
+-- missing getTabbedTextExtent from WinFonts.ss; GSL ???
+-- missing SetTextJustification from WinFonts.ss; GSL ???
+-- missing a whole family of techandfamily functionality; GSL ???
+-- missing DrawText and DrawTextFormat in WinFonts.ss; GSL ???
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------

@@ -1,0 +1,50 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Palette
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Palette where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+-- Palettes
+----------------------------------------------------------------
+
+%dis stockPalette x = wORD x
+type StockPalette   = WORD
+
+%const StockPalette 
+% [ DEFAULT_PALETTE
+% ]
+
+%fun GetStockPalette :: StockPalette -> IO HPALETTE
+%code res1 = GetStockObject(arg1);
+%fail { res1 == (HPALETTE) NULL } { ErrorString("GetStockPalette") }
+
+%fun deletePalette :: HPALETTE -> IO ()
+%code BOOL success = DeleteObject(arg1);
+%fail { !success } { ErrorString("DeletePalette") }
+
+%fun PALETTERGB   :: BYTE -> BYTE -> BYTE -> COLORREF
+%fun PALETTEINDEX :: WORD -> COLORREF
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------

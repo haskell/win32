@@ -1,0 +1,168 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Types
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Types
+	( module System.Win32.Types
+	, nullAddr
+	) where
+
+import System.Win32.StdDIS
+
+%#include <stdlib.h>
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+-- Platform specific definitions
+--
+-- Most typedefs and prototypes in Win32 are expressed in terms
+-- of these types.  Try to follow suit - it'll make it easier to
+-- get things working on Win64 (or whatever they call it on Alphas).
+----------------------------------------------------------------
+
+%dis bOOL x        = bool   ({BOOL}   x)
+%dis bYTE x        = word8  ({BYTE}   x)
+%dis uSHORT x      = word16 ({USHORT} x)
+%dis uINT x        = word32 ({UINT}   x)
+%dis iNT  x        = int32  ({INT}    x)
+%dis lONG x        = int32  ({LONG}   x)
+%dis wORD x        = word16 ({WORD}   x)
+%dis dWORD x       = word32 ({DWORD}  x)
+	           
+type BOOL          = Bool
+type BYTE          = Word8
+type USHORT        = Word16
+type UINT          = Word32
+type INT           = Int32
+type WORD          = Word16
+type DWORD         = Word32
+type LONG          = Int32
+type FLOAT         = Float
+	           
+type MbINT         = Maybe INT
+%dis mbINT x       = maybeT {0} (iNT x)
+
+----------------------------------------------------------------
+
+%dis aTOM x        = uINT ({ATOM}    x)
+%dis wPARAM x      = uINT ({WPARAM}  x)
+%dis lPARAM x      = lONG ({LPARAM}  x)
+%dis lRESULT x     = lONG ({LRESULT} x)
+	           
+type ATOM          = UINT
+type WPARAM        = UINT
+type LPARAM        = LONG
+type LRESULT       = LONG
+	           
+type MbATOM        = Maybe ATOM
+%dis mbATOM x      = maybeT {0} (aTOM x)
+
+----------------------------------------------------------------
+-- Pointers
+----------------------------------------------------------------
+
+type LPVOID        = Addr
+type LPCTSTR       = Ptr CChar
+type LPCTSTR_      = String
+type LPCSTR        = Ptr CChar
+type LPSTR         = Ptr CChar
+type LPTSTR        = Ptr CChar
+type LPBYTE        = Ptr BYTE
+
+%dis lPVOID x      = addr ({LPVOID} x)
+%dis lPCSTR x      = ptr ({LPCSTR} x)
+%dis lPSTR  x      = ptr ({LPSTR} x)
+%dis lPCTSTR x     = ptr ({LPCTSTR} x)
+%dis lPTSTR x      = ptr ({LPTSTR} x)
+%dis lPBYTE x      = ptr ({LPBYTE} x)
+
+%dis lPCTSTR_ x    = lpctstr_ (ptr ({LPCTSTR} x))
+
+-- Note: marshalling allocates mem, so the programmer
+-- has to make sure to free this stuff up after any
+-- uses of LPCTSTR. Automating this is tricky to do
+-- (in all situations).
+
+%fun unmarshall_lpctstr_ :: Ptr CChar -> IO String
+%call (ptr arg1)
+%code char* res1;
+%     size_t l = wcstombs(NULL,arg1,-1);
+%     if ((res1=malloc(sizeof(char)*l)) == NULL ) {
+%        res1 = NULL;
+%     } else {
+%        wcstombs(res1,arg1,-1);
+%     }
+%fail { res1 == NULL } {ErrorWithCode("unmarshall_lpctstr_",0)}
+%result (string {res1})
+%end free(res1)
+
+%fun marshall_lpctstr_ :: String -> IO (Ptr CChar)
+%call (string arg1)
+%code wchar_t* res1;
+%     /* figure out how much to allocate */
+%     size_t l = mbstowcs(NULL,arg1,-1);
+%     if ((res1=malloc(sizeof(wchar_t)*l)) == NULL ) {
+%        res1 = NULL;
+%     } else {
+%        mbstowcs(res1,arg1,-1);
+%     }
+%fail { res1 == NULL } {ErrorWithCode("marshall_lpctstr_",0)}
+%result (ptr res1)
+
+type MbLPVOID      = Maybe LPVOID
+%dis mbLPVOID x    = maybeT {nullAddr} (lPVOID x)
+		   
+%dis mbLPCSTR x    = maybeT {nullPtr} (lPCSTR x)
+type MbLPCSTR      = Maybe LPCSTR
+%dis mbLPCTSTR x   = maybeT {nullPtr} (lPCTSTR x)
+type MbLPCTSTR     = Maybe LPCTSTR
+		   
+----------------------------------------------------------------
+-- Handles
+----------------------------------------------------------------
+
+type   HANDLE      = Addr
+%dis   hANDLE x    = addr ({HANDLE} x)
+
+%fun handleToWord :: HANDLE -> UINT
+%code res1=(UINT)arg1
+		   
+type   HKEY      = ForeignPtr Stub_KEY
+data Stub_KEY
+%dis   hKEY x    = %ForeignPtr {HKEY} x {deleteObj}
+		   
+%const Addr [ nullHANDLE = {(HANDLE) NULL} ]
+
+type MbHANDLE      = Maybe HANDLE
+%dis mbHANDLE x    = maybeT {nullHANDLE} (hANDLE x)
+
+type   HINSTANCE   = Addr
+%dis   hINSTANCE x = addr ({HINSTANCE} x)
+type MbHINSTANCE   = Maybe HINSTANCE
+%dis mbHINSTANCE x = maybeT {nullHANDLE} (hINSTANCE x)
+
+type   HMODULE     = Addr
+%dis   hMODULE x   = addr ({HMODULE} x)
+type MbHMODULE     = Maybe HMODULE
+%dis mbHMODULE x   = maybeT {nullHANDLE} (hMODULE x)
+
+nullFinalHANDLE :: ForeignPtr a
+nullFinalHANDLE = unsafePerformIO (newForeignPtr nullPtr nullFunPtr)
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------
+

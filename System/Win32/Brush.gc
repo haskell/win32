@@ -1,0 +1,65 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Brush
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Brush where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+-- Brush
+----------------------------------------------------------------
+
+%fun CreateSolidBrush :: COLORREF -> IO HBRUSH
+%fail { res1 == (HBRUSH) NULL } { ErrorString("CreateSolidBrush") }
+
+%fun CreateHatchBrush :: HatchStyle -> COLORREF -> IO HBRUSH
+%fail { res1 == (HBRUSH) NULL } { ErrorString("CreateHatchBrush") }
+
+%fun CreatePatternBrush :: HBITMAP -> IO HBRUSH
+%fail { res1 == (HBRUSH) NULL } { ErrorString("CreatePatternBrush") }
+
+%fun deleteBrush :: HBRUSH -> IO ()
+%code BOOL success = DeleteObject(arg1);
+%fail { !success } { ErrorString("DeleteBrush") }
+
+----------------------------------------------------------------
+
+%dis stockBrush x = wORD x
+type StockBrush   = WORD
+
+%const StockBrush
+% [ WHITE_BRUSH
+% , LTGRAY_BRUSH
+% , GRAY_BRUSH
+% , DKGRAY_BRUSH
+% , BLACK_BRUSH
+% , NULL_BRUSH
+% , HOLLOW_BRUSH
+% ]
+
+%fun GetStockBrush :: StockBrush -> IO HBRUSH
+%code res1 = GetStockObject(arg1);
+%fail { res1 == (HBRUSH) NULL } { ErrorString("GetStockBrush") }
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------
+

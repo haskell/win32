@@ -1,0 +1,100 @@
+module Win32Resource where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+%fun BeginUpdateResource :: String -> Bool -> IO HANDLE
+%fail {res1 == NULL} {ErrorWin("BeginUpdateResource")}
+
+type ResourceImageType = UINT
+%dis resourceImageType x = uINT x
+
+type   HRSRC      = Addr
+%dis   hRSRC x    = addr ({HRSRC} x)
+
+type   HGLOBAL    = Addr
+%dis   hGLOBAL x  = addr ({HGLOBAL} x)
+
+%const ResourceImageType [IMAGE_BITMAP, IMAGE_ICON, IMAGE_CURSOR]
+
+%fun CopyImage :: HANDLE -> ResourceImageType -> Int -> Int -> UINT -> IO HANDLE
+%fail {res1 == NULL} {ErrorWin("CopyImage")}
+
+%fun EndUpdateResource :: HANDLE -> BOOL -> IO ()
+%code BOOL res1 = EndUpdateResource(arg1,arg2);
+%fail {res1 == FALSE} {ErrorWin("EndUpdateResource")}
+
+type ResourceType = Addr
+
+%dis resourceType x = addr x
+--lPCTSTR_ x
+
+%const ResourceType
+% [ RT_ACCELERATOR = { MAKEINTRESOURCE(RT_ACCELERATOR) } -- Accelerator table 
+% , RT_ANICURSOR   = { MAKEINTRESOURCE(RT_ANICURSOR) }  -- Animated cursor
+% , RT_ANIICON     = { MAKEINTRESOURCE(RT_ANIICON) }   -- Animated icon 
+% , RT_BITMAP      = { MAKEINTRESOURCE(RT_BITMAP) }    -- Bitmap resource 
+% , RT_CURSOR      = { MAKEINTRESOURCE(RT_CURSOR) }    -- Hardware-dependent cursor resource 
+% , RT_DIALOG      = { MAKEINTRESOURCE(RT_DIALOG) }    -- Dialog box 
+% , RT_FONT        = { MAKEINTRESOURCE(RT_FONT) }      -- Font resource 
+% , RT_FONTDIR     = { MAKEINTRESOURCE(RT_FONTDIR) }    -- Font directory resource 
+% , RT_GROUP_CURSOR = { MAKEINTRESOURCE(RT_GROUP_CURSOR) } -- Hardware-independent cursor resource 
+% , RT_GROUP_ICON   = { MAKEINTRESOURCE(RT_GROUP_ICON) } -- Hardware-independent icon resource 
+% , RT_HTML         = { MAKEINTRESOURCE(RT_HTML) }      -- HTML document 
+% , RT_ICON         = { MAKEINTRESOURCE(RT_ICON) }      -- Hardware-dependent icon resource 
+% , RT_MENU         = { MAKEINTRESOURCE(RT_MENU) }      -- Menu resource 
+% , RT_MESSAGETABLE = { MAKEINTRESOURCE(RT_MESSAGETABLE) } -- Message-table entry 
+% , RT_RCDATA       = { MAKEINTRESOURCE(RT_RCDATA)  }   -- Application-defined resource (raw data) 
+% , RT_STRING       = { MAKEINTRESOURCE(RT_STRING)  }   -- String-table entry 
+% , RT_VERSION      = { MAKEINTRESOURCE(RT_VERSION) }    -- Version resource 
+% ]
+
+%fun FindResource :: HMODULE -> String -> ResourceType -> IO HRSRC
+%fail {res1 == NULL} {ErrorWin("FindResource")}
+
+%fun FindResourceEx :: HMODULE -> LPCTSTR_ -> ResourceType -> WORD -> IO HRSRC
+%fail {res1 == NULL} {ErrorWin("FindResourceEx")}
+
+type ResourceSize = Int
+%dis resourceSize x = int x
+
+%const ResourceSize [ LR_DEFAULTSIZE ]
+
+type LoadImageFlags = UINT
+%dis loadImageFlags x = uINT x
+
+%const LoadImageFlags 
+% [ LR_DEFAULTCOLOR
+% , LR_CREATEDIBSECTION
+% , LR_LOADFROMFILE
+% , LR_LOADMAP3DCOLORS
+% , LR_LOADTRANSPARENT
+% , LR_MONOCHROME
+% , LR_SHARED
+% ]
+
+-- % , LR_VGACOLOR (Not in mingw-20001111 headers)
+
+
+%fun LoadImage :: HINSTANCE -> LPCTSTR_ -> ResourceImageType -> ResourceSize -> ResourceSize -> LoadImageFlags -> IO HANDLE
+%fail {res1 == NULL} {ErrorWin("LoadImage")}
+
+%fun LoadResource :: HMODULE -> HRSRC -> IO HGLOBAL
+%fail {res1 == NULL} {ErrorWin("LoadResource")}
+
+%fun LockResource :: HGLOBAL -> IO Addr
+%fail {res1 == NULL} {ErrorWin("LockResource")}
+
+%fun SizeofResource :: HMODULE -> HRSRC -> IO DWORD
+%fail {res1 == 0} {ErrorWin("SizeofResource")}
+
+%fun UpdateResource :: HANDLE -> LPCTSTR_ -> ResourceType -> WORD -> Addr -> DWORD -> IO ()
+%code BOOL res1 = UpdateResource(arg1,arg2,arg3,arg4,arg5,arg6);
+%fail { res1 == FALSE } {ErrorWin("UpdateResource")}
+
+

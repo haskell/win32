@@ -1,0 +1,389 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.Bitmap
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.Bitmap(
+	
+	RasterOp3,
+	RasterOp4,
+	sRCCOPY,
+	sRCPAINT,
+	sRCAND,
+	sRCINVERT,
+	sRCERASE,
+	nOTSRCCOPY,
+	nOTSRCERASE,
+	mERGECOPY,
+	mERGEPAINT,
+	pATCOPY,
+	pATPAINT,
+	pATINVERT,
+	dSTINVERT,
+	bLACKNESS,
+	wHITENESS,
+	
+	mAKEROP4,
+	
+	BITMAP,
+	LPBITMAP,
+	setBITMAP,
+	marshall_bITMAP_,
+	deleteBitmap,
+	createCompatibleBitmap,
+	createBitmap,
+	createBitmapIndirect,
+	createDIBPatternBrushPt,
+	getBitmapDimensionEx,
+	setBitmapDimensionEx,
+	getBitmapInfo,
+	
+	BitmapCompression,
+	bI_RGB,
+	bI_RLE8,
+	bI_RLE4,
+	bI_BITFIELDS,
+	
+	ColorFormat,
+	dIB_PAL_COLORS,
+	dIB_RGB_COLORS,
+	
+	LPBITMAPINFO,
+	BITMAPINFOHEADER,
+	LPBITMAPINFOHEADER,
+	getBITMAPINFOHEADER_,
+	
+	BITMAPFILEHEADER,
+	LPBITMAPFILEHEADER,
+	getBITMAPFILEHEADER,
+	
+	sizeofBITMAP,
+	sizeofBITMAPINFO,
+	sizeofBITMAPINFOHEADER,
+	sizeofBITMAPFILEHEADER,
+	sizeofLPBITMAPFILEHEADER,
+	
+	createBMPFile,
+	cBM_INIT,
+	getDIBits,
+	setDIBits,
+	createDIBitmap
+
+        ) where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+
+%#include "Win32Aux.h"
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+-- Resources
+----------------------------------------------------------------
+
+-- Yoiks - name clash
+-- %dis bitmap x = addr ({LPTSTR} x)
+-- 
+-- type Bitmap = LPCTSTR
+-- 
+-- intToBitmap :: Int -> Bitmap
+-- intToBitmap i = makeIntResource (toWord i)
+-- 
+-- %fun LoadBitmap :: MbHINSTANCE -> Bitmap -> IO HBITMAP
+-- %fail { res1 == 0 } { ErrorString("LoadBitmap") }
+--  
+-- %const Bitmap  
+-- % [ OBM_CLOSE        = { MAKEINTRESOURCE(OBM_CLOSE)       }
+-- % , OBM_UPARROW      = { MAKEINTRESOURCE(OBM_UPARROW)     }
+-- % , OBM_DNARROW      = { MAKEINTRESOURCE(OBM_DNARROW)     }
+-- % , OBM_RGARROW      = { MAKEINTRESOURCE(OBM_RGARROW)     }
+-- % , OBM_LFARROW      = { MAKEINTRESOURCE(OBM_LFARROW)     }
+-- % , OBM_REDUCE       = { MAKEINTRESOURCE(OBM_REDUCE)      }
+-- % , OBM_ZOOM         = { MAKEINTRESOURCE(OBM_ZOOM)        }
+-- % , OBM_RESTORE      = { MAKEINTRESOURCE(OBM_RESTORE)     }
+-- % , OBM_REDUCED      = { MAKEINTRESOURCE(OBM_REDUCED)     }
+-- % , OBM_ZOOMD        = { MAKEINTRESOURCE(OBM_ZOOMD)       }
+-- % , OBM_RESTORED     = { MAKEINTRESOURCE(OBM_RESTORED)    }
+-- % , OBM_UPARROWD     = { MAKEINTRESOURCE(OBM_UPARROWD)    }
+-- % , OBM_DNARROWD     = { MAKEINTRESOURCE(OBM_DNARROWD)    }
+-- % , OBM_RGARROWD     = { MAKEINTRESOURCE(OBM_RGARROWD)    }
+-- % , OBM_LFARROWD     = { MAKEINTRESOURCE(OBM_LFARROWD)    }
+-- % , OBM_MNARROW      = { MAKEINTRESOURCE(OBM_MNARROW)     }
+-- % , OBM_COMBO        = { MAKEINTRESOURCE(OBM_COMBO)       }
+-- % , OBM_UPARROWI     = { MAKEINTRESOURCE(OBM_UPARROWI)    }
+-- % , OBM_DNARROWI     = { MAKEINTRESOURCE(OBM_DNARROWI)    }
+-- % , OBM_RGARROWI     = { MAKEINTRESOURCE(OBM_RGARROWI)    }
+-- % , OBM_LFARROWI     = { MAKEINTRESOURCE(OBM_LFARROWI)    }
+-- % , OBM_OLD_CLOSE    = { MAKEINTRESOURCE(OBM_OLD_CLOSE)   }   
+-- % , OBM_SIZE         = { MAKEINTRESOURCE(OBM_SIZE)        }
+-- % , OBM_OLD_UPARROW  = { MAKEINTRESOURCE(OBM_OLD_UPARROW) }   
+-- % , OBM_OLD_DNARROW  = { MAKEINTRESOURCE(OBM_OLD_DNARROW) }   
+-- % , OBM_OLD_RGARROW  = { MAKEINTRESOURCE(OBM_OLD_RGARROW) }   
+-- % , OBM_OLD_LFARROW  = { MAKEINTRESOURCE(OBM_OLD_LFARROW) }   
+-- % , OBM_BTSIZE       = { MAKEINTRESOURCE(OBM_BTSIZE)      }
+-- % , OBM_CHECK        = { MAKEINTRESOURCE(OBM_CHECK)       }
+-- % , OBM_CHECKBOXES   = { MAKEINTRESOURCE(OBM_CHECKBOXES)  }   
+-- % , OBM_BTNCORNERS   = { MAKEINTRESOURCE(OBM_BTNCORNERS)  }   
+-- % , OBM_OLD_REDUCE   = { MAKEINTRESOURCE(OBM_OLD_REDUCE)  }   
+-- % , OBM_OLD_ZOOM     = { MAKEINTRESOURCE(OBM_OLD_ZOOM)    }
+-- % , OBM_OLD_RESTORE  = { MAKEINTRESOURCE(OBM_OLD_RESTORE) }   
+-- % ]
+
+----------------------------------------------------------------
+-- Raster Ops
+----------------------------------------------------------------
+
+%dis rasterOp3 x = word32 x
+%dis rasterOp4 x = word32 x
+
+type RasterOp3 = Word32
+type RasterOp4 = Word32
+
+%const RasterOp3 
+% [ SRCCOPY
+% , SRCPAINT
+% , SRCAND
+% , SRCINVERT
+% , SRCERASE
+% , NOTSRCCOPY
+% , NOTSRCERASE
+% , MERGECOPY  
+% , MERGEPAINT
+% , PATCOPY
+% , PATPAINT
+% , PATINVERT
+% , DSTINVERT
+% , BLACKNESS
+% , WHITENESS
+% ]
+
+%fun MAKEROP4 :: RasterOp3 -> RasterOp3 -> RasterOp4
+
+----------------------------------------------------------------
+-- BITMAP
+----------------------------------------------------------------
+
+type BITMAP =
+  ( LONG    -- bmType
+  , LONG    -- bmWidth
+  , LONG    -- bmHeight
+  , LONG    -- bmWidthBytes
+  , WORD    -- bmPlanes   
+  , WORD    -- bmBitsPixel
+  , LPVOID  -- bmBits
+  )
+
+%dis bitmap x = 
+% ( lONG   {(%x).bmType}
+% , lONG   {(%x).bmWidth}
+% , lONG   {(%x).bmHeight}
+% , lONG   {(%x).bmWidthBytes}
+% , wORD   {(%x).bmPlanes}
+% , wORD   {(%x).bmBitsPixel}
+% , lPVOID {(%x).bmBits}
+% )
+
+%dis lPBITMAP x = addr ({BITMAP *} x)
+type LPBITMAP = Addr
+
+%fun setBITMAP :: LPBITMAP -> BITMAP -> IO ()
+%call (lPBITMAP arg1) (bitmap {*arg1})
+%code
+
+marshall_bITMAP_ :: BITMAP -> IO LPBITMAP
+marshall_bITMAP_ bmp = do
+  lpbmp <- malloc sizeofBITMAP
+  setBITMAP lpbmp bmp
+  return lpbmp
+
+----------------------------------------------------------------
+-- Misc
+----------------------------------------------------------------
+
+%fun deleteBitmap :: HBITMAP -> IO ()
+%code BOOL res = DeleteObject(arg1);
+%fail { !res } { ErrorString("DeleteBitmap") }
+
+%fun CreateCompatibleBitmap :: HDC -> Int32 -> Int32 -> IO HBITMAP
+%fail { res1 == 0 } { ErrorString("CreateCompatibleBitmap") }
+
+%fun CreateBitmap :: INT -> INT -> UINT -> UINT -> MbLPVOID -> IO HBITMAP
+%fail { res1 == 0 } { ErrorString("CreateBitmap") }
+
+%fun CreateBitmapIndirect :: LPBITMAP -> IO HBITMAP
+%fail { res1 == 0 } { ErrorString("CreateBitmapIndirect") }
+
+%fun CreateDIBPatternBrushPt :: LPVOID -> ColorFormat -> IO HBRUSH
+%fail { res1 == 0 } { ErrorString("CreateDIBPatternBrushPt") }
+
+----------------------------------------------------------------
+-- Querying
+----------------------------------------------------------------
+
+%fun getBitmapDimensionEx :: HBITMAP -> IO SIZE
+%call (hBITMAP h)
+%code SIZE sz; 
+%     BOOL success = GetBitmapDimensionEx(h,&sz);
+%fail { !success } { ErrorString("GetBitmapDimensionEx") }
+%result (size {sz})
+
+%fun setBitmapDimensionEx :: HBITMAP -> SIZE -> IO SIZE
+%call (hBITMAP h) (declare {SIZE} sz_in in (size sz_in))
+%code SIZE sz_out;
+%     BOOL success = SetBitmapDimensionEx(h,sz_in.cx,sz_in.cy,&sz_out);
+%fail { !success } { ErrorString("SetBitmapDimensionEx") }
+%result (size {sz_out})
+
+%fun getBitmapInfo :: HBITMAP -> IO BITMAP
+%call (hBITMAP x)
+%code BITMAP bm;
+%     int nbytes = GetObject(x,sizeof(BITMAP),&bm);
+%fail { nbytes != sizeof(BITMAP) } { ErrorWin("getBitmapInfo") }
+%result ( bitmap bm )
+
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
+
+%dis bitmapCompression x = wORD x
+type BitmapCompression = WORD
+
+%const BitmapCompression
+% [ BI_RGB
+% , BI_RLE8
+% , BI_RLE4
+% , BI_BITFIELDS
+% ]
+
+%dis colorFormat x = dWORD x
+type ColorFormat = DWORD
+
+%const ColorFormat
+% [ DIB_PAL_COLORS
+% , DIB_RGB_COLORS
+% ]
+
+----------------------------------------------------------------
+-- BITMAPINFO
+----------------------------------------------------------------
+
+type LPBITMAPINFO = Addr
+%dis lPBITMAPINFO x = addr ({BITMAPINFO *} x)
+
+----------------------------------------------------------------
+-- BITMAPINFOHEADER
+----------------------------------------------------------------
+
+%dis bitmapInfoHeader x = 
+% ( dWORD             {(%x).biSize}
+% , lONG              {(%x).biWidth}
+% , lONG              {(%x).biHeight}
+% , wORD              {(%x).biPlanes}
+% , wORD              {(%x).biBitCount}
+% , bitmapCompression {(%x).biCompression}
+% , dWORD             {(%x).biSizeImage}
+% , lONG              {(%x).biXPelsPerMeter}
+% , lONG              {(%x).biYPelsPerMeter}
+% , maybeT {0} (dWORD {(%x).biClrUsed})
+% , maybeT {0} (dWORD {(%x).biClrImportant})
+% )
+type BITMAPINFOHEADER =
+ ( DWORD              -- biSize      -- sizeof(BITMAPINFOHEADER)
+ , LONG               -- biWidth
+ , LONG               -- biHeight
+ , WORD               -- biPlanes
+ , WORD               -- biBitCount  -- 1, 4, 8, 16, 24 or 32
+ , BitmapCompression  -- biCompression
+ , DWORD              -- biSizeImage
+ , LONG               -- biXPelsPerMeter
+ , LONG               -- biYPelsPerMeter
+ , Maybe DWORD        -- biClrUsed
+ , Maybe DWORD        -- biClrImportant
+ )
+
+%dis lPBITMAPINFOHEADER x = addr ({BITMAPINFOHEADER *} x)
+type LPBITMAPINFOHEADER   = Addr
+
+%fun getBITMAPINFOHEADER_ :: LPBITMAPINFOHEADER -> IO BITMAPINFOHEADER
+%code
+%result (bitmapInfoHeader {*arg1})
+
+
+----------------------------------------------------------------
+-- BITMAPFILEHEADER
+----------------------------------------------------------------
+
+type BITMAPFILEHEADER =
+ ( WORD   -- bfType      -- "BM" == 0x4d42
+ , DWORD  -- bfSize      -- number of bytes in file
+ , WORD   -- bfReserved1 -- == 0
+ , WORD   -- bfReserved2 -- == 0
+ , DWORD  -- bfOffBits   -- == (char*) bits - (char*) filehdr
+ )
+%dis bitmapFileHeader x =
+% ( wORD  {(%x).bfType}
+% , dWORD {(%x).bfSize}
+% , wORD  {(%x).bfReserved1} -- == 0
+% , wORD  {(%x).bfReserved2} -- == 0
+% , dWORD {(%x).bfOffBits}
+% )
+
+type LPBITMAPFILEHEADER = Addr
+%dis lPBITMAPFILEHEADER x = addr ({BITMAPFILEHEADER *} x)
+
+%fun getBITMAPFILEHEADER :: LPBITMAPFILEHEADER -> IO BITMAPFILEHEADER
+%code
+%result (bitmapFileHeader {*arg1})
+
+%const Word32 
+% [ sizeofBITMAP             = { sizeof(BITMAP)           }
+% , sizeofBITMAPINFO         = { sizeof(BITMAPINFO)       }
+% , sizeofBITMAPINFOHEADER   = { sizeof(BITMAPINFOHEADER) }
+% , sizeofBITMAPFILEHEADER   = { sizeof(BITMAPFILEHEADER) }
+% , sizeofLPBITMAPFILEHEADER = { sizeof(BITMAPFILEHEADER) } 
+% ]
+
+----------------------------------------------------------------
+-- CreateBMPFile
+----------------------------------------------------------------
+
+-- A (large) helper function - courtesy of Microsoft
+
+-- Includes "dumpBMP.c" for non-ghc backends.
+%#include "dumpBMP.h"
+
+%fun CreateBMPFile :: String -> HBITMAP -> HDC -> IO ()
+
+----------------------------------------------------------------
+-- Device Independent Bitmaps
+----------------------------------------------------------------
+
+%const DWORD [ CBM_INIT ]
+
+%fun GetDIBits :: HDC -> HBITMAP -> INT -> INT -> MbLPVOID -> LPBITMAPINFO -> ColorFormat -> IO INT
+%fail { res1 == 0 } { ErrorString("GetDIBits") }
+
+%fun SetDIBits :: HDC -> HBITMAP -> INT -> INT -> LPVOID -> LPBITMAPINFO -> ColorFormat -> IO INT
+%fail { res1 == 0 } { ErrorWin("SetDIBits") }
+
+%fun CreateDIBitmap :: HDC -> LPBITMAPINFOHEADER -> DWORD -> LPVOID -> LPBITMAPINFO -> ColorFormat -> IO HBITMAP
+%fail { res1 == 0 } { ErrorString("CreateDIBitmap") }
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------
+
+

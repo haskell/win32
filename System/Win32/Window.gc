@@ -1,0 +1,586 @@
+module System.Win32.Window where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+import System.Win32.WinMessage
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+%#include "finalizers.h"
+
+----------------------------------------------------------------
+-- Window Class
+----------------------------------------------------------------
+
+-- The classname must not be deallocated until the corresponding class
+-- is deallocated.  For this reason, we represent classnames by pointers
+-- and explicitly allocate the className.
+
+%dis className x = lPCTSTR x
+type ClassName   = LPCTSTR
+
+-- Note: this is one of those rare functions which doesnt free all 
+-- its String arguments.
+%fun mkClassName :: String -> ClassName
+%code
+%result (className {arg1})
+
+%dis classStyle x = uINT x
+type ClassStyle   = UINT
+
+%const ClassStyle 
+% [ CS_VREDRAW
+% , CS_HREDRAW
+% , CS_OWNDC
+% , CS_CLASSDC
+% , CS_PARENTDC
+% , CS_SAVEBITS
+% , CS_DBLCLKS
+% , CS_BYTEALIGNCLIENT
+% , CS_BYTEALIGNWINDOW
+% , CS_NOCLOSE
+% , CS_GLOBALCLASS
+% ]
+
+%dis wNDCLASS x = wndClass_ (addr ({WNDCLASS *} x))
+
+type WNDCLASS =
+ (ClassStyle,  -- style
+  HINSTANCE,   -- hInstance
+  MbHICON,     -- hIcon
+  MbHCURSOR,   -- hCursor
+  MbHBRUSH,    -- hbrBackground
+  MbLPCSTR,    -- lpszMenuName
+  ClassName)   -- lpszClassName
+
+--ToDo!
+--To avoid confusion with NULL, WNDCLASS requires you to add 1 to a SystemColor
+--(which can be NULL)
+-- %fun mkMbHBRUSH :: SystemColor -> MbHBRUSH
+-- %code
+-- %result ((HBRUSH)($0+1));
+
+%fun marshall_wndClass_ :: WNDCLASS -> IO Addr
+%call	( classStyle 	style
+%     	, hINSTANCE  	hInstance
+%     	, mbHICON    	hIcon
+%     	, mbHCURSOR    	hCursor
+%     	, mbHBRUSH	hbrBackground
+%	, mbLPCTSTR	lpszMenuName
+%	, className	lpszClassName
+%	)
+%code c = (WNDCLASS*) malloc(sizeof(WNDCLASS));
+%     if (c) { 
+%	  c->style 	   = style;
+%	  c->hInstance 	   = hInstance;
+%	  c->hIcon 	   = hIcon;
+%	  c->hCursor 	   = hCursor;
+%	  c->hbrBackground = hbrBackground;
+%	  c->lpszMenuName  = lpszMenuName;
+%	  c->lpszClassName = lpszClassName;
+%     }
+%fail {c==0} { MallocError("marshall_WNDCLASS") }
+%result (addr ({WNDCLASS*} c))
+
+%#include "WndProc.h"
+
+%fun registerClass :: WNDCLASS -> IO MbATOM
+%code arg1->lpfnWndProc = genericWndProc;
+%     arg1->cbClsExtra = 0;
+%     arg1->cbWndExtra =0;
+%     res1 = RegisterClass(arg1);
+
+%fun UnregisterClass :: ClassName -> HINSTANCE -> IO ()
+
+----------------------------------------------------------------
+-- Window Style
+----------------------------------------------------------------
+
+%dis windowStyle x = dWORD x
+type WindowStyle   = DWORD
+
+%const WindowStyle 
+% [ WS_OVERLAPPED
+% , WS_POPUP
+% , WS_CHILD
+% , WS_CLIPSIBLINGS
+% , WS_CLIPCHILDREN
+% , WS_VISIBLE
+% , WS_DISABLED
+% , WS_MINIMIZE
+% , WS_MAXIMIZE
+% , WS_CAPTION
+% , WS_BORDER
+% , WS_DLGFRAME
+% , WS_VSCROLL
+% , WS_HSCROLL
+% , WS_SYSMENU
+% , WS_THICKFRAME
+% , WS_MINIMIZEBOX
+% , WS_MAXIMIZEBOX
+% , WS_GROUP
+% , WS_TABSTOP
+% , WS_OVERLAPPEDWINDOW
+% , WS_POPUPWINDOW
+% , WS_CHILDWINDOW
+% , WS_TILED
+% , WS_ICONIC
+% , WS_SIZEBOX
+% , WS_TILEDWINDOW
+% ]
+
+%dis windowStyleEx x = dWORD x
+type WindowStyleEx   = DWORD
+
+%const WindowStyleEx
+% [ WS_EX_DLGMODALFRAME
+% , WS_EX_NOPARENTNOTIFY
+% , WS_EX_TOPMOST
+% , WS_EX_ACCEPTFILES
+% , WS_EX_TRANSPARENT
+% , WS_EX_MDICHILD
+% , WS_EX_TOOLWINDOW
+% , WS_EX_WINDOWEDGE
+% , WS_EX_CLIENTEDGE
+% , WS_EX_CONTEXTHELP
+% , WS_EX_RIGHT
+% , WS_EX_LEFT
+% , WS_EX_RTLREADING
+% , WS_EX_LTRREADING
+% , WS_EX_LEFTSCROLLBAR
+% , WS_EX_RIGHTSCROLLBAR
+% , WS_EX_CONTROLPARENT
+% , WS_EX_STATICEDGE
+% , WS_EX_APPWINDOW
+% , WS_EX_OVERLAPPEDWINDOW
+% , WS_EX_PALETTEWINDOW
+% ]
+
+%const Pos [ CW_USEDEFAULT ]
+
+%dis pos x = int x
+type Pos = Int
+
+%dis mbPos x = maybeT {cW_USEDEFAULT} (pos x)
+type MbPos = Maybe Pos
+
+type WindowClosure = HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
+
+%dis windowClosure x = windowClosure_ (addr x)
+ 
+marshall_windowClosure_ :: WindowClosure -> IO Addr
+marshall_windowClosure_ cl = fmap funPtrToAddr (mkWindowClosure cl)
+
+foreign import ccall "wrapper" mkWindowClosure :: WindowClosure -> IO (FunPtr WindowClosure)
+
+
+%fun SetWindowClosure :: HWND -> WindowClosure -> IO ()
+%call (hWND hwnd) (windowClosure closure)
+%code SetWindowLong(hwnd, GWL_USERDATA, (LONG)closure);
+
+%fun createWindow 
+%  :: ClassName -> String -> WindowStyle -> 
+%     Maybe Pos -> Maybe Pos -> Maybe Pos -> Maybe Pos -> 
+%     MbHWND -> MbHMENU -> HINSTANCE -> WindowClosure -> 
+%     IO HWND
+%call (className name) (string windowName)  (windowStyle style)  
+%     (mbPos x) (mbPos y) (mbPos width) (mbPos height) 
+%     (mbHWND hwndParent) (mbHMENU hmenu) (hINSTANCE hinst) 
+%     (windowClosure closure)
+%code res1 = CreateWindow(name, windowName,style,x,y,width,height,hwndParent,hmenu,hinst,NULL);
+%     if (res1 != NULL) { SetWindowLong(res1, GWL_USERDATA, (LONG)closure); }
+%fail {res1 == NULL} {ErrorWin("CreateWindow")}
+
+-- Freeing the title/window name has been reported
+-- to cause a crash, so let's not do it.
+-- %end free(windowName)  /* I think this is safe... */
+
+%fun createWindowEx 
+%  :: WindowStyle -> ClassName -> String -> WindowStyle 
+%  -> Maybe Pos -> Maybe Pos -> Maybe Pos -> Maybe Pos 
+%  -> MbHWND -> MbHMENU -> HINSTANCE -> WindowClosure
+%  -> IO HWND
+%call (windowStyle estyle)  (className cls) (string wname) 
+%     (windowStyle wstyle) 
+%     (mbPos x) (mbPos y) (mbPos nWidth) (mbPos nHeight) 
+%     (mbHWND hwndParent) (mbHMENU hmenu) (hINSTANCE hinstance)
+%     (windowClosure closure)
+%code res1 = CreateWindowEx(estyle, cls, wname, wstyle,x,y,nWidth,nHeight,hwndParent,hmenu,hinstance,NULL);
+%     if (res1 != NULL) { SetWindowLong(res1, GWL_USERDATA, (LONG)closure); }
+%fail {res1 == NULL} {ErrorWin("CreateWindowEx")}
+
+-- see CreateWindow comment.
+-- %end free(wname)  /* I think this is safe... */
+
+----------------------------------------------------------------
+
+%fun DefWindowProc :: MbHWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
+%safecode LRESULT res1 = DefWindowProc(arg1,arg2,arg3,arg4);
+
+----------------------------------------------------------------
+
+%fun GetClientRect  :: HWND -> IO RECT
+%code BOOL success = GetClientRect(arg1,&res1)
+%fail {!success} { ErrorString("GetClientRect") }
+%result (declare {RECT} res1 in (rect {res1}))
+
+%fun GetWindowRect  :: HWND -> IO RECT
+%code BOOL success = GetWindowRect(arg1,&res1)
+%fail {!success} { ErrorString("GetWindowRect") }
+%result (declare {RECT} res1 in (rect {res1}))
+
+-- Should it be MbRECT instead?
+%fun InvalidateRect :: MbHWND -> MbLPRECT -> Bool -> IO ()
+%safecode BOOL success = InvalidateRect(arg1,arg2,arg3)
+%fail {!success} { ErrorString("InvalidateRect") }
+
+%fun screenToClient :: HWND -> POINT -> IO POINT
+%call (hWND arg1) (declare {POINT} scr in (point {scr}))
+%code BOOL success = ScreenToClient(arg1, &scr);
+%fail { !success } { ErrorString("ScreenToClient") }
+%result (point {scr})
+
+%fun clientToScreen :: HWND -> POINT -> IO POINT
+%call (hWND hwnd) (declare {POINT} cli in (point {cli}))
+%code BOOL success = ClientToScreen(hwnd,&cli);
+%fail { !success } { ErrorString("ClientToScreen") }
+%result (point {cli})
+
+----------------------------------------------------------------
+-- Setting window text/label
+----------------------------------------------------------------
+-- For setting the title bar text.  But inconvenient to make the LPCTSTR
+%fun SetWindowText :: HWND -> String -> IO ()
+%safecode BOOL success = SetWindowText(arg1,arg2)
+%fail {!success} {ErrorString("SetWindowText")}
+%end free(arg2)
+
+----------------------------------------------------------------
+-- Paint struct
+----------------------------------------------------------------
+
+type PAINTSTRUCT =
+ ( HDC   -- hdc
+ , Bool  -- fErase
+ , RECT  -- rcPaint
+ )
+
+%dis lPPAINTSTRUCT x = addr ({LPPAINTSTRUCT} x)
+type LPPAINTSTRUCT   = Addr
+
+%fun sizeofPAINTSTRUCT :: DWORD
+%code
+%result (dWORD { sizeof(PAINTSTRUCT) })
+
+%fun BeginPaint :: HWND -> LPPAINTSTRUCT -> IO HDC
+%safecode HDC res1 = BeginPaint(arg1,arg2);
+%fail {res1==NULL} {ErrorString("BeginPaint")}
+
+%fun EndPaint   :: HWND -> LPPAINTSTRUCT -> IO ()
+%safecode EndPaint((HWND)arg1,(LPPAINTSTRUCT)arg2);
+-- Apparently always succeeds (return non-zero)
+
+----------------------------------------------------------------
+-- ShowWindow
+----------------------------------------------------------------
+
+%dis showWindowControl x = dWORD x
+type ShowWindowControl   = DWORD
+
+%const ShowWindowControl 
+% [ SW_HIDE
+% , SW_SHOWNORMAL
+% , SW_SHOWMINIMIZED
+% , SW_SHOWMAXIMIZED
+% , SW_MAXIMIZE
+% , SW_SHOWNOACTIVATE
+% , SW_SHOW
+% , SW_MINIMIZE
+% , SW_SHOWMINNOACTIVE
+% , SW_SHOWNA
+% , SW_RESTORE
+% ]
+
+%fun ShowWindow :: HWND  -> ShowWindowControl  -> IO Bool
+%safecode BOOL res1 = ShowWindow(arg1,arg2);
+
+----------------------------------------------------------------
+-- Misc
+----------------------------------------------------------------
+
+%fun AdjustWindowRect :: RECT -> WindowStyle -> Bool -> IO RECT
+%call (declare {RECT} arg1 in (rect {arg1})) (windowStyle arg2) (bool arg3)
+%code BOOL success = AdjustWindowRect(&arg1, arg2, arg3)
+%fail { !success } { ErrorString("AdjustWindowRect") }
+%result (rect {arg1})
+
+%fun AdjustWindowRectEx :: RECT -> WindowStyle -> Bool -> WindowStyleEx -> IO RECT
+%call (declare {RECT} arg1 in (rect {arg1})) (windowStyle arg2) (bool arg3) (windowStyleEx arg4)
+%code BOOL success = AdjustWindowRectEx(&arg1, arg2, arg3, arg4)
+%fail { !success } { ErrorString("AdjustWindowRectEx") }
+%result (rect {arg1})
+
+-- Win2K and later:
+-- %fun AllowSetForegroundWindow :: DWORD -> IO ()
+
+-- %
+-- %dis animateWindowType x = dWORD x
+-- type AnimateWindowType   = DWORD
+
+-- %const AnimateWindowType
+--        [ AW_SLIDE
+--        , AW_ACTIVATE
+--        , AW_BLEND
+--        , AW_HIDE
+--        , AW_CENTER
+--        , AW_HOR_POSITIVE
+--        , AW_HOR_NEGATIVE
+--        , AW_VER_POSITIVE
+--        , AW_VER_NEGATIVE
+--        ]
+
+-- Win98 or Win2K:
+-- %fun AnimateWindow :: HWND -> DWORD -> AnimateWindowType -> IO ()
+-- %code BOOL success = AnimateWindow(arg1,arg2,arg3)
+-- %fail { !success } { ErrorWin("AnimateWindow") }
+
+%fun AnyPopup :: IO Bool
+
+%fun ArrangeIconicWindows :: HWND -> IO ()
+%code UINT success = ArrangeIconicWindows(arg1);
+%fail {success == 0} { ErrorWin("ArrangeIconicWindows") }
+
+%fun BeginDeferWindowPos :: Int -> IO HDWP
+%fail {res1 == NULL} { ErrorWin("BeginDeferWindowPos") }
+
+%fun BringWindowToTop :: HWND -> IO ()
+%safecode BOOL success = BringWindowToTop(arg1);
+%fail { !success } { ErrorString("BringWindowToTop") }
+
+%fun ChildWindowFromPoint :: HWND -> POINT -> IO MbHWND
+%call (hWND hwnd) (declare {POINT} p in (point {p}))
+%code BOOL success = ChildWindowFromPoint(hwnd,p);
+%fail { !success } { ErrorString("ChildWindowFromPoint") }
+
+%fun ChildWindowFromPointEx :: HWND -> POINT -> DWORD -> IO MbHWND
+%call (hWND hwnd) (declare {POINT} p in (point {p})) (dWORD arg2)
+%code BOOL success = ChildWindowFromPointEx(hwnd,p,arg2);
+%fail { !success } { ErrorString("ChildWindowFromPointEx") }
+
+%fun CloseWindow    :: HWND -> IO ()
+%safecode BOOL success = DestroyWindow(arg1)
+%fail { !success } { ErrorWin("CloseWindow") }
+
+%fun DeferWindowPos :: HDWP -> HWND -> HWND -> Int -> Int -> Int -> Int -> SetWindowPosFlags -> IO HDWP
+%fail {res1 == NULL} { ErrorWin("DeferWindowPos") }
+
+%fun DestroyWindow    :: HWND -> IO ()
+%safecode BOOL success = DestroyWindow(arg1)
+%fail { !success } { ErrorWin("DestroyWindow") }
+
+%fun EndDeferWindowPos :: HDWP -> IO ()
+%code BOOL success = EndDeferWindowPos(arg1)
+%fail { !success } { ErrorWin("EndDeferWindowPos") }
+
+%fun FindWindow :: String -> String -> IO MbHWND
+
+%fun FindWindowEx :: HWND -> HWND -> String -> String -> IO MbHWND
+
+%fun FlashWindow      :: HWND -> Bool -> IO Bool
+-- No error code
+
+%fun MoveWindow :: HWND -> Int -> Int -> Int -> Int -> Bool -> IO ()
+%safecode BOOL success = MoveWindow(arg1,arg2,arg3,arg4,arg5,arg6)
+%fail { success==0 } { ErrorWin("MoveWindow") }
+
+%fun GetDesktopWindow :: IO HWND
+
+%fun GetForegroundWindow :: IO HWND
+
+%fun GetParent :: HWND -> IO HWND
+%code HWND res1 = GetParent(arg1)
+%fail { res1 == NULL } { ErrorWin("GetParent") }
+
+%fun GetTopWindow :: HWND -> IO HWND
+%code HWND res1 = GetTopWindow(arg1)
+%fail { res1 == NULL } { ErrorWin("GetTopWindow") }
+
+
+type SetWindowPosFlags = UINT
+%dis setWindowPosFlags x = uINT x
+
+%const SetWindowPosFlags
+% [ SWP_NOSIZE
+% , SWP_NOMOVE
+% , SWP_NOZORDER
+% , SWP_NOREDRAW
+% , SWP_NOACTIVATE
+% , SWP_FRAMECHANGED
+% , SWP_SHOWWINDOW
+% , SWP_HIDEWINDOW
+% , SWP_NOCOPYBITS
+% , SWP_NOOWNERZORDER
+% , SWP_NOSENDCHANGING
+% , SWP_DRAWFRAME
+% , SWP_NOREPOSITION
+% ]
+
+----------------------------------------------------------------
+-- HDCs
+----------------------------------------------------------------
+
+%dis getDCExFlags x = dWORD x
+type GetDCExFlags   = DWORD
+
+%const GetDCExFlags 
+% [ DCX_WINDOW
+% , DCX_CACHE
+% , DCX_CLIPCHILDREN
+% , DCX_CLIPSIBLINGS
+% , DCX_PARENTCLIP
+% , DCX_EXCLUDERGN
+% , DCX_INTERSECTRGN
+% , DCX_LOCKWINDOWUPDATE
+% ]
+
+-- apparently mostly fails if you use invalid hwnds
+%fun GetDCEx     :: HWND -> HRGN -> GetDCExFlags -> IO HDC
+%fail {res1==NULL} {ErrorString("GetDCEx")}
+
+%fun GetDC       :: MbHWND -> IO HDC
+%fail {res1==NULL} {ErrorString("GetDC")}
+
+%fun GetWindowDC :: MbHWND -> IO HDC
+%fail {res1==NULL} {ErrorString("GetWindowDC")}
+
+%fun ReleaseDC   :: MbHWND -> HDC -> IO ()
+%code BOOL success = ReleaseDC(arg1,arg2)
+%fail {!success} {ErrorString("ReleaseDC")}
+
+%fun GetDCOrgEx :: HDC -> IO POINT
+%code BOOL success = GetDCOrgEx(arg1,&res1)
+%fail {!success} {ErrorString("GetDCOrgEx")}
+%result (declare {POINT} res1 in (point {res1}))
+
+----------------------------------------------------------------
+-- Caret
+----------------------------------------------------------------
+
+%fun HideCaret    :: HWND -> IO ()
+%code BOOL success = HideCaret(arg1)
+%fail {!success} {ErrorString("HideCaret")}
+
+%fun ShowCaret    :: HWND -> IO ()
+%code BOOL success = ShowCaret(arg1)
+%fail {!success} {ErrorString("ShowCaret")}
+
+-- ToDo: allow arg2 to be NULL or {(HBITMAP)1}
+%fun CreateCaret  :: HWND -> HBITMAP -> MbINT -> MbINT -> IO ()
+%code BOOL success = CreateCaret(arg1,arg2,arg3,arg4)
+%fail {!success} {ErrorWin("CreateCaret")}
+
+%fun DestroyCaret :: IO ()
+%code BOOL success = DestroyCaret()
+%fail {!success} {ErrorWin("DestroyCaret")}
+
+%fun getCaretPos :: IO POINT
+%code  BOOL success = GetCaretPos(&res1)
+%fail {!success} {ErrorWin("GetCaretPos")}
+%result (declare {POINT} res1 in (point {res1}))
+
+%fun SetCaretPos :: POINT -> IO ()
+%call (declare {POINT} arg1 in (point {arg1}))
+%code BOOL success = SetCaretPos(arg1.x, arg1.y)
+%fail {!success} {ErrorWin("SetCaretPos")}
+
+-- The remarks on SetCaretBlinkTime are either highly risible or very sad -
+-- depending on whether you plan to use this function.
+
+----------------------------------------------------------------
+-- MSGs and event loops
+--
+-- Note that the following functions have to be reentrant:
+--
+--   DispatchMessage
+--   SendMessage
+--   UpdateWindow   (I think)
+--   RedrawWindow   (I think)
+--
+-- The following dont have to be reentrant (according to documentation)
+--
+--   GetMessage
+--   PeekMessage
+--   TranslateMessage
+--
+-- For Hugs (and possibly NHC too?) this is no big deal.
+-- For GHC, you have to use casm_GC instead of casm.
+-- (It might be simpler to just put all this code in another
+-- file and build it with the appropriate command line option...)
+----------------------------------------------------------------
+
+-- type MSG = 
+--   ( HWND   -- hwnd;	
+--   , UINT   -- message;
+--   , WPARAM -- wParam;
+--   , LPARAM -- lParam;
+--   , DWORD  -- time;
+--   , POINT  -- pt;
+--   )
+
+%dis lPMSG x = addr ({MSG *} x)
+type LPMSG   = Addr
+
+-- A NULL window requests messages for any window belonging to this thread.
+-- a "success" value of 0 indicates that WM_QUIT was received
+%fun GetMessage :: MbHWND -> IO LPMSG
+%safecode static MSG msg;
+%     BOOL success = GetMessage(&msg, arg1, 0, 0);
+%fail { success == -1 } {ErrorString("GetMessage")}
+%result (lPMSG {&msg})
+
+%fun GetMessage2 :: MbHWND -> IO (LPMSG, Bool)
+%safecode static MSG msg;
+%     BOOL success = GetMessage(&msg, arg1, 0, 0);
+%fail { success == -1 } {ErrorString("GetMessage")}
+%result (lPMSG {&msg}, bool {success !=0})
+
+-- A NULL window requests messages for any window belonging to this thread.
+-- Arguably the code block shouldn't be a 'safe' one, but it shouldn't really
+-- hurt.
+%fun PeekMessage :: MbHWND -> UINT -> UINT -> UINT -> IO LPMSG
+%safecode static MSG msg;
+%     BOOL success = PeekMessage(&msg, arg1, arg2, arg3,arg4);
+%fail { success == -1 } {ErrorString("PeekMessage")}
+%result (lPMSG {&msg})
+
+-- Note: youre not supposed to call this if youre using accelerators
+%fun TranslateMessage :: LPMSG -> IO BOOL
+%safecode BOOL res1 = TranslateMessage(arg1);
+
+%fun UpdateWindow     :: HWND -> IO ()
+%safecode BOOL success = UpdateWindow(arg1)
+%fail { !success } { ErrorString("UpdateWindow") }
+
+-- Return value of DispatchMessage is usually ignored
+%fun DispatchMessage  :: LPMSG -> IO LONG
+%safecode LONG res1 = DispatchMessage(arg1);
+
+%fun SendMessage :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
+%safecode LRESULT res1 = SendMessage(arg1,arg2,arg3,arg4);
+
+----------------------------------------------------------------
+
+-- ToDo: figure out reentrancy stuff
+-- ToDo: catch error codes
+--
+-- ToDo: how to send HWND_BROADCAST to PostMessage
+-- %fun PostMessage       :: MbHWND -> WindowMessage -> WPARAM -> LPARAM -> IO ()
+-- %fun PostQuitMessage   :: Int -> IO ()
+-- %fun PostThreadMessage :: DWORD -> WindowMessage -> WPARAM -> LPARAM -> IO ()
+-- %fun InSendMessage     :: IO Bool
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------

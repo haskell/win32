@@ -1,0 +1,253 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.SystemInfo
+-- Copyright   :  (c) Alastair Reid, 1997-2003
+-- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- 
+-- Maintainer  :  libraries@haskell.org
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of GreenCard declarations for interfacing with Win32.
+--
+-----------------------------------------------------------------------------
+
+module System.Win32.SystemInfo where
+
+import System.Win32.StdDIS
+import System.Win32.Types
+import System.Win32.GDITypes
+
+%#include <windows.h>
+%#include "errors.h"
+%#include "win32debug.h"
+
+
+----------------------------------------------------------------
+-- Environment Strings
+----------------------------------------------------------------
+
+-- %fun ExpandEnvironmentStrings :: String -> IO String
+
+----------------------------------------------------------------
+-- Computer Name
+----------------------------------------------------------------
+
+-- %fun GetComputerName :: IO String
+-- %fun SetComputerName :: String -> IO ()
+-- %end free(arg1)
+
+----------------------------------------------------------------
+-- Hardware Profiles
+----------------------------------------------------------------
+
+-- %fun GetCurrentHwProfile :: IO HW_PROFILE_INFO
+
+----------------------------------------------------------------
+-- Keyboard Type
+----------------------------------------------------------------
+
+-- %fun GetKeyboardType :: KeyboardTypeKind -> IO KeyboardType
+
+----------------------------------------------------------------
+-- System Color
+----------------------------------------------------------------
+
+%dis systemColor x = uINT x
+type SystemColor   = UINT
+
+-- ToDo: This list is out of date.
+
+%const SystemColor 
+% [ COLOR_SCROLLBAR
+% , COLOR_BACKGROUND
+% , COLOR_ACTIVECAPTION
+% , COLOR_INACTIVECAPTION
+% , COLOR_MENU
+% , COLOR_WINDOW
+% , COLOR_WINDOWFRAME
+% , COLOR_MENUTEXT
+% , COLOR_WINDOWTEXT
+% , COLOR_CAPTIONTEXT
+% , COLOR_ACTIVEBORDER
+% , COLOR_INACTIVEBORDER
+% , COLOR_APPWORKSPACE
+% , COLOR_HIGHLIGHT
+% , COLOR_HIGHLIGHTTEXT
+% , COLOR_BTNFACE
+% , COLOR_BTNSHADOW
+% , COLOR_GRAYTEXT
+% , COLOR_BTNTEXT
+% , COLOR_INACTIVECAPTIONTEXT
+% , COLOR_BTNHIGHLIGHT
+% ]
+
+-- %fun GetSysColor :: SystemColor -> IO COLORREF
+-- %fun SetSysColors :: [(SystemColor,COLORREF)] -> IO ()
+
+----------------------------------------------------------------
+-- Standard Directories
+----------------------------------------------------------------
+
+-- %fun GetSystemDirectory  :: IO String
+-- %fun GetWindowsDirectory :: IO String
+
+----------------------------------------------------------------
+-- System Info (Info about processor and memory subsystem)
+----------------------------------------------------------------
+
+-- %fun GetSystemInfo :: IO SystemInfo
+-- 
+-- typedef struct _SYSTEM_INFO { // sinf 
+--     union { 
+-- 	   DWORD  dwOemId; 
+-- 	   struct { 
+-- 	       WORD wProcessorArchitecture; 
+-- 	       WORD wReserved; 
+-- 	   }; 
+--     }; 
+--     DWORD  dwPageSize; 
+--     LPVOID lpMinimumApplicationAddress; 
+--     LPVOID lpMaximumApplicationAddress; 
+--     DWORD  dwActiveProcessorMask; 
+--     DWORD  dwNumberOfProcessors; 
+--     DWORD  dwProcessorType; 
+--     DWORD  dwAllocationGranularity; 
+--     WORD  wProcessorLevel; 
+--     WORD  wProcessorRevision; 
+-- } SYSTEM_INFO; 
+ 
+
+----------------------------------------------------------------
+-- System metrics
+----------------------------------------------------------------
+
+%dis sMSetting x = uINT x
+type SMSetting = UINT
+
+%const SMSetting 
+% [ SM_ARRANGE
+% , SM_CLEANBOOT
+% , SM_CMETRICS
+% , SM_CMOUSEBUTTONS
+% , SM_CXBORDER
+% , SM_CYBORDER
+% , SM_CXCURSOR
+% , SM_CYCURSOR
+% , SM_CXDLGFRAME
+% , SM_CYDLGFRAME
+% , SM_CXDOUBLECLK
+% , SM_CYDOUBLECLK
+% , SM_CXDRAG
+% , SM_CYDRAG
+% , SM_CXEDGE
+% , SM_CYEDGE
+% , SM_CXFRAME
+% , SM_CYFRAME
+% , SM_CXFULLSCREEN
+% , SM_CYFULLSCREEN
+% , SM_CXHSCROLL
+% , SM_CYVSCROLL
+% , SM_CXICON
+% , SM_CYICON
+% , SM_CXICONSPACING
+% , SM_CYICONSPACING
+% , SM_CXMAXIMIZED
+% , SM_CYMAXIMIZED
+% , SM_CXMENUCHECK
+% , SM_CYMENUCHECK
+% , SM_CXMENUSIZE
+% , SM_CYMENUSIZE
+% , SM_CXMIN
+% , SM_CYMIN
+% , SM_CXMINIMIZED
+% , SM_CYMINIMIZED
+% , SM_CXMINTRACK
+% , SM_CYMINTRACK
+% , SM_CXSCREEN
+% , SM_CYSCREEN
+% , SM_CXSIZE
+% , SM_CYSIZE
+% , SM_CXSIZEFRAME
+% , SM_CYSIZEFRAME
+% , SM_CXSMICON
+% , SM_CYSMICON
+% , SM_CXSMSIZE
+% , SM_CYSMSIZE
+% , SM_CXVSCROLL
+% , SM_CYHSCROLL
+% , SM_CYVTHUMB
+% , SM_CYCAPTION
+% , SM_CYKANJIWINDOW
+% , SM_CYMENU
+% , SM_CYSMCAPTION
+% , SM_DBCSENABLED
+% , SM_DEBUG
+% , SM_MENUDROPALIGNMENT
+% , SM_MIDEASTENABLED
+% , SM_MOUSEPRESENT
+% , SM_NETWORK
+% , SM_PENWINDOWS
+% , SM_SECURE
+% , SM_SHOWSOUNDS
+% , SM_SLOWMACHINE
+% , SM_SWAPBUTTON
+% ]
+
+-- %fun GetSystemMetrics :: SMSetting -> IO Int
+
+----------------------------------------------------------------
+-- Thread Desktops
+----------------------------------------------------------------
+
+-- %fun GetThreadDesktop :: ThreadId -> IO HDESK
+-- %fun SetThreadDesktop :: ThreadId -> HDESK -> IO ()
+
+----------------------------------------------------------------
+-- User name
+----------------------------------------------------------------
+
+-- %fun GetUserName :: IO String
+
+----------------------------------------------------------------
+-- Version Info
+----------------------------------------------------------------
+
+-- %fun GetVersionEx :: IO VersionInfo
+-- 
+-- typedef struct _OSVERSIONINFO{ 
+--     DWORD dwOSVersionInfoSize; 
+--     DWORD dwMajorVersion; 
+--     DWORD dwMinorVersion; 
+--     DWORD dwBuildNumber; 
+--     DWORD dwPlatformId; 
+--     TCHAR szCSDVersion[ 128 ]; 
+-- } OSVERSIONINFO; 
+ 
+----------------------------------------------------------------
+-- Processor features
+----------------------------------------------------------------
+
+--
+-- Including these lines causes problems on Win95
+-- %fun IsProcessorFeaturePresent :: ProcessorFeature -> Bool
+--
+-- type ProcessorFeature   = DWORD
+-- %dis processorFeature x = dWORD x
+--
+-- %const ProcessorFeature
+-- % [ PF_FLOATING_POINT_PRECISION_ERRATA 
+-- % , PF_FLOATING_POINT_EMULATED 
+-- % , PF_COMPARE_EXCHANGE_DOUBLE 
+-- % , PF_MMX_INSTRUCTIONS_AVAILABLE 
+-- % ]
+
+----------------------------------------------------------------
+-- System Parameter Information
+----------------------------------------------------------------
+
+-- %fun SystemParametersInfo :: ?? -> Bool -> IO ??
+
+----------------------------------------------------------------
+-- End
+----------------------------------------------------------------
