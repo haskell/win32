@@ -4,7 +4,7 @@ Package {
 	name		= "Win32",
 	auto		= True,
 #ifdef INSTALLING
-	import_dirs	= [ "$libdir/imports/Win32" ],
+	import_dirs	= [ "$libdir/imports" ],
 #else
 	import_dirs	= [ "$libdir/libraries/Win32" ],
 #endif
