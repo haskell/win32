@@ -250,7 +250,7 @@ invalidateRect :: Maybe HWND -> Maybe LPRECT -> Bool -> IO ()
 invalidateRect wnd p_mb_rect erase =
   failIfFalse_ "InvalidateRect" $
     c_InvalidateRect (maybePtr wnd) (maybePtr p_mb_rect) erase
-foreign import stdcall unsafe "windows.h InvalidateRect"
+foreign import stdcall "windows.h InvalidateRect"
   c_InvalidateRect :: HWND -> LPRECT -> Bool -> IO Bool
 
 screenToClient :: HWND -> POINT -> IO POINT
@@ -278,7 +278,7 @@ setWindowText :: HWND -> String -> IO ()
 setWindowText wnd text =
   withTString text $ \ c_text ->
   failIfFalse_ "SetWindowText" $ c_SetWindowText wnd c_text
-foreign import stdcall unsafe "windows.h SetWindowTextW"
+foreign import stdcall "windows.h SetWindowTextW"
   c_SetWindowText :: HWND -> LPCTSTR -> IO Bool
 
 ----------------------------------------------------------------
@@ -302,10 +302,10 @@ allocaPAINTSTRUCT = allocaBytes #{size PAINTSTRUCT}
 beginPaint :: HWND -> LPPAINTSTRUCT -> IO HDC
 beginPaint wnd paint =
   failIfNull "BeginPaint" $ c_BeginPaint wnd paint
-foreign import stdcall unsafe "windows.h BeginPaint"
+foreign import stdcall "windows.h BeginPaint"
   c_BeginPaint :: HWND -> LPPAINTSTRUCT -> IO HDC
 
-foreign import stdcall unsafe "windows.h EndPaint"
+foreign import stdcall "windows.h EndPaint"
   endPaint :: HWND -> LPPAINTSTRUCT -> IO ()
 -- Apparently always succeeds (return non-zero)
 
@@ -395,7 +395,7 @@ foreign import stdcall unsafe "windows.h BeginDeferWindowPos"
 bringWindowToTop :: HWND -> IO ()
 bringWindowToTop wnd =
   failIfFalse_ "BringWindowToTop" $ c_BringWindowToTop wnd
-foreign import stdcall unsafe "windows.h BringWindowToTop"
+foreign import stdcall "windows.h BringWindowToTop"
   c_BringWindowToTop :: HWND -> IO Bool
 
 -- Can't pass structs with current FFI, so use a C wrapper (in Types)
@@ -412,9 +412,7 @@ childWindowFromPointEx parent pt flags =
 
 closeWindow :: HWND -> IO ()
 closeWindow wnd =
-  failIfFalse_ "CloseWindow" $ c_CloseWindow wnd
-foreign import stdcall unsafe "windows.h DestroyWindow"
-  c_CloseWindow :: HWND -> IO Bool
+  failIfFalse_ "CloseWindow" $ c_DestroyWindow wnd
 
 deferWindowPos :: HDWP -> HWND -> HWND -> Int -> Int -> Int -> Int -> SetWindowPosFlags -> IO HDWP
 deferWindowPos wp wnd after x y cx cy flags =
@@ -425,7 +423,7 @@ foreign import stdcall unsafe "windows.h DeferWindowPos"
 destroyWindow :: HWND -> IO ()
 destroyWindow wnd =
   failIfFalse_ "DestroyWindow" $ c_DestroyWindow wnd
-foreign import stdcall unsafe "windows.h DestroyWindow"
+foreign import stdcall "windows.h DestroyWindow"
   c_DestroyWindow :: HWND -> IO Bool
 
 endDeferWindowPos :: HDWP -> IO ()
@@ -457,7 +455,7 @@ foreign import stdcall unsafe "windows.h FlashWindow"
 moveWindow :: HWND -> Int -> Int -> Int -> Int -> Bool -> IO ()
 moveWindow wnd x y w h repaint =
   failIfFalse_ "MoveWindow" $ c_MoveWindow wnd x y w h repaint
-foreign import stdcall unsafe "windows.h MoveWindow"
+foreign import stdcall "windows.h MoveWindow"
   c_MoveWindow :: HWND -> Int -> Int -> Int -> Int -> Bool -> IO Bool
 
 foreign import stdcall unsafe "windows.h GetDesktopWindow"
@@ -653,12 +651,12 @@ peekMessage msg mb_wnd filterMin filterMax remove = do
   failIf (== -1) "PeekMessage" $
     c_PeekMessage msg (maybePtr mb_wnd) filterMin filterMax remove
   return ()
-foreign import stdcall unsafe "windows.h PeekMessageW"
+foreign import stdcall "windows.h PeekMessageW"
   c_PeekMessage :: LPMSG -> HWND -> UINT -> UINT -> UINT -> IO LONG
 
 -- Note: you're not supposed to call this if you're using accelerators
 
-foreign import stdcall unsafe "windows.h TranslateMessage"
+foreign import stdcall "windows.h TranslateMessage"
   translateMessage :: LPMSG -> IO BOOL
 
 updateWindow :: HWND -> IO ()

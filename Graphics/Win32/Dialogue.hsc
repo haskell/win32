@@ -64,7 +64,7 @@ dialogBoxParam inst template mb_parent dia_fn init_val = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIf (== -1) "DialogBoxParam" $
     c_DialogBoxParam inst template (maybePtr mb_parent) c_dia_fn init_val
-foreign import stdcall unsafe "windows.h DialogBoxParamW"
+foreign import stdcall "windows.h DialogBoxParamW"
   c_DialogBoxParam :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> LPARAM -> IO Int
 
 dialogBoxIndirect :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> IO Int
@@ -76,7 +76,7 @@ dialogBoxIndirectParam inst template mb_parent dia_fn init_val = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIf (== -1) "DialogBoxIndirectParam" $
     c_DialogBoxIndirectParam inst template (maybePtr mb_parent) c_dia_fn init_val
-foreign import stdcall unsafe "windows.h DialogBoxIndirectParamW"
+foreign import stdcall "windows.h DialogBoxIndirectParamW"
   c_DialogBoxIndirectParam :: HINSTANCE -> DTemplateMem -> HWND -> FunPtr DialogProc -> LPARAM -> IO Int
 
 
@@ -204,7 +204,7 @@ createDialogParam inst template mb_parent dia_fn init_val = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIfNull "CreateDialogParam" $
     c_CreateDialogParam inst template (maybePtr mb_parent) c_dia_fn init_val
-foreign import stdcall unsafe "windows.h CreateDialogParamW"
+foreign import stdcall "windows.h CreateDialogParamW"
   c_CreateDialogParam :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> LPARAM -> IO HWND
 
 createDialogIndirect :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> IO HWND
@@ -216,16 +216,16 @@ createDialogIndirectParam inst template mb_parent dia_fn init_val = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIfNull "CreateDialogIndirectParam" $
     c_CreateDialogIndirectParam inst template (maybePtr mb_parent) c_dia_fn init_val
-foreign import stdcall unsafe "windows.h CreateDialogIndirectParamW"
+foreign import stdcall "windows.h CreateDialogIndirectParamW"
   c_CreateDialogIndirectParam :: HINSTANCE -> DTemplateMem -> HWND -> FunPtr DialogProc -> LPARAM -> IO HWND
 
-foreign import stdcall unsafe "windows.h DefDlgProcW"
+foreign import stdcall "windows.h DefDlgProcW"
   defDlgProc :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
 endDialog :: HWND -> Int -> IO ()
 endDialog dlg res =
   failIfFalse_ "EndDialog" $ c_EndDialog dlg res
-foreign import stdcall unsafe "windows.h EndDialog"
+foreign import stdcall "windows.h EndDialog"
   c_EndDialog :: HWND -> Int -> IO BOOL
 
 foreign import stdcall unsafe "windows.h GetDialogBaseUnits"
@@ -249,7 +249,7 @@ getDlgItemInt dlg item signed =
   res <- c_GetDlgItemInt dlg item p_trans signed
   failIfFalse_ "GetDlgItemInt" $ peek p_trans
   return (fromIntegral res)
-foreign import stdcall unsafe "windows.h GetDlgItemInt"
+foreign import stdcall "windows.h GetDlgItemInt"
   c_GetDlgItemInt :: HWND -> Int -> Ptr Bool -> Bool -> IO UINT
 
 getDlgItemText :: HWND -> Int -> Int -> IO String
@@ -257,7 +257,7 @@ getDlgItemText dlg item size =
   allocaArray size $ \ p_buf -> do
   failIfZero "GetDlgItemInt" $ c_GetDlgItemText dlg item p_buf size
   peekTString p_buf
-foreign import stdcall unsafe "windows.h GetDlgItemTextW"
+foreign import stdcall "windows.h GetDlgItemTextW"
   c_GetDlgItemText :: HWND -> Int -> LPTSTR -> Int -> IO Int
 
 getNextDlgGroupItem :: HWND -> HWND -> BOOL -> IO HWND
@@ -272,7 +272,7 @@ getNextDlgTabItem dlg ctl previous =
 foreign import stdcall unsafe "windows.h GetNextDlgTabItem"
   c_GetNextDlgTabItem :: HWND -> HWND -> BOOL -> IO HWND
 
-foreign import stdcall unsafe "windows.h IsDialogMessageW"
+foreign import stdcall "windows.h IsDialogMessageW"
   isDialogMessage :: HWND -> LPMSG -> IO BOOL
 
 mapDialogRect :: HWND -> LPRECT -> IO ()
@@ -283,7 +283,7 @@ foreign import stdcall unsafe "windows.h MapDialogRect"
 
 -- No MessageBox* funs in here just yet.
 
-foreign import stdcall unsafe "windows.h SendDlgItemMessageW"
+foreign import stdcall "windows.h SendDlgItemMessageW"
   sendDlgItemMessage :: HWND -> Int -> WindowMessage -> WPARAM -> LPARAM -> IO LONG
 
 setDlgItemInt :: HWND -> Int -> UINT -> BOOL -> IO ()
@@ -296,7 +296,7 @@ setDlgItemText :: HWND -> Int -> String -> IO ()
 setDlgItemText dlg item str =
   withTString str $ \ c_str ->
   failIfFalse_ "SetDlgItemText" $ c_SetDlgItemText dlg item c_str
-foreign import stdcall unsafe "windows.h SetDlgItemTextW"
+foreign import stdcall "windows.h SetDlgItemTextW"
   c_SetDlgItemText :: HWND -> Int -> LPCTSTR -> IO Bool
 
 #{enum WindowStyle,
