@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.1 2003/04/05 18:00:24 reid Exp $
+# $Id: Makefile,v 1.2 2003/05/17 00:53:51 ross Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -24,7 +24,7 @@ GC_OPTS += --target=ffi
 
 SRC_HADDOCK_OPTS += -t "Win32 Libraries (Win32 package)"
 
-# yeuch, have to get Win32_CFLAGS & Win32_LIBS in through CPP to Win32.conf.in
+# yeuch, have to get Win32_CFLAGS & Win32_LIBS in through CPP to package.conf.in
 comma = ,
 PACKAGE_CPP_OPTS += -DWIN32_CFLAGS='$(patsubst %,$(comma)"%",$(WIN32_CFLAGS))'
 PACKAGE_CPP_OPTS += -DWIN32_LIBS='$(patsubst %,$(comma)"%",$(WIN32_LIBS))'
