@@ -30,66 +30,66 @@ moveToEx dc x y =
   allocaPOINT $ \ p_point -> do
   failIfFalse_ "MoveToEx" $ c_MoveToEx dc x y p_point
   peekPOINT p_point
-foreign import ccall unsafe "windows.h MoveToEx"
+foreign import stdcall unsafe "windows.h MoveToEx"
   c_MoveToEx :: HDC -> Int32 -> Int32 -> Ptr POINT -> IO Bool
 
 lineTo :: HDC -> Int32 -> Int32 -> IO ()
 lineTo dc x y =
   failIfFalse_ "LineTo" $ c_LineTo dc x y
-foreign import ccall unsafe "windows.h LineTo"
+foreign import stdcall unsafe "windows.h LineTo"
   c_LineTo :: HDC -> Int32 -> Int32 -> IO Bool
 
 polyline :: HDC -> [POINT] -> IO ()
 polyline dc points =
   withPOINTArray points $ \ pount_array npoints ->
   failIfFalse_ "Polyline" $ c_Polyline dc pount_array npoints
-foreign import ccall unsafe "windows.h Polyline"
+foreign import stdcall unsafe "windows.h Polyline"
   c_Polyline :: HDC -> Ptr POINT -> Int -> IO Bool
 
 polylineTo :: HDC -> [POINT] -> IO ()
 polylineTo dc points =
   withPOINTArray points $ \ pount_array npoints ->
   failIfFalse_ "PolylineTo" $ c_PolylineTo dc pount_array npoints
-foreign import ccall unsafe "windows.h PolylineTo"
+foreign import stdcall unsafe "windows.h PolylineTo"
   c_PolylineTo :: HDC -> Ptr POINT -> Int -> IO Bool
 
 polygon :: HDC -> [POINT] -> IO ()
 polygon dc points =
   withPOINTArray points $ \ pount_array npoints ->
   failIfFalse_ "Polygon" $ c_Polygon dc pount_array npoints
-foreign import ccall unsafe "windows.h Polygon"
+foreign import stdcall unsafe "windows.h Polygon"
   c_Polygon :: HDC -> Ptr POINT -> Int -> IO Bool
 
 polyBezier :: HDC -> [POINT] -> IO ()
 polyBezier dc points =
   withPOINTArray points $ \ pount_array npoints ->
   failIfFalse_ "PolyBezier" $ c_PolyBezier dc pount_array npoints
-foreign import ccall unsafe "windows.h PolyBezier"
+foreign import stdcall unsafe "windows.h PolyBezier"
   c_PolyBezier :: HDC -> Ptr POINT -> Int -> IO Bool
 
 polyBezierTo :: HDC -> [POINT] -> IO ()
 polyBezierTo dc points =
   withPOINTArray points $ \ pount_array npoints ->
   failIfFalse_ "PolyBezierTo" $ c_PolyBezierTo dc pount_array npoints
-foreign import ccall unsafe "windows.h PolyBezierTo"
+foreign import stdcall unsafe "windows.h PolyBezierTo"
   c_PolyBezierTo :: HDC -> Ptr POINT -> Int -> IO Bool
 
 arc :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
 arc dc left top right bottom x1 y1 x2 y2 =
   failIfFalse_ "Arc" $ c_Arc dc left top right bottom x1 y1 x2 y2
-foreign import ccall unsafe "windows.h Arc"
+foreign import stdcall unsafe "windows.h Arc"
   c_Arc :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO Bool
 
 arcTo :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
 arcTo dc left top right bottom x1 y1 x2 y2 =
   failIfFalse_ "ArcTo" $ c_ArcTo dc left top right bottom x1 y1 x2 y2
-foreign import ccall unsafe "windows.h ArcTo"
+foreign import stdcall unsafe "windows.h ArcTo"
   c_ArcTo :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO Bool
 
 angleArc :: HDC -> Int32 -> Int32 -> WORD -> Double -> Double -> IO ()
 angleArc dc x y r start sweep =
   failIfFalse_ "AngleArc" $ c_AngleArc dc x y r start sweep
-foreign import ccall unsafe "windows.h AngleArc"
+foreign import stdcall unsafe "windows.h AngleArc"
   c_AngleArc :: HDC -> Int32 -> Int32 -> WORD -> Double -> Double -> IO Bool
 
 ----------------------------------------------------------------
@@ -103,51 +103,51 @@ fillRect :: HDC -> RECT -> HBRUSH -> IO ()
 fillRect dc rect brush =
   withRECT rect $ \ c_rect ->
   failIfFalse_ "FillRect" $ c_FillRect dc c_rect brush
-foreign import ccall unsafe "windows.h FillRect"
+foreign import stdcall unsafe "windows.h FillRect"
   c_FillRect :: HDC -> Ptr RECT -> HBRUSH -> IO Bool
 
 frameRect :: HDC -> RECT -> HBRUSH -> IO ()
 frameRect dc rect brush =
   withRECT rect $ \ c_rect ->
   failIfFalse_ "FrameRect" $ c_FrameRect dc c_rect brush
-foreign import ccall unsafe "windows.h FrameRect"
+foreign import stdcall unsafe "windows.h FrameRect"
   c_FrameRect :: HDC -> Ptr RECT -> HBRUSH -> IO Bool
 
 invertRect :: HDC -> RECT -> IO ()
 invertRect dc rect =
   withRECT rect $ \ c_rect ->
   failIfFalse_ "InvertRect" $ c_InvertRect dc c_rect
-foreign import ccall unsafe "windows.h InvertRect"
+foreign import stdcall unsafe "windows.h InvertRect"
   c_InvertRect :: HDC -> Ptr RECT -> IO Bool
 
 rectangle :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
 rectangle dc left top right bottom =
   failIfFalse_ "Rectangle" $ c_Rectangle dc left top right bottom
-foreign import ccall unsafe "windows.h Rectangle"
+foreign import stdcall unsafe "windows.h Rectangle"
   c_Rectangle :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> IO Bool
 
 roundRect :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
 roundRect dc left top right bottom w h =
   failIfFalse_ "RoundRect" $ c_RoundRect dc left top right bottom w h
-foreign import ccall unsafe "windows.h RoundRect"
+foreign import stdcall unsafe "windows.h RoundRect"
   c_RoundRect :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO Bool
 
 ellipse :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
 ellipse dc left top right bottom =
   failIfFalse_ "Ellipse" $ c_Ellipse dc left top right bottom
-foreign import ccall unsafe "windows.h Ellipse"
+foreign import stdcall unsafe "windows.h Ellipse"
   c_Ellipse :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> IO Bool
 
 chord :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
 chord dc left top right bottom x1 y1 x2 y2 =
   failIfFalse_ "Chord" $ c_Chord dc left top right bottom x1 y1 x2 y2
-foreign import ccall unsafe "windows.h Chord"
+foreign import stdcall unsafe "windows.h Chord"
   c_Chord :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO Bool
 
 pie :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO ()
 pie dc left top right bottom x1 y1 x2 y2 =
   failIfFalse_ "Pie" $ c_Pie dc left top right bottom x1 y1 x2 y2
-foreign import ccall unsafe "windows.h Pie"
+foreign import stdcall unsafe "windows.h Pie"
   c_Pie :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO Bool
 
 ----------------------------------------------------------------
@@ -157,21 +157,21 @@ foreign import ccall unsafe "windows.h Pie"
 bitBlt :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> RasterOp3 -> IO ()
 bitBlt dcDest xDest yDest w h dcSrc xSrc ySrc rop =
   failIfFalse_ "BitBlt" $ c_BitBlt dcDest xDest yDest w h dcSrc xSrc ySrc rop
-foreign import ccall unsafe "windows.h BitBlt"
+foreign import stdcall unsafe "windows.h BitBlt"
   c_BitBlt :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> RasterOp3 -> IO Bool
 
 maskBlt :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> HBITMAP -> INT -> INT -> RasterOp4 -> IO ()
 maskBlt dcDest xDest yDest w h dcSrc xSrc ySrc bm xMask yMask rop =
   failIfFalse_ "MaskBlt" $
     c_MaskBlt dcDest xDest yDest w h dcSrc xSrc ySrc bm xMask yMask rop
-foreign import ccall unsafe "windows.h MaskBlt"
+foreign import stdcall unsafe "windows.h MaskBlt"
   c_MaskBlt :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> HBITMAP -> INT -> INT -> RasterOp4 -> IO Bool
 
 stretchBlt :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> INT -> INT -> RasterOp3 -> IO ()
 stretchBlt dcDest xDest yDest wDest hDest hdcSrc xSrc ySrc wSrc hSrc rop =
   failIfFalse_ "StretchBlt" $
     c_StretchBlt dcDest xDest yDest wDest hDest hdcSrc xSrc ySrc wSrc hSrc rop
-foreign import ccall unsafe "windows.h StretchBlt"
+foreign import stdcall unsafe "windows.h StretchBlt"
   c_StretchBlt :: HDC -> INT -> INT -> INT -> INT -> HDC -> INT -> INT -> INT -> INT -> RasterOp3 -> IO Bool
 
 -- We deviate slightly from the Win32 interface
@@ -186,7 +186,7 @@ plgBlt hdDest p1 p2 p3 hdSrc x y w h mb_bm xMask yMask =
   withPOINTArray [p1,p2,p3] $ \ vertices _ ->
   failIfFalse_ "PlgBlt" $
     c_PlgBlt hdDest vertices hdSrc x y w h (maybePtr mb_bm) xMask yMask
-foreign import ccall unsafe "windows.h PlgBlt"
+foreign import stdcall unsafe "windows.h PlgBlt"
   c_PlgBlt :: HDC -> Ptr POINT -> HDC -> INT -> INT -> INT -> INT -> HBITMAP -> INT -> INT -> IO Bool
 
 ----------------------------------------------------------------
@@ -197,7 +197,7 @@ textOut :: HDC -> INT -> INT -> String -> IO ()
 textOut dc x y str =
   withTStringLen str $ \ (c_str, len) ->
   failIfFalse_ "TextOut" $ c_TextOut dc x y c_str len
-foreign import ccall unsafe "windows.h TextOutW"
+foreign import stdcall unsafe "windows.h TextOutW"
   c_TextOut :: HDC -> INT -> INT -> LPCTSTR -> Int -> IO Bool
 
 -- missing TabbedTextOut from WinFonts.ss; GSL ???
@@ -209,7 +209,7 @@ getTextExtentPoint32 dc str =
   failIfFalse_ "GetTextExtentPoint32" $
     c_GetTextExtentPoint32 dc c_str len p_size
   peekSIZE p_size
-foreign import ccall unsafe "windows.h GetTextExtentPoint32W"
+foreign import stdcall unsafe "windows.h GetTextExtentPoint32W"
   c_GetTextExtentPoint32 :: HDC -> LPCTSTR -> Int -> Ptr SIZE -> IO Bool
 
 -- missing getTabbedTextExtent from WinFonts.ss; GSL ???

@@ -51,22 +51,22 @@ type ClipboardFormat = UINT
 
 -- % , CF_UNICODETEXT  -- WinNT only
 
-foreign import ccall unsafe "windows.h ChangeClipboardChain"
+foreign import stdcall unsafe "windows.h ChangeClipboardChain"
   changeClipboardChain :: HWND -> HWND -> IO Bool
 
 closeClipboard :: IO ()
 closeClipboard =
   failIfFalse_ "CloseClipboard" c_CloseClipboard
-foreign import ccall unsafe "windows.h CloseClipboard"
+foreign import stdcall unsafe "windows.h CloseClipboard"
   c_CloseClipboard :: IO BOOL
 
-foreign import ccall unsafe "windows.h CountClipboardFormats"
+foreign import stdcall unsafe "windows.h CountClipboardFormats"
   countClipboardFormats :: IO Int
 
 emptyClipboard :: IO ()
 emptyClipboard =
   failIfFalse_ "EmptyClipboard" c_EmptyClipboard
-foreign import ccall unsafe "windows.h EmptyClipboard"
+foreign import stdcall unsafe "windows.h EmptyClipboard"
   c_EmptyClipboard :: IO BOOL
 
 -- original also tested GetLastError() != NO_ERROR
@@ -74,13 +74,13 @@ foreign import ccall unsafe "windows.h EmptyClipboard"
 enumClipboardFormats :: ClipboardFormat -> IO ClipboardFormat
 enumClipboardFormats format =
   failIfZero "EnumClipboardFormats" $ c_EnumClipboardFormats format
-foreign import ccall unsafe "windows.h EnumClipboardFormats"
+foreign import stdcall unsafe "windows.h EnumClipboardFormats"
   c_EnumClipboardFormats :: ClipboardFormat -> IO ClipboardFormat
 
 getClipboardData :: ClipboardFormat -> IO HANDLE
 getClipboardData format =
   failIfNull "GetClipboardData" $ c_GetClipboardData format
-foreign import ccall unsafe "windows.h GetClipboardData"
+foreign import stdcall unsafe "windows.h GetClipboardData"
   c_GetClipboardData :: ClipboardFormat -> IO HANDLE
 
 getClipboardFormatName :: ClipboardFormat -> IO String
@@ -89,25 +89,25 @@ getClipboardFormatName format =
   len <- failIfZero "GetClipboardFormatName" $
     c_GetClipboardFormatName format c_name 256
   peekTStringLen (c_name, len)
-foreign import ccall unsafe "windows.h GetClipboardFormatNameW"
+foreign import stdcall unsafe "windows.h GetClipboardFormatNameW"
   c_GetClipboardFormatName :: ClipboardFormat -> LPTSTR -> Int -> IO Int
 
 getClipboardOwner :: IO HWND
 getClipboardOwner =
   failIfNull "GetClipboardOwner" c_GetClipboardOwner
-foreign import ccall unsafe "windows.h GetClipboardOwner"
+foreign import stdcall unsafe "windows.h GetClipboardOwner"
   c_GetClipboardOwner :: IO HWND
 
 getClipboardViewer :: IO HWND
 getClipboardViewer =
   failIfNull "GetClipboardViewer" c_GetClipboardViewer
-foreign import ccall unsafe "windows.h GetClipboardViewer"
+foreign import stdcall unsafe "windows.h GetClipboardViewer"
   c_GetClipboardViewer :: IO HWND
 
 getOpenClipboardWindow :: IO HWND
 getOpenClipboardWindow =
   failIfNull "GetClipboardWindow" c_GetOpenClipboardWindow
-foreign import ccall unsafe "windows.h GetOpenClipboardWindow"
+foreign import stdcall unsafe "windows.h GetOpenClipboardWindow"
   c_GetOpenClipboardWindow :: IO HWND
 
 getPriorityClipboardFormat :: [ClipboardFormat] -> IO Int
@@ -115,16 +115,16 @@ getPriorityClipboardFormat formats =
   withArray formats $ \ format_array ->
   failIf (== -1) "GetPriorityClipboardFormat" $
     c_GetPriorityClipboardFormat format_array (length formats)
-foreign import ccall unsafe "windows.h GetPriorityClipboardFormat"
+foreign import stdcall unsafe "windows.h GetPriorityClipboardFormat"
   c_GetPriorityClipboardFormat :: Ptr UINT -> Int -> IO Int
 
-foreign import ccall unsafe "windows.h IsClipboardFormatAvailable"
+foreign import stdcall unsafe "windows.h IsClipboardFormatAvailable"
   isClipboardFormatAvailable :: ClipboardFormat -> IO BOOL
 
 openClipboard :: HWND -> IO ()
 openClipboard wnd =
   failIfFalse_ "OpenClipboard" $ c_OpenClipboard wnd
-foreign import ccall unsafe "windows.h OpenClipboard"
+foreign import stdcall unsafe "windows.h OpenClipboard"
   c_OpenClipboard :: HWND -> IO BOOL
 
 registerClipboardFormat :: String -> IO ClipboardFormat
@@ -132,17 +132,17 @@ registerClipboardFormat name =
   withTString name $ \ c_name ->
   failIfZero "RegisterClipboardFormat" $
     c_RegisterClipboardFormat c_name
-foreign import ccall unsafe "windows.h RegisterClipboardFormatW"
+foreign import stdcall unsafe "windows.h RegisterClipboardFormatW"
   c_RegisterClipboardFormat :: LPCTSTR -> IO ClipboardFormat
 
 setClipboardData :: ClipboardFormat -> HANDLE -> IO HANDLE
 setClipboardData format mem =
   failIfNull "SetClipboardData" $ c_SetClipboardData format mem
-foreign import ccall unsafe "windows.h SetClipboardData"
+foreign import stdcall unsafe "windows.h SetClipboardData"
   c_SetClipboardData :: ClipboardFormat -> HANDLE -> IO HANDLE
 
 setClipboardViewer :: HWND -> IO HWND
 setClipboardViewer wnd =
   failIfNull "SetClipboardViewer" $ c_SetClipboardViewer wnd
-foreign import ccall unsafe "windows.h SetClipboardViewer"
+foreign import stdcall unsafe "windows.h SetClipboardViewer"
   c_SetClipboardViewer :: HWND -> IO HWND

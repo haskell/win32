@@ -208,7 +208,7 @@ deleteFile :: String -> IO ()
 deleteFile name =
   withTString name $ \ c_name ->
   failIfFalse_ "DeleteFile" $ c_DeleteFile c_name
-foreign import ccall unsafe "windows.h DeleteFileW"
+foreign import stdcall unsafe "windows.h DeleteFileW"
   c_DeleteFile :: LPCTSTR -> IO Bool
 
 copyFile :: String -> String -> Bool -> IO ()
@@ -216,7 +216,7 @@ copyFile src dest over =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
   failIfFalse_ "CopyFile" $ c_CopyFile c_src c_dest over
-foreign import ccall unsafe "windows.h CopyFileW"
+foreign import stdcall unsafe "windows.h CopyFileW"
   c_CopyFile :: LPCTSTR -> LPCTSTR -> Bool -> IO Bool
 
 moveFile :: String -> String -> IO ()
@@ -224,7 +224,7 @@ moveFile src dest =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
   failIfFalse_ "MoveFile" $ c_MoveFile c_src c_dest
-foreign import ccall unsafe "windows.h MoveFileW"
+foreign import stdcall unsafe "windows.h MoveFileW"
   c_MoveFile :: LPCTSTR -> LPCTSTR -> IO Bool
 
 moveFileEx :: String -> String -> MoveFileFlag -> IO ()
@@ -232,21 +232,21 @@ moveFileEx src dest flags =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
   failIfFalse_ "MoveFileEx" $ c_MoveFileEx c_src c_dest flags
-foreign import ccall unsafe "windows.h MoveFileExW"
+foreign import stdcall unsafe "windows.h MoveFileExW"
   c_MoveFileEx :: LPCTSTR -> LPCTSTR -> MoveFileFlag -> IO Bool
 
 setCurrentDirectory :: String -> IO ()
 setCurrentDirectory name =
   withTString name $ \ c_name ->
   failIfFalse_ "SetCurrentDirectory" $ c_SetCurrentDirectory c_name
-foreign import ccall unsafe "windows.h SetCurrentDirectoryW"
+foreign import stdcall unsafe "windows.h SetCurrentDirectoryW"
   c_SetCurrentDirectory :: LPCTSTR -> IO Bool
 
 createDirectory :: String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
 createDirectory name mb_attr =
   withTString name $ \ c_name ->
   failIfFalse_ "CreateDirectory" $ c_CreateDirectory c_name (maybePtr mb_attr)
-foreign import ccall unsafe "windows.h CreateDirectoryW"
+foreign import stdcall unsafe "windows.h CreateDirectoryW"
   c_CreateDirectory :: LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
 
 createDirectoryEx :: String -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
@@ -255,14 +255,14 @@ createDirectoryEx template name mb_attr =
   withTString name $ \ c_name ->
   failIfFalse_ "CreateDirectoryEx" $
     c_CreateDirectoryEx c_template c_name (maybePtr mb_attr)
-foreign import ccall unsafe "windows.h CreateDirectoryExW"
+foreign import stdcall unsafe "windows.h CreateDirectoryExW"
   c_CreateDirectoryEx :: LPCTSTR -> LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
 
 removeDirectory :: String -> IO ()
 removeDirectory name =
   withTString name $ \ c_name ->
   failIfFalse_ "RemoveDirectory" $ c_RemoveDirectory c_name
-foreign import ccall unsafe "windows.h RemoveDirectoryW"
+foreign import stdcall unsafe "windows.h RemoveDirectoryW"
   c_RemoveDirectory :: LPCTSTR -> IO Bool
 
 getBinaryType :: String -> IO BinaryType
@@ -271,7 +271,7 @@ getBinaryType name =
   alloca $ \ p_btype -> do
   failIfFalse_ "GetBinaryType" $ c_GetBinaryType c_name p_btype
   peek p_btype
-foreign import ccall unsafe "windows.h GetBinaryTypeW"
+foreign import stdcall unsafe "windows.h GetBinaryTypeW"
   c_GetBinaryType :: LPCTSTR -> Ptr DWORD -> IO Bool
 
 ----------------------------------------------------------------
@@ -283,43 +283,43 @@ createFile name access share mb_attr mode flag mb_h =
   withTString name $ \ c_name ->
   failIfNull "CreateFile" $
     c_CreateFile c_name access share (maybePtr mb_attr) mode flag (maybePtr mb_h)
-foreign import ccall unsafe "windows.h CreateFileW"
+foreign import stdcall unsafe "windows.h CreateFileW"
   c_CreateFile :: LPCTSTR -> AccessMode -> ShareMode -> LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> HANDLE -> IO HANDLE
 
 closeHandle :: HANDLE -> IO ()
 closeHandle h =
   failIfFalse_ "CloseHandle" $ c_CloseHandle h
-foreign import ccall unsafe "windows.h CloseHandle"
+foreign import stdcall unsafe "windows.h CloseHandle"
   c_CloseHandle :: HANDLE -> IO Bool
 
-foreign import ccall unsafe "windows.h GetFileType"
+foreign import stdcall unsafe "windows.h GetFileType"
   getFileType :: HANDLE -> IO FileType
 --Apparently no error code
 
 flushFileBuffers :: HANDLE -> IO ()
 flushFileBuffers h =
   failIfFalse_ "FlushFileBuffers" $ c_FlushFileBuffers h
-foreign import ccall unsafe "windows.h FlushFileBuffers"
+foreign import stdcall unsafe "windows.h FlushFileBuffers"
   c_FlushFileBuffers :: HANDLE -> IO Bool
 
 setEndOfFile :: HANDLE -> IO ()
 setEndOfFile h =
   failIfFalse_ "SetEndOfFile" $ c_SetEndOfFile h
-foreign import ccall unsafe "windows.h SetEndOfFile"
+foreign import stdcall unsafe "windows.h SetEndOfFile"
   c_SetEndOfFile :: HANDLE -> IO Bool
 
 setFileAttributes :: String -> FileAttributeOrFlag -> IO ()
 setFileAttributes name attr =
   withTString name $ \ c_name ->
   failIfFalse_ "SetFileAttributes" $ c_SetFileAttributes c_name attr
-foreign import ccall unsafe "windows.h SetFileAttributesW"
+foreign import stdcall unsafe "windows.h SetFileAttributesW"
   c_SetFileAttributes :: LPCTSTR -> FileAttributeOrFlag -> IO Bool
 
 getFileAttributes :: String -> IO FileAttributeOrFlag
 getFileAttributes name =
   withTString name $ \ c_name ->
   failIf (== 0xFFFFFFFF) "GetFileAttributes" $ c_GetFileAttributes c_name
-foreign import ccall unsafe "windows.h GetFileAttributesW"
+foreign import stdcall unsafe "windows.h GetFileAttributesW"
   c_GetFileAttributes :: LPCTSTR -> IO FileAttributeOrFlag
 
 ----------------------------------------------------------------
@@ -344,7 +344,7 @@ win32_ReadFile h buf n mb_over =
   alloca $ \ p_n -> do
   failIfFalse_ "ReadFile" $ c_ReadFile h buf n p_n (maybePtr mb_over)
   peek p_n
-foreign import ccall unsafe "windows.h ReadFile"
+foreign import stdcall unsafe "windows.h ReadFile"
   c_ReadFile :: HANDLE -> Ptr a -> DWORD -> Ptr DWORD -> LPOVERLAPPED -> IO Bool
 
 win32_WriteFile :: HANDLE -> Ptr a -> DWORD -> Maybe LPOVERLAPPED -> IO DWORD
@@ -352,7 +352,7 @@ win32_WriteFile h buf n mb_over =
   alloca $ \ p_n -> do
   failIfFalse_ "WriteFile" $ c_WriteFile h buf n p_n (maybePtr mb_over)
   peek p_n
-foreign import ccall unsafe "windows.h WriteFile"
+foreign import stdcall unsafe "windows.h WriteFile"
   c_WriteFile :: HANDLE -> Ptr a -> DWORD -> Ptr DWORD -> LPOVERLAPPED -> IO Bool
 
 -- missing Seek functioinality; GSL ???
@@ -371,19 +371,19 @@ findFirstChangeNotification path watch flag =
   withTString path $ \ c_path ->
   failIfNull "FindFirstChangeNotification" $
     c_FindFirstChangeNotification c_path watch flag
-foreign import ccall unsafe "windows.h FindFirstChangeNotificationW"
+foreign import stdcall unsafe "windows.h FindFirstChangeNotificationW"
   c_FindFirstChangeNotification :: LPCTSTR -> Bool -> FileNotificationFlag -> IO HANDLE
 
 findNextChangeNotification :: HANDLE -> IO ()
 findNextChangeNotification h =
   failIfFalse_ "FindNextChangeNotification" $ c_FindNextChangeNotification h
-foreign import ccall unsafe "windows.h FindNextChangeNotification"
+foreign import stdcall unsafe "windows.h FindNextChangeNotification"
   c_FindNextChangeNotification :: HANDLE -> IO Bool
 
 findCloseChangeNotification :: HANDLE -> IO ()
 findCloseChangeNotification h =
   failIfFalse_ "FindCloseChangeNotification" $ c_FindCloseChangeNotification h
-foreign import ccall unsafe "windows.h FindCloseChangeNotification"
+foreign import stdcall unsafe "windows.h FindCloseChangeNotification"
   c_FindCloseChangeNotification :: HANDLE -> IO Bool
 
 ----------------------------------------------------------------
@@ -395,7 +395,7 @@ defineDosDevice flags name path =
   withTString path $ \ c_path ->
   withTString name $ \ c_name ->
   failIfFalse_ "DefineDosDevice" $ c_DefineDosDevice flags c_name c_path
-foreign import ccall unsafe "windows.h DefineDosDeviceW"
+foreign import stdcall unsafe "windows.h DefineDosDeviceW"
   c_DefineDosDevice :: DefineDosDeviceFlags -> LPCTSTR -> LPCTSTR -> IO Bool
 
 ----------------------------------------------------------------
@@ -403,16 +403,16 @@ foreign import ccall unsafe "windows.h DefineDosDeviceW"
 -- These functions are very unusual in the Win32 API:
 -- They dont return error codes
 
-foreign import ccall unsafe "windows.h AreFileApisANSI"
+foreign import stdcall unsafe "windows.h AreFileApisANSI"
   areFileApisANSI :: IO Bool
 
-foreign import ccall unsafe "windows.h SetFileApisToOEM"
+foreign import stdcall unsafe "windows.h SetFileApisToOEM"
   setFileApisToOEM :: IO ()
 
-foreign import ccall unsafe "windows.h SetFileApisToANSI"
+foreign import stdcall unsafe "windows.h SetFileApisToANSI"
   setFileApisToANSI :: IO ()
 
-foreign import ccall unsafe "windows.h SetHandleCount"
+foreign import stdcall unsafe "windows.h SetHandleCount"
   setHandleCount :: UINT -> IO UINT
 
 ----------------------------------------------------------------
@@ -420,7 +420,7 @@ foreign import ccall unsafe "windows.h SetHandleCount"
 getLogicalDrives :: IO DWORD
 getLogicalDrives =
   failIfZero "GetLogicalDrives" $ c_GetLogicalDrives
-foreign import ccall unsafe "windows.h GetLogicalDrives"
+foreign import stdcall unsafe "windows.h GetLogicalDrives"
   c_GetLogicalDrives :: IO DWORD
 
 -- %fun GetDriveType :: Maybe String -> IO DriveType
@@ -439,7 +439,7 @@ getDiskFreeSpace path =
   nfree <- peek p_nfree
   nclusters <- peek p_nclusters
   return (sectors, bytes, nfree, nclusters)
-foreign import ccall unsafe "windows.h GetDiskFreeSpaceW"
+foreign import stdcall unsafe "windows.h GetDiskFreeSpaceW"
   c_GetDiskFreeSpace :: LPCTSTR -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> IO Bool
 
 setVolumeLabel :: String -> String -> IO ()
@@ -447,7 +447,7 @@ setVolumeLabel path name =
   withTString path $ \ c_path ->
   withTString name $ \ c_name ->
   failIfFalse_ "SetVolumeLabel" $ c_SetVolumeLabel c_path c_name
-foreign import ccall unsafe "windows.h SetVolumeLabelW"
+foreign import stdcall unsafe "windows.h SetVolumeLabelW"
   c_SetVolumeLabel :: LPCTSTR -> LPCTSTR -> IO Bool
 
 ----------------------------------------------------------------

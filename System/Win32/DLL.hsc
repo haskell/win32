@@ -24,13 +24,13 @@ import Foreign.C
 disableThreadLibraryCalls :: HMODULE -> IO ()
 disableThreadLibraryCalls hmod =
   failIfFalse_ "DisableThreadLibraryCalls" $ c_DisableThreadLibraryCalls hmod
-foreign import ccall unsafe "windows.h DisableThreadLibraryCalls"
+foreign import stdcall unsafe "windows.h DisableThreadLibraryCalls"
   c_DisableThreadLibraryCalls :: HMODULE -> IO Bool
 
 freeLibrary :: HMODULE -> IO ()
 freeLibrary hmod =
   failIfFalse_ "FreeLibrary" $ c_FreeLibrary hmod
-foreign import ccall unsafe "windows.h FreeLibrary"
+foreign import stdcall unsafe "windows.h FreeLibrary"
   c_FreeLibrary :: HMODULE -> IO Bool
 
 getModuleFileName :: HMODULE -> IO String
@@ -38,28 +38,28 @@ getModuleFileName hmod =
   allocaArray 512 $ \ c_str -> do
   failIfFalse_ "GetModuleFileName" $ c_GetModuleFileName hmod c_str 512
   peekTString c_str
-foreign import ccall unsafe "windows.h GetModuleFileNameW"
+foreign import stdcall unsafe "windows.h GetModuleFileNameW"
   c_GetModuleFileName :: HMODULE -> LPTSTR -> Int -> IO Bool
 
 getModuleHandle :: Maybe String -> IO HMODULE
 getModuleHandle mb_name =
   withMaybePtr withTString mb_name $ \ c_name ->
   failIfNull "GetModuleHandle" $ c_GetModuleHandle c_name
-foreign import ccall unsafe "windows.h GetModuleHandleW"
+foreign import stdcall unsafe "windows.h GetModuleHandleW"
   c_GetModuleHandle :: LPCTSTR -> IO HMODULE
 
 getProcAddress :: HMODULE -> String -> IO Addr
 getProcAddress hmod procname =
   withCString procname $ \ c_procname ->
   failIfNull "GetProcAddress" $ c_GetProcAddress hmod c_procname
-foreign import ccall unsafe "windows.h GetProcAddress"
+foreign import stdcall unsafe "windows.h GetProcAddress"
   c_GetProcAddress :: HMODULE -> LPCSTR -> IO Addr
 
 loadLibrary :: String -> IO HINSTANCE
 loadLibrary name =
   withTString name $ \ c_name ->
   failIfNull "LoadLibrary" $ c_LoadLibrary c_name
-foreign import ccall unsafe "windows.h LoadLibraryW"
+foreign import stdcall unsafe "windows.h LoadLibraryW"
   c_LoadLibrary :: LPCTSTR -> IO HINSTANCE
 
 type LoadLibraryFlags = DWORD
@@ -73,5 +73,5 @@ loadLibraryEx :: String -> HANDLE -> LoadLibraryFlags -> IO HINSTANCE
 loadLibraryEx name h flags =
   withTString name $ \ c_name ->
   failIfNull "LoadLibraryEx" $ c_LoadLibraryEx c_name h flags
-foreign import ccall unsafe "windows.h LoadLibraryExW"
+foreign import stdcall unsafe "windows.h LoadLibraryExW"
   c_LoadLibraryEx :: LPCTSTR -> HANDLE -> LoadLibraryFlags -> IO HINSTANCE

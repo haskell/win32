@@ -192,7 +192,7 @@ type   ForeignHANDLE = ForeignPtr ()
 newForeignHANDLE :: HANDLE -> IO ForeignHANDLE
 newForeignHANDLE = newForeignPtr deleteObject_p
 
-foreign import ccall unsafe "windows.h &DeleteObject"
+foreign import stdcall unsafe "windows.h &DeleteObject"
   deleteObject_p :: FunPtr (HANDLE -> IO ())
 
 handleToWord :: HANDLE -> UINT
@@ -270,10 +270,10 @@ failWith fn_name err_code =
 foreign import ccall unsafe "errors.h"
   getErrorMessage :: DWORD -> IO LPWSTR
 
-foreign import ccall unsafe "windows.h LocalFree"
+foreign import stdcall unsafe "windows.h LocalFree"
   localFree :: Ptr a -> IO (Ptr a)
 
-foreign import ccall unsafe "windows.h GetLastError"
+foreign import stdcall unsafe "windows.h GetLastError"
   getLastError :: IO ErrCode
 
 ----------------------------------------------------------------

@@ -26,85 +26,85 @@ import Foreign
 setArcDirection :: HDC -> ArcDirection -> IO ArcDirection
 setArcDirection dc dir =
   failIfZero "SetArcDirection" $ c_SetArcDirection dc dir
-foreign import ccall unsafe "windows.h SetArcDirection"
+foreign import stdcall unsafe "windows.h SetArcDirection"
   c_SetArcDirection :: HDC ->  ArcDirection  -> IO  ArcDirection
 
 getArcDirection :: HDC -> IO ArcDirection
 getArcDirection dc =
   failIfZero "GetArcDirection" $ c_GetArcDirection dc
-foreign import ccall unsafe "windows.h GetArcDirection"
+foreign import stdcall unsafe "windows.h GetArcDirection"
   c_GetArcDirection :: HDC -> IO  ArcDirection
 
 setPolyFillMode :: HDC -> PolyFillMode -> IO PolyFillMode
 setPolyFillMode dc mode =
   failIfZero "SetPolyFillMode" $ c_SetPolyFillMode dc mode
-foreign import ccall unsafe "windows.h SetPolyFillMode"
+foreign import stdcall unsafe "windows.h SetPolyFillMode"
   c_SetPolyFillMode :: HDC ->  PolyFillMode  -> IO  PolyFillMode
 
 getPolyFillMode :: HDC -> IO PolyFillMode
 getPolyFillMode dc =
   failIfZero "GetPolyFillMode" $ c_GetPolyFillMode dc
-foreign import ccall unsafe "windows.h GetPolyFillMode"
+foreign import stdcall unsafe "windows.h GetPolyFillMode"
   c_GetPolyFillMode :: HDC -> IO  PolyFillMode
 
 setGraphicsMode :: HDC -> GraphicsMode -> IO GraphicsMode
 setGraphicsMode dc mode =
   failIfZero "SetGraphicsMode" $ c_SetGraphicsMode dc mode
-foreign import ccall unsafe "windows.h SetGraphicsMode"
+foreign import stdcall unsafe "windows.h SetGraphicsMode"
   c_SetGraphicsMode :: HDC ->  GraphicsMode  -> IO  GraphicsMode
 
 getGraphicsMode :: HDC -> IO GraphicsMode
 getGraphicsMode dc =
   failIfZero "GetGraphicsMode" $ c_GetGraphicsMode dc
-foreign import ccall unsafe "windows.h GetGraphicsMode"
+foreign import stdcall unsafe "windows.h GetGraphicsMode"
   c_GetGraphicsMode :: HDC -> IO  GraphicsMode
 
 setStretchBltMode :: HDC -> StretchBltMode -> IO StretchBltMode
 setStretchBltMode dc mode =
   failIfZero "SetStretchBltMode" $ c_SetStretchBltMode dc mode
-foreign import ccall unsafe "windows.h SetStretchBltMode"
+foreign import stdcall unsafe "windows.h SetStretchBltMode"
   c_SetStretchBltMode :: HDC ->  StretchBltMode  -> IO  StretchBltMode
 
 getStretchBltMode :: HDC -> IO StretchBltMode
 getStretchBltMode dc =
   failIfZero "GetStretchBltMode" $ c_GetStretchBltMode dc
-foreign import ccall unsafe "windows.h GetStretchBltMode"
+foreign import stdcall unsafe "windows.h GetStretchBltMode"
   c_GetStretchBltMode :: HDC -> IO  StretchBltMode
 
 setBkColor :: HDC -> COLORREF -> IO COLORREF
 setBkColor dc color =
   failIfZero "SetBkColor" $ c_SetBkColor dc color
-foreign import ccall unsafe "windows.h SetBkColor"
+foreign import stdcall unsafe "windows.h SetBkColor"
   c_SetBkColor :: HDC ->  COLORREF  -> IO  COLORREF
 
 getBkColor :: HDC -> IO COLORREF
 getBkColor dc =
   failIfZero "GetBkColor" $ c_GetBkColor dc
-foreign import ccall unsafe "windows.h GetBkColor"
+foreign import stdcall unsafe "windows.h GetBkColor"
   c_GetBkColor :: HDC -> IO  COLORREF
 
 setTextColor :: HDC -> COLORREF -> IO COLORREF
 setTextColor dc color =
   failIf (== cLR_INVALID) "SetTextColor" $ c_SetTextColor dc color
-foreign import ccall unsafe "windows.h SetTextColor"
+foreign import stdcall unsafe "windows.h SetTextColor"
   c_SetTextColor :: HDC ->  COLORREF  -> IO  COLORREF
 
 getTextColor :: HDC -> IO COLORREF
 getTextColor dc =
   failIf (== cLR_INVALID) "GetTextColor" $ c_GetTextColor dc
-foreign import ccall unsafe "windows.h GetTextColor"
+foreign import stdcall unsafe "windows.h GetTextColor"
   c_GetTextColor :: HDC -> IO  COLORREF
 
 setBkMode :: HDC -> BackgroundMode -> IO BackgroundMode
 setBkMode dc mode =
   failIfZero "SetBkMode" $ c_SetBkMode dc mode
-foreign import ccall unsafe "windows.h SetBkMode"
+foreign import stdcall unsafe "windows.h SetBkMode"
   c_SetBkMode :: HDC ->  BackgroundMode  -> IO  BackgroundMode
 
 getBkMode :: HDC -> IO BackgroundMode
 getBkMode dc =
   failIfZero "GetBkMode" $ c_GetBkMode dc
-foreign import ccall unsafe "windows.h GetBkMode"
+foreign import stdcall unsafe "windows.h GetBkMode"
   c_GetBkMode :: HDC -> IO  BackgroundMode
 
 setBrushOrgEx :: HDC -> Int -> Int -> IO POINT
@@ -112,7 +112,7 @@ setBrushOrgEx dc x y =
   allocaPOINT $ \ pt -> do
   failIfFalse_ "SetBrushOrgEx" $ c_SetBrushOrgEx dc x y pt
   peekPOINT pt
-foreign import ccall unsafe "windows.h SetBrushOrgEx"
+foreign import stdcall unsafe "windows.h SetBrushOrgEx"
   c_SetBrushOrgEx :: HDC -> Int -> Int -> Ptr POINT -> IO Bool
 
 getBrushOrgEx :: HDC -> IO POINT
@@ -120,32 +120,32 @@ getBrushOrgEx dc =
   allocaPOINT $ \ pt -> do
   failIfFalse_ "GetBrushOrgEx" $ c_GetBrushOrgEx dc pt
   peekPOINT pt
-foreign import ccall unsafe "windows.h GetBrushOrgEx"
+foreign import stdcall unsafe "windows.h GetBrushOrgEx"
   c_GetBrushOrgEx :: HDC -> Ptr POINT -> IO Bool
 
 setTextAlign :: HDC -> TextAlignment -> IO TextAlignment
 setTextAlign dc align =
   failIf (== gDI_ERROR) "SetTextAlign" $ c_SetTextAlign dc align
-foreign import ccall unsafe "windows.h SetTextAlign"
+foreign import stdcall unsafe "windows.h SetTextAlign"
   c_SetTextAlign :: HDC ->  TextAlignment  -> IO  TextAlignment
 
 getTextAlign :: HDC -> IO TextAlignment
 getTextAlign dc =
   failIf (== gDI_ERROR) "GetTextAlign" $ c_GetTextAlign dc
-foreign import ccall unsafe "windows.h GetTextAlign"
+foreign import stdcall unsafe "windows.h GetTextAlign"
   c_GetTextAlign :: HDC -> IO  TextAlignment
 
 setTextCharacterExtra :: HDC -> Int -> IO Int
 setTextCharacterExtra dc extra =
   failIf (== 0x80000000) "SetTextCharacterExtra" $
     c_SetTextCharacterExtra dc extra
-foreign import ccall unsafe "windows.h SetTextCharacterExtra"
+foreign import stdcall unsafe "windows.h SetTextCharacterExtra"
   c_SetTextCharacterExtra :: HDC ->  Int  -> IO  Int
 
 getTextCharacterExtra :: HDC -> IO Int
 getTextCharacterExtra dc =
   failIf (== 0x80000000) "GetTextCharacterExtra" $ c_GetTextCharacterExtra dc
-foreign import ccall unsafe "windows.h GetTextCharacterExtra"
+foreign import stdcall unsafe "windows.h GetTextCharacterExtra"
   c_GetTextCharacterExtra :: HDC -> IO  Int
 
 getMiterLimit :: HDC -> IO Float
@@ -153,7 +153,7 @@ getMiterLimit dc =
   alloca $ \ p_res -> do
   failIfFalse_ "GetMiterLimit" $ c_GetMiterLimit dc p_res
   peek p_res
-foreign import ccall unsafe "windows.h GetMiterLimit"
+foreign import stdcall unsafe "windows.h GetMiterLimit"
   c_GetMiterLimit :: HDC -> Ptr FLOAT -> IO Bool
 
 setMiterLimit :: HDC -> Float -> IO Float
@@ -161,7 +161,7 @@ setMiterLimit dc new_limit =
   alloca $ \ p_old_limit -> do
   failIfFalse_ "SetMiterLimit" $ c_SetMiterLimit dc new_limit p_old_limit
   peek p_old_limit
-foreign import ccall unsafe "windows.h SetMiterLimit"
+foreign import stdcall unsafe "windows.h SetMiterLimit"
   c_SetMiterLimit :: HDC -> FLOAT -> Ptr FLOAT -> IO Bool
 
 ----------------------------------------------------------------
@@ -169,13 +169,13 @@ foreign import ccall unsafe "windows.h SetMiterLimit"
 saveDC :: HDC -> IO Int
 saveDC dc =
   failIfZero "SaveDC" $ c_SaveDC dc
-foreign import ccall unsafe "windows.h SaveDC"
+foreign import stdcall unsafe "windows.h SaveDC"
   c_SaveDC :: HDC -> IO Int
 
 restoreDC :: HDC -> Int -> IO ()
 restoreDC dc saved =
   failIfFalse_ "RestoreDC" $ c_RestoreDC dc saved
-foreign import ccall unsafe "windows.h RestoreDC"
+foreign import stdcall unsafe "windows.h RestoreDC"
   c_RestoreDC :: HDC -> Int -> IO Bool
 
 ----------------------------------------------------------------
@@ -183,55 +183,55 @@ foreign import ccall unsafe "windows.h RestoreDC"
 getCurrentBitmap :: HDC -> IO HBITMAP
 getCurrentBitmap dc =
   failIfNull "GetCurrentBitmap" $ c_GetCurrentBitmap dc oBJ_BITMAP
-foreign import ccall unsafe "windows.h GetCurrentObject"
+foreign import stdcall unsafe "windows.h GetCurrentObject"
   c_GetCurrentBitmap :: HDC -> UINT -> IO  HBITMAP
 
 getCurrentBrush :: HDC -> IO HBRUSH
 getCurrentBrush dc =
   failIfNull "GetCurrentBrush" $ c_GetCurrentBrush dc oBJ_BRUSH
-foreign import ccall unsafe "windows.h GetCurrentObject"
+foreign import stdcall unsafe "windows.h GetCurrentObject"
   c_GetCurrentBrush :: HDC -> UINT -> IO   HBRUSH
 
 getCurrentFont :: HDC -> IO HFONT
 getCurrentFont dc =
   failIfNull "GetCurrentFont" $ c_GetCurrentFont dc oBJ_FONT
-foreign import ccall unsafe "windows.h GetCurrentObject"
+foreign import stdcall unsafe "windows.h GetCurrentObject"
   c_GetCurrentFont :: HDC -> UINT -> IO    HFONT
 
 getCurrentPalette :: HDC -> IO HPALETTE
 getCurrentPalette dc =
   failIfNull "GetCurrentPalette" $ c_GetCurrentPalette dc oBJ_PAL
-foreign import ccall unsafe "windows.h GetCurrentObject"
+foreign import stdcall unsafe "windows.h GetCurrentObject"
   c_GetCurrentPalette :: HDC -> UINT -> IO     HPALETTE
 
 getCurrentPen :: HDC -> IO HPEN
 getCurrentPen dc =
   failIfNull "GetCurrentPen" $ c_GetCurrentPen dc oBJ_PEN
-foreign import ccall unsafe "windows.h GetCurrentObject"
+foreign import stdcall unsafe "windows.h GetCurrentObject"
   c_GetCurrentPen :: HDC -> UINT -> IO     HPEN
 
 selectBitmap :: HDC -> HBITMAP -> IO HBITMAP
 selectBitmap dc bitmap =
   failIfNull "SelectBitmap" $ c_SelectBitmap dc bitmap
-foreign import ccall unsafe "windows.h SelectObject"
+foreign import stdcall unsafe "windows.h SelectObject"
   c_SelectBitmap :: HDC ->   HBITMAP  -> IO   HBITMAP
 
 selectBrush :: HDC -> HBRUSH -> IO HBRUSH
 selectBrush dc brush =
   failIfNull "SelectBrush" $ c_SelectBrush dc brush
-foreign import ccall unsafe "windows.h SelectObject"
+foreign import stdcall unsafe "windows.h SelectObject"
   c_SelectBrush :: HDC ->    HBRUSH  -> IO    HBRUSH
 
 selectFont :: HDC -> HFONT -> IO HFONT
 selectFont dc font =
   failIfNull "SelectFont" $ c_SelectFont dc font
-foreign import ccall unsafe "windows.h SelectObject"
+foreign import stdcall unsafe "windows.h SelectObject"
   c_SelectFont :: HDC ->     HFONT  -> IO     HFONT
 
 selectPen :: HDC -> HPEN -> IO HPEN
 selectPen dc pen =
   failIfNull "SelectPen" $ c_SelectPen dc pen
-foreign import ccall unsafe "windows.h SelectObject"
+foreign import stdcall unsafe "windows.h SelectObject"
   c_SelectPen :: HDC ->      HPEN  -> IO      HPEN
 
 ----------------------------------------------------------------
@@ -241,34 +241,34 @@ foreign import ccall unsafe "windows.h SelectObject"
 selectPalette :: HDC -> HPALETTE -> Bool -> IO HPALETTE
 selectPalette dc palette force_bg =
   failIfNull "SelectPalette" $ c_SelectPalette dc palette force_bg
-foreign import ccall unsafe "windows.h SelectPalette"
+foreign import stdcall unsafe "windows.h SelectPalette"
   c_SelectPalette :: HDC -> HPALETTE -> Bool -> IO HPALETTE
 
 selectRgn :: HDC -> HRGN -> IO RegionType
 selectRgn dc rgn =
   withForeignPtr rgn $ \ p_rgn ->
   failIf (== gDI_ERROR) "SelectRgn" $ c_SelectRgn dc p_rgn
-foreign import ccall unsafe "windows.h SelectObject"
+foreign import stdcall unsafe "windows.h SelectObject"
   c_SelectRgn :: HDC -> PRGN -> IO RegionType
 
 selectClipRgn :: HDC -> Maybe HRGN -> IO RegionType
 selectClipRgn dc mb_rgn =
   withMaybeForeignPtr mb_rgn $ \ p_rgn ->
   failIfZero "SelectClipRgn" $ c_SelectClipRgn dc p_rgn
-foreign import ccall unsafe "windows.h SelectClipRgn"
+foreign import stdcall unsafe "windows.h SelectClipRgn"
   c_SelectClipRgn :: HDC -> PRGN -> IO RegionType
 
 extSelectClipRgn :: HDC -> Maybe HRGN -> ClippingMode -> IO RegionType
 extSelectClipRgn dc mb_rgn mode =
   withMaybeForeignPtr mb_rgn $ \ p_rgn ->
   failIfZero "ExtSelectClipRgn" $ c_ExtSelectClipRgn dc p_rgn mode
-foreign import ccall unsafe "windows.h ExtSelectClipRgn"
+foreign import stdcall unsafe "windows.h ExtSelectClipRgn"
   c_ExtSelectClipRgn :: HDC -> PRGN -> ClippingMode -> IO RegionType
 
 selectClipPath :: HDC -> ClippingMode -> IO RegionType
 selectClipPath dc mode =
   failIfZero "SelectClipPath" $ c_SelectClipPath dc mode
-foreign import ccall unsafe "windows.h SelectClipPath"
+foreign import stdcall unsafe "windows.h SelectClipPath"
   c_SelectClipPath :: HDC -> ClippingMode -> IO RegionType
 
 ----------------------------------------------------------------
@@ -278,19 +278,19 @@ foreign import ccall unsafe "windows.h SelectClipPath"
 cancelDC :: HDC -> IO ()
 cancelDC dc =
   failIfFalse_ "CancelDC" $ c_CancelDC dc
-foreign import ccall unsafe "windows.h CancelDC"
+foreign import stdcall unsafe "windows.h CancelDC"
   c_CancelDC :: HDC -> IO Bool
 
 createCompatibleDC :: Maybe HDC -> IO HDC
 createCompatibleDC mb_dc =
   failIfNull "CreateCompatibleDC" $ c_CreateCompatibleDC (maybePtr mb_dc)
-foreign import ccall unsafe "windows.h CreateCompatibleDC"
+foreign import stdcall unsafe "windows.h CreateCompatibleDC"
   c_CreateCompatibleDC :: HDC -> IO HDC
 
 deleteDC :: HDC -> IO ()
 deleteDC dc =
   failIfFalse_ "DeleteDC" $ c_DeleteDC dc
-foreign import ccall unsafe "windows.h DeleteDC"
+foreign import stdcall unsafe "windows.h DeleteDC"
   c_DeleteDC :: HDC -> IO Bool
 
 ----------------------------------------------------------------

@@ -95,10 +95,10 @@ registerClass :: WNDCLASS -> IO (Maybe ATOM)
 registerClass cls =
   withWNDCLASS cls $ \ p ->
   liftM numToMaybe $ c_RegisterClass p
-foreign import ccall unsafe "windows.h RegisterClassW"
+foreign import stdcall unsafe "windows.h RegisterClassW"
   c_RegisterClass :: Ptr WNDCLASS -> IO ATOM
 
-foreign import ccall unsafe "windows.h UnregisterClassW"
+foreign import stdcall unsafe "windows.h UnregisterClassW"
   unregisterClass :: ClassName -> HINSTANCE -> IO ()
 
 ----------------------------------------------------------------
@@ -183,7 +183,7 @@ setWindowClosure wnd closure = do
   fp <- mkWindowClosure closure
   c_SetWindowLong wnd (#{const GWL_USERDATA}) (castFunPtrToLONG fp)
   return ()
-foreign import ccall unsafe "windows.h SetWindowLongW"
+foreign import stdcall unsafe "windows.h SetWindowLongW"
   c_SetWindowLong :: HWND -> Int -> LONG -> IO LONG
 
 createWindow
@@ -199,7 +199,7 @@ createWindow cname wname style mb_x mb_y mb_w mb_h mb_parent mb_menu inst closur
       (maybePtr mb_parent) (maybePtr mb_menu) inst nullPtr
   setWindowClosure wnd closure
   return wnd
-foreign import ccall unsafe "windows.h CreateWindowW"
+foreign import stdcall unsafe "windows.h CreateWindowW"
   c_CreateWindow
     :: ClassName -> LPCTSTR -> WindowStyle ->
        Pos -> Pos -> Pos -> Pos ->
@@ -223,7 +223,7 @@ createWindowEx estyle cname wname wstyle mb_x mb_y mb_w mb_h mb_parent mb_menu i
       (maybePtr mb_parent) (maybePtr mb_menu) inst nullPtr
   setWindowClosure wnd closure
   return wnd
-foreign import ccall unsafe "windows.h CreateWindowExW"
+foreign import stdcall unsafe "windows.h CreateWindowExW"
   c_CreateWindowEx
     :: WindowStyle -> ClassName -> LPCTSTR -> WindowStyle
     -> Pos -> Pos -> Pos -> Pos
@@ -238,7 +238,7 @@ foreign import ccall unsafe "windows.h CreateWindowExW"
 defWindowProc :: Maybe HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 defWindowProc mb_wnd msg w l =
   c_DefWindowProc (maybePtr mb_wnd) msg w l
-foreign import ccall unsafe "windows.h DefWindowProcW"
+foreign import stdcall unsafe "windows.h DefWindowProcW"
   c_DefWindowProc :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
 ----------------------------------------------------------------
@@ -248,7 +248,7 @@ getClientRect wnd =
   allocaRECT $ \ p_rect -> do
   failIfFalse_ "GetClientRect" $ c_GetClientRect wnd p_rect
   peekRECT p_rect
-foreign import ccall unsafe "windows.h GetClientRect"
+foreign import stdcall unsafe "windows.h GetClientRect"
   c_GetClientRect :: HWND -> Ptr RECT -> IO Bool
 
 getWindowRect :: HWND -> IO RECT
@@ -256,7 +256,7 @@ getWindowRect wnd =
   allocaRECT $ \ p_rect -> do
   failIfFalse_ "GetWindowRect" $ c_GetWindowRect wnd p_rect
   peekRECT p_rect
-foreign import ccall unsafe "windows.h GetWindowRect"
+foreign import stdcall unsafe "windows.h GetWindowRect"
   c_GetWindowRect :: HWND -> Ptr RECT -> IO Bool
 
 -- Should it be Maybe RECT instead?
@@ -265,7 +265,7 @@ invalidateRect :: Maybe HWND -> Maybe LPRECT -> Bool -> IO ()
 invalidateRect wnd p_mb_rect erase =
   failIfFalse_ "InvalidateRect" $
     c_InvalidateRect (maybePtr wnd) (maybePtr p_mb_rect) erase
-foreign import ccall unsafe "windows.h InvalidateRect"
+foreign import stdcall unsafe "windows.h InvalidateRect"
   c_InvalidateRect :: HWND -> LPRECT -> Bool -> IO Bool
 
 screenToClient :: HWND -> POINT -> IO POINT
@@ -273,7 +273,7 @@ screenToClient wnd pt =
   withPOINT pt $ \ p_pt -> do
   failIfFalse_ "ScreenToClient" $ c_ScreenToClient wnd p_pt
   peekPOINT p_pt
-foreign import ccall unsafe "windows.h ScreenToClient"
+foreign import stdcall unsafe "windows.h ScreenToClient"
   c_ScreenToClient :: HWND -> Ptr POINT -> IO Bool
 
 clientToScreen :: HWND -> POINT -> IO POINT
@@ -281,7 +281,7 @@ clientToScreen wnd pt =
   withPOINT pt $ \ p_pt -> do
   failIfFalse_ "ClientToScreen" $ c_ClientToScreen wnd p_pt
   peekPOINT p_pt
-foreign import ccall unsafe "windows.h ClientToScreen"
+foreign import stdcall unsafe "windows.h ClientToScreen"
   c_ClientToScreen :: HWND -> Ptr POINT -> IO Bool
 
 ----------------------------------------------------------------
@@ -293,7 +293,7 @@ setWindowText :: HWND -> String -> IO ()
 setWindowText wnd text =
   withTString text $ \ c_text ->
   failIfFalse_ "SetWindowText" $ c_SetWindowText wnd c_text
-foreign import ccall unsafe "windows.h SetWindowTextW"
+foreign import stdcall unsafe "windows.h SetWindowTextW"
   c_SetWindowText :: HWND -> LPCTSTR -> IO Bool
 
 ----------------------------------------------------------------
@@ -314,10 +314,10 @@ sizeofPAINTSTRUCT = #{size PAINTSTRUCT}
 beginPaint :: HWND -> LPPAINTSTRUCT -> IO HDC
 beginPaint wnd paint =
   failIfNull "BeginPaint" $ c_BeginPaint wnd paint
-foreign import ccall unsafe "windows.h BeginPaint"
+foreign import stdcall unsafe "windows.h BeginPaint"
   c_BeginPaint :: HWND -> LPPAINTSTRUCT -> IO HDC
 
-foreign import ccall unsafe "windows.h EndPaint"
+foreign import stdcall unsafe "windows.h EndPaint"
   endPaint :: HWND -> LPPAINTSTRUCT -> IO ()
 -- Apparently always succeeds (return non-zero)
 
@@ -341,7 +341,7 @@ type ShowWindowControl   = DWORD
  , sW_RESTORE           = SW_RESTORE
  }
 
-foreign import ccall unsafe "windows.h ShowWindow"
+foreign import stdcall unsafe "windows.h ShowWindow"
   showWindow :: HWND  -> ShowWindowControl  -> IO Bool
 
 ----------------------------------------------------------------
@@ -353,7 +353,7 @@ adjustWindowRect rect style menu =
   withRECT rect $ \ p_rect -> do
   failIfFalse_ "AdjustWindowRect" $ c_AdjustWindowRect p_rect style menu
   peekRECT p_rect
-foreign import ccall unsafe "windows.h AdjustWindowRect"
+foreign import stdcall unsafe "windows.h AdjustWindowRect"
   c_AdjustWindowRect :: Ptr RECT -> WindowStyle -> Bool -> IO Bool
 
 adjustWindowRectEx :: RECT -> WindowStyle -> Bool -> WindowStyleEx -> IO RECT
@@ -362,7 +362,7 @@ adjustWindowRectEx rect style menu exstyle =
   failIfFalse_ "AdjustWindowRectEx" $
     c_AdjustWindowRectEx p_rect style menu exstyle
   peekRECT p_rect
-foreign import ccall unsafe "windows.h AdjustWindowRectEx"
+foreign import stdcall unsafe "windows.h AdjustWindowRectEx"
   c_AdjustWindowRectEx :: Ptr RECT -> WindowStyle -> Bool -> WindowStyleEx -> IO Bool
 
 -- Win2K and later:
@@ -389,25 +389,25 @@ foreign import ccall unsafe "windows.h AdjustWindowRectEx"
 -- %code BOOL success = AnimateWindow(arg1,arg2,arg3)
 -- %fail { !success } { ErrorWin("AnimateWindow") }
 
-foreign import ccall unsafe "windows.h AnyPopup"
+foreign import stdcall unsafe "windows.h AnyPopup"
   anyPopup :: IO Bool
 
 arrangeIconicWindows :: HWND -> IO ()
 arrangeIconicWindows wnd =
   failIfFalse_ "ArrangeIconicWindows" $ c_ArrangeIconicWindows wnd
-foreign import ccall unsafe "windows.h ArrangeIconicWindows"
+foreign import stdcall unsafe "windows.h ArrangeIconicWindows"
   c_ArrangeIconicWindows :: HWND -> IO Bool
 
 beginDeferWindowPos :: Int -> IO HDWP
 beginDeferWindowPos n =
   failIfNull "BeginDeferWindowPos" $ c_BeginDeferWindowPos n
-foreign import ccall unsafe "windows.h BeginDeferWindowPos"
+foreign import stdcall unsafe "windows.h BeginDeferWindowPos"
   c_BeginDeferWindowPos :: Int -> IO HDWP
 
 bringWindowToTop :: HWND -> IO ()
 bringWindowToTop wnd =
   failIfFalse_ "BringWindowToTop" $ c_BringWindowToTop wnd
-foreign import ccall unsafe "windows.h BringWindowToTop"
+foreign import stdcall unsafe "windows.h BringWindowToTop"
   c_BringWindowToTop :: HWND -> IO Bool
 
 -- Can't pass structs with current FFI, so use a C wrapper
@@ -429,25 +429,25 @@ foreign import ccall unsafe "HsWin32.h"
 closeWindow :: HWND -> IO ()
 closeWindow wnd =
   failIfFalse_ "CloseWindow" $ c_CloseWindow wnd
-foreign import ccall unsafe "windows.h DestroyWindow"
+foreign import stdcall unsafe "windows.h DestroyWindow"
   c_CloseWindow :: HWND -> IO Bool
 
 deferWindowPos :: HDWP -> HWND -> HWND -> Int -> Int -> Int -> Int -> SetWindowPosFlags -> IO HDWP
 deferWindowPos wp wnd after x y cx cy flags =
   failIfNull "DeferWindowPos" $ c_DeferWindowPos wp wnd after x y cx cy flags
-foreign import ccall unsafe "windows.h DeferWindowPos"
+foreign import stdcall unsafe "windows.h DeferWindowPos"
   c_DeferWindowPos :: HDWP -> HWND -> HWND -> Int -> Int -> Int -> Int -> SetWindowPosFlags -> IO HDWP
 
 destroyWindow :: HWND -> IO ()
 destroyWindow wnd =
   failIfFalse_ "DestroyWindow" $ c_DestroyWindow wnd
-foreign import ccall unsafe "windows.h DestroyWindow"
+foreign import stdcall unsafe "windows.h DestroyWindow"
   c_DestroyWindow :: HWND -> IO Bool
 
 endDeferWindowPos :: HDWP -> IO ()
 endDeferWindowPos pos =
   failIfFalse_ "EndDeferWindowPos" $ c_EndDeferWindowPos pos
-foreign import ccall unsafe "windows.h EndDeferWindowPos"
+foreign import stdcall unsafe "windows.h EndDeferWindowPos"
   c_EndDeferWindowPos :: HDWP -> IO Bool
 
 findWindow :: String -> String -> IO (Maybe HWND)
@@ -455,7 +455,7 @@ findWindow cname wname =
   withTString cname $ \ c_cname ->
   withTString wname $ \ c_wname ->
   liftM ptrToMaybe $ c_FindWindow c_cname c_wname
-foreign import ccall unsafe "windows.h FindWindowW"
+foreign import stdcall unsafe "windows.h FindWindowW"
   c_FindWindow :: LPCTSTR -> LPCTSTR -> IO HWND
 
 findWindowEx :: HWND -> HWND -> String -> String -> IO (Maybe HWND)
@@ -463,35 +463,35 @@ findWindowEx parent after cname wname =
   withTString cname $ \ c_cname ->
   withTString wname $ \ c_wname ->
   liftM ptrToMaybe $ c_FindWindowEx parent after c_cname c_wname
-foreign import ccall unsafe "windows.h FindWindowExW"
+foreign import stdcall unsafe "windows.h FindWindowExW"
   c_FindWindowEx :: HWND -> HWND -> LPCTSTR -> LPCTSTR -> IO HWND
 
-foreign import ccall unsafe "windows.h FlashWindow"
+foreign import stdcall unsafe "windows.h FlashWindow"
   flashWindow :: HWND -> Bool -> IO Bool
 -- No error code
 
 moveWindow :: HWND -> Int -> Int -> Int -> Int -> Bool -> IO ()
 moveWindow wnd x y w h repaint =
   failIfFalse_ "MoveWindow" $ c_MoveWindow wnd x y w h repaint
-foreign import ccall unsafe "windows.h MoveWindow"
+foreign import stdcall unsafe "windows.h MoveWindow"
   c_MoveWindow :: HWND -> Int -> Int -> Int -> Int -> Bool -> IO Bool
 
-foreign import ccall unsafe "windows.h GetDesktopWindow"
+foreign import stdcall unsafe "windows.h GetDesktopWindow"
   getDesktopWindow :: IO HWND
 
-foreign import ccall unsafe "windows.h GetForegroundWindow"
+foreign import stdcall unsafe "windows.h GetForegroundWindow"
   getForegroundWindow :: IO HWND
 
 getParent :: HWND -> IO HWND
 getParent wnd =
   failIfNull "GetParent" $ c_GetParent wnd
-foreign import ccall unsafe "windows.h GetParent"
+foreign import stdcall unsafe "windows.h GetParent"
   c_GetParent :: HWND -> IO HWND
 
 getTopWindow :: HWND -> IO HWND
 getTopWindow wnd =
   failIfNull "GetTopWindow" $ c_GetTopWindow wnd
-foreign import ccall unsafe "windows.h GetTopWindow"
+foreign import stdcall unsafe "windows.h GetTopWindow"
   c_GetTopWindow :: HWND -> IO HWND
 
 
@@ -536,25 +536,25 @@ getDCEx :: HWND -> HRGN -> GetDCExFlags -> IO HDC
 getDCEx wnd rgn flags =
   withForeignPtr rgn $ \ p_rgn ->
   failIfNull "GetDCEx" $ c_GetDCEx wnd p_rgn flags
-foreign import ccall unsafe "windows.h GetDCEx"
+foreign import stdcall unsafe "windows.h GetDCEx"
   c_GetDCEx :: HWND -> PRGN -> GetDCExFlags -> IO HDC
 
 getDC :: Maybe HWND -> IO HDC
 getDC mb_wnd =
   failIfNull "GetDC" $ c_GetDC (maybePtr mb_wnd)
-foreign import ccall unsafe "windows.h GetDC"
+foreign import stdcall unsafe "windows.h GetDC"
   c_GetDC :: HWND -> IO HDC
 
 getWindowDC :: Maybe HWND -> IO HDC
 getWindowDC mb_wnd =
   failIfNull "GetWindowDC" $ c_GetWindowDC (maybePtr mb_wnd)
-foreign import ccall unsafe "windows.h GetWindowDC"
+foreign import stdcall unsafe "windows.h GetWindowDC"
   c_GetWindowDC :: HWND -> IO HDC
 
 releaseDC :: Maybe HWND -> HDC -> IO ()
 releaseDC mb_wnd dc =
   failIfFalse_ "ReleaseDC" $ c_ReleaseDC (maybePtr mb_wnd) dc
-foreign import ccall unsafe "windows.h ReleaseDC"
+foreign import stdcall unsafe "windows.h ReleaseDC"
   c_ReleaseDC :: HWND -> HDC -> IO Bool
 
 getDCOrgEx :: HDC -> IO POINT
@@ -562,7 +562,7 @@ getDCOrgEx dc =
   allocaPOINT $ \ p_pt -> do
   failIfFalse_ "GetDCOrgEx" $ c_GetDCOrgEx dc p_pt
   peekPOINT p_pt
-foreign import ccall unsafe "windows.h GetDCOrgEx"
+foreign import stdcall unsafe "windows.h GetDCOrgEx"
   c_GetDCOrgEx :: HDC -> Ptr POINT -> IO Bool
 
 ----------------------------------------------------------------
@@ -572,13 +572,13 @@ foreign import ccall unsafe "windows.h GetDCOrgEx"
 hideCaret :: HWND -> IO ()
 hideCaret wnd =
   failIfFalse_ "HideCaret" $ c_HideCaret wnd
-foreign import ccall unsafe "windows.h HideCaret"
+foreign import stdcall unsafe "windows.h HideCaret"
   c_HideCaret :: HWND -> IO Bool
 
 showCaret :: HWND -> IO ()
 showCaret wnd =
   failIfFalse_ "ShowCaret" $ c_ShowCaret wnd
-foreign import ccall unsafe "windows.h ShowCaret"
+foreign import stdcall unsafe "windows.h ShowCaret"
   c_ShowCaret :: HWND -> IO Bool
 
 -- ToDo: allow arg2 to be NULL or {(HBITMAP)1}
@@ -587,13 +587,13 @@ createCaret :: HWND -> HBITMAP -> Maybe INT -> Maybe INT -> IO ()
 createCaret wnd bm mb_w mb_h =
   failIfFalse_ "CreateCaret" $
     c_CreateCaret wnd bm (maybeNum mb_w) (maybeNum mb_h)
-foreign import ccall unsafe "windows.h CreateCaret"
+foreign import stdcall unsafe "windows.h CreateCaret"
   c_CreateCaret :: HWND -> HBITMAP -> INT -> INT -> IO Bool
 
 destroyCaret :: IO ()
 destroyCaret =
   failIfFalse_ "DestroyCaret" $ c_DestroyCaret
-foreign import ccall unsafe "windows.h DestroyCaret"
+foreign import stdcall unsafe "windows.h DestroyCaret"
   c_DestroyCaret :: IO Bool
 
 getCaretPos :: IO POINT
@@ -601,13 +601,13 @@ getCaretPos =
   allocaPOINT $ \ p_pt -> do
   failIfFalse_ "GetCaretPos" $ c_GetCaretPos p_pt
   peekPOINT p_pt
-foreign import ccall unsafe "windows.h GetCaretPos"
+foreign import stdcall unsafe "windows.h GetCaretPos"
   c_GetCaretPos :: Ptr POINT -> IO Bool
 
 setCaretPos :: POINT -> IO ()
 setCaretPos (x,y) =
   failIfFalse_ "SetCaretPos" $ c_SetCaretPos x y
-foreign import ccall unsafe "windows.h SetCaretPos"
+foreign import stdcall unsafe "windows.h SetCaretPos"
   c_SetCaretPos :: LONG -> LONG -> IO Bool
 
 -- The remarks on SetCaretBlinkTime are either highly risible or very sad -
@@ -660,7 +660,7 @@ getMessage mb_wnd = do
   failIf (== -1) "GetMessage" $
     c_GetMessage getMessage_msg (maybePtr mb_wnd) 0 0
   return getMessage_msg
-foreign import ccall unsafe "windows.h GetMessageW"
+foreign import stdcall unsafe "windows.h GetMessageW"
   c_GetMessage :: LPMSG -> HWND -> UINT -> UINT -> IO Int
 
 getMessage2 :: Maybe HWND -> IO (LPMSG, Bool)
@@ -678,26 +678,26 @@ peekMessage mb_wnd filterMin filterMax remove = do
   failIf (== -1) "PeekMessage" $
     c_PeekMessage peekMessage_msg (maybePtr mb_wnd) filterMin filterMax remove
   return peekMessage_msg
-foreign import ccall unsafe "windows.h PeekMessageW"
+foreign import stdcall unsafe "windows.h PeekMessageW"
   c_PeekMessage :: LPMSG -> HWND -> UINT -> UINT -> UINT -> IO Int
 
 -- Note: you're not supposed to call this if you're using accelerators
 
-foreign import ccall unsafe "windows.h TranslateMessage"
+foreign import stdcall unsafe "windows.h TranslateMessage"
   translateMessage :: LPMSG -> IO BOOL
 
 updateWindow :: HWND -> IO ()
 updateWindow wnd =
   failIfFalse_ "UpdateWindow" $ c_UpdateWindow wnd
-foreign import ccall unsafe "windows.h UpdateWindow"
+foreign import stdcall unsafe "windows.h UpdateWindow"
   c_UpdateWindow :: HWND -> IO Bool
 
 -- Return value of DispatchMessage is usually ignored
 
-foreign import ccall unsafe "windows.h DispatchMessageW"
+foreign import stdcall unsafe "windows.h DispatchMessageW"
   dispatchMessage :: LPMSG -> IO LONG
 
-foreign import ccall unsafe "windows.h SendMessageW"
+foreign import stdcall unsafe "windows.h SendMessageW"
   sendMessage :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
 ----------------------------------------------------------------

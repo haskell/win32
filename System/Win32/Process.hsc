@@ -35,7 +35,7 @@ import System.IO
 iNFINITE :: DWORD
 iNFINITE = #{const INFINITE}
 
-foreign import ccall unsafe "windows.h Sleep"
+foreign import stdcall unsafe "windows.h Sleep"
   sleep :: DWORD -> IO ()
 
 #ifdef __GLASGOW_HASKELL__

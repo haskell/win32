@@ -24,7 +24,7 @@ beginUpdateResource :: String -> Bool -> IO HANDLE
 beginUpdateResource name del =
   withTString name $ \ c_name ->
   failIfNull "BeginUpdateResource" $ c_BeginUpdateResource c_name del
-foreign import ccall unsafe "windows.h BeginUpdateResourceW"
+foreign import stdcall unsafe "windows.h BeginUpdateResourceW"
   c_BeginUpdateResource :: LPCTSTR -> Bool -> IO HANDLE
 
 type ResourceImageType = UINT
@@ -42,13 +42,13 @@ type   HGLOBAL    = Ptr ()
 copyImage :: HANDLE -> ResourceImageType -> Int -> Int -> UINT -> IO HANDLE
 copyImage h ty x y flags =
   failIfNull "CopyImage" $ c_CopyImage h ty x y flags
-foreign import ccall unsafe "windows.h CopyImage"
+foreign import stdcall unsafe "windows.h CopyImage"
   c_CopyImage :: HANDLE -> ResourceImageType -> Int -> Int -> UINT -> IO HANDLE
 
 endUpdateResource :: HANDLE -> BOOL -> IO ()
 endUpdateResource h discard =
   failIfFalse_ "EndUpdateResource" $ c_EndUpdateResource h discard
-foreign import ccall unsafe "windows.h EndUpdateResourceW"
+foreign import stdcall unsafe "windows.h EndUpdateResourceW"
   c_EndUpdateResource :: HANDLE -> BOOL -> IO Bool
 
 type ResourceType = LPCTSTR
@@ -77,7 +77,7 @@ findResource :: HMODULE -> String -> ResourceType -> IO HRSRC
 findResource hmod name ty =
   withTString name $ \ c_name ->
   failIfNull "FindResource" $ c_FindResource hmod c_name ty
-foreign import ccall unsafe "windows.h FindResourceW"
+foreign import stdcall unsafe "windows.h FindResourceW"
   c_FindResource :: HMODULE -> LPCTSTR -> LPCTSTR -> IO HRSRC
 
 -- was: LPCTSTR_
@@ -85,7 +85,7 @@ findResourceEx :: HMODULE -> String -> ResourceType -> WORD -> IO HRSRC
 findResourceEx hmod name ty lang =
   withTString name $ \ c_name ->
   failIfNull "FindResourceEx" $ c_FindResourceEx hmod c_name ty lang
-foreign import ccall unsafe "windows.h FindResourceExW"
+foreign import stdcall unsafe "windows.h FindResourceExW"
   c_FindResourceEx :: HMODULE -> LPCTSTR -> LPCTSTR -> WORD -> IO HRSRC
 
 type ResourceSize = Int
@@ -112,25 +112,25 @@ loadImage :: HINSTANCE -> String -> ResourceImageType -> ResourceSize -> Resourc
 loadImage inst name ty x y load =
   withTString name $ \ c_name ->
   failIfNull "LoadImage" $ c_LoadImage inst c_name ty x y load
-foreign import ccall unsafe "windows.h LoadImageW"
+foreign import stdcall unsafe "windows.h LoadImageW"
   c_LoadImage :: HINSTANCE -> LPCTSTR -> ResourceImageType -> ResourceSize -> ResourceSize -> LoadImageFlags -> IO HANDLE
 
 loadResource :: HMODULE -> HRSRC -> IO HGLOBAL
 loadResource hmod res =
   failIfNull "LoadResource" $ c_LoadResource hmod res
-foreign import ccall unsafe "windows.h LoadResource"
+foreign import stdcall unsafe "windows.h LoadResource"
   c_LoadResource :: HMODULE -> HRSRC -> IO HGLOBAL
 
 lockResource :: HGLOBAL -> IO Addr
 lockResource res =
   failIfNull "LockResource" $ c_LockResource res
-foreign import ccall unsafe "windows.h LockResource"
+foreign import stdcall unsafe "windows.h LockResource"
   c_LockResource :: HGLOBAL -> IO Addr
 
 sizeofResource :: HMODULE -> HRSRC -> IO DWORD
 sizeofResource hmod res =
   failIfZero "SizeofResource" $ c_SizeofResource hmod res
-foreign import ccall unsafe "windows.h SizeofResource"
+foreign import stdcall unsafe "windows.h SizeofResource"
   c_SizeofResource :: HMODULE -> HRSRC -> IO DWORD
 
 -- was: LPCTSTR_
@@ -139,5 +139,5 @@ updateResource h ty name lang p_data data_len =
   withTString name $ \ c_name ->
   failIfFalse_ "UpdateResource" $
     c_UpdateResource h ty c_name lang p_data data_len
-foreign import ccall unsafe "windows.h UpdateResourceW"
+foreign import stdcall unsafe "windows.h UpdateResourceW"
   c_UpdateResource :: HANDLE -> LPCTSTR -> LPCTSTR -> WORD -> Addr -> DWORD -> IO Bool

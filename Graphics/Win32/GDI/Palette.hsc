@@ -32,13 +32,13 @@ type StockPalette   = WORD
 getStockPalette :: StockPalette -> IO HPALETTE
 getStockPalette sp =
   failIfNull "GetStockPalette" $ c_GetStockPalette sp
-foreign import ccall unsafe "windows.h GetStockObject"
+foreign import stdcall unsafe "windows.h GetStockObject"
   c_GetStockPalette :: StockPalette -> IO HPALETTE
 
 deletePalette :: HPALETTE -> IO ()
 deletePalette p =
   failIfFalse_ "DeletePalette" $ c_DeletePalette p
-foreign import ccall unsafe "windows.h DeleteObject"
+foreign import stdcall unsafe "windows.h DeleteObject"
   c_DeletePalette :: HPALETTE -> IO Bool
 
 -- macros

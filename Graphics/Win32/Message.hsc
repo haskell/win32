@@ -156,7 +156,7 @@ type WindowMessage   = DWORD
 registerWindowMessage :: String -> IO WindowMessage
 registerWindowMessage msg =
   withTString msg c_RegisterWindowMessage
-foreign import ccall unsafe "windows.h RegisterWindowMessageW"
+foreign import stdcall unsafe "windows.h RegisterWindowMessageW"
   c_RegisterWindowMessage :: LPCTSTR -> IO WindowMessage
 
 -- These are WM_SIZE specific

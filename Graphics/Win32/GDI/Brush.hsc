@@ -26,25 +26,25 @@ import Graphics.Win32.GDI.Types
 createSolidBrush :: COLORREF -> IO HBRUSH
 createSolidBrush color =
   failIfNull "CreateSolidBrush" $ c_CreateSolidBrush color
-foreign import ccall unsafe "windows.h CreateSolidBrush"
+foreign import stdcall unsafe "windows.h CreateSolidBrush"
   c_CreateSolidBrush :: COLORREF -> IO HBRUSH
 
 createHatchBrush :: HatchStyle -> COLORREF -> IO HBRUSH
 createHatchBrush style color =
   failIfNull "CreateHatchBrush" $ c_CreateHatchBrush style color
-foreign import ccall unsafe "windows.h CreateHatchBrush"
+foreign import stdcall unsafe "windows.h CreateHatchBrush"
   c_CreateHatchBrush :: HatchStyle -> COLORREF -> IO HBRUSH
 
 createPatternBrush :: HBITMAP -> IO HBRUSH
 createPatternBrush bitmap =
   failIfNull "CreatePatternBrush" $ c_CreatePatternBrush bitmap
-foreign import ccall unsafe "windows.h CreatePatternBrush"
+foreign import stdcall unsafe "windows.h CreatePatternBrush"
   c_CreatePatternBrush :: HBITMAP -> IO HBRUSH
 
 deleteBrush :: HBRUSH -> IO ()
 deleteBrush brush =
   failIfFalse_ "DeleteBrush" $ c_DeleteBrush brush
-foreign import ccall unsafe "windows.h DeleteObject"
+foreign import stdcall unsafe "windows.h DeleteObject"
   c_DeleteBrush :: HBRUSH -> IO Bool
 
 ----------------------------------------------------------------
@@ -64,7 +64,7 @@ type StockBrush   = WORD
 getStockBrush :: StockBrush -> IO HBRUSH
 getStockBrush sb =
   failIfNull "GetStockBrush" $ c_GetStockBrush sb
-foreign import ccall unsafe "windows.h GetStockObject"
+foreign import stdcall unsafe "windows.h GetStockObject"
   c_GetStockBrush :: StockBrush -> IO HBRUSH
 
 ----------------------------------------------------------------

@@ -97,24 +97,24 @@ type VKey   = DWORD
  , vK_SCROLL    = VK_SCROLL
  }
 
-foreign import ccall unsafe "windows.h EnableWindow"
+foreign import stdcall unsafe "windows.h EnableWindow"
   enableWindow :: HWND -> Bool -> IO Bool
 
 getActiveWindow :: IO (Maybe HWND)
 getActiveWindow = liftM ptrToMaybe c_GetActiveWindow
-foreign import ccall unsafe "windows.h GetActiveWindow"
+foreign import stdcall unsafe "windows.h GetActiveWindow"
   c_GetActiveWindow :: IO HWND
 
-foreign import ccall unsafe "windows.h GetAsyncKeyState"
+foreign import stdcall unsafe "windows.h GetAsyncKeyState"
   getAsyncKeyState :: Int -> IO WORD
 
 getFocus :: IO (Maybe HWND)
 getFocus = liftM ptrToMaybe c_GetFocus
-foreign import ccall unsafe "windows.h GetFocus"
+foreign import stdcall unsafe "windows.h GetFocus"
   c_GetFocus :: IO HWND
 
-foreign import ccall unsafe "windows.h GetKBCodePage"
+foreign import stdcall unsafe "windows.h GetKBCodePage"
   getKBCodePage :: IO UINT
 
-foreign import ccall unsafe "windows.h IsWindowEnabled"
+foreign import stdcall unsafe "windows.h IsWindowEnabled"
   isWindowEnabled :: HWND -> IO Bool

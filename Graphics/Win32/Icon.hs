@@ -24,19 +24,19 @@ import System.Win32.Types
 copyIcon :: HICON -> IO HICON
 copyIcon icon =
   failIfNull "CopyIcon" $ c_CopyIcon icon
-foreign import ccall unsafe "windows.h CopyIcon"
+foreign import stdcall unsafe "windows.h CopyIcon"
   c_CopyIcon :: HICON -> IO HICON
 
 drawIcon :: HDC -> Int -> Int -> HICON -> IO ()
 drawIcon dc x y icon =
   failIfFalse_ "DrawIcon" $ c_DrawIcon dc x y icon
-foreign import ccall unsafe "windows.h DrawIcon"
+foreign import stdcall unsafe "windows.h DrawIcon"
   c_DrawIcon :: HDC -> Int -> Int -> HICON -> IO Bool
 
 destroyIcon :: HICON -> IO ()
 destroyIcon icon =
   failIfFalse_ "DestroyIcon" $ c_DestroyIcon icon
-foreign import ccall unsafe "windows.h DestroyIcon"
+foreign import stdcall unsafe "windows.h DestroyIcon"
   c_DestroyIcon :: HICON -> IO Bool
 
 ----------------------------------------------------------------

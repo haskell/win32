@@ -59,7 +59,7 @@ dialogBox inst template mb_parent dia_fn = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIf (== -1) "DialogBox" $
     c_DialogBox inst template (maybePtr mb_parent) c_dia_fn
-foreign import ccall unsafe "windows.h DialogBoxW"
+foreign import stdcall unsafe "windows.h DialogBoxW"
   c_DialogBox :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> IO Int
 
 dialogBoxParam :: HINSTANCE -> DTemplate -> Maybe HWND -> DialogProc -> LPARAM -> IO Int
@@ -67,7 +67,7 @@ dialogBoxParam inst template mb_parent dia_fn init_val = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIf (== -1) "DialogBoxParam" $
     c_DialogBoxParam inst template (maybePtr mb_parent) c_dia_fn init_val
-foreign import ccall unsafe "windows.h DialogBoxParamW"
+foreign import stdcall unsafe "windows.h DialogBoxParamW"
   c_DialogBoxParam :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> LPARAM -> IO Int
 
 dialogBoxIndirect :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> IO Int
@@ -75,7 +75,7 @@ dialogBoxIndirect inst template mb_parent dia_fn = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIf (== -1) "DialogBoxIndirect" $
     c_DialogBoxIndirect inst template (maybePtr mb_parent) c_dia_fn
-foreign import ccall unsafe "windows.h DialogBoxIndirectW"
+foreign import stdcall unsafe "windows.h DialogBoxIndirectW"
   c_DialogBoxIndirect :: HINSTANCE -> DTemplateMem -> HWND -> FunPtr DialogProc -> IO Int
 
 dialogBoxIndirectParam :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> LPARAM -> IO Int
@@ -83,7 +83,7 @@ dialogBoxIndirectParam inst template mb_parent dia_fn init_val = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIf (== -1) "DialogBoxIndirectParam" $
     c_DialogBoxIndirectParam inst template (maybePtr mb_parent) c_dia_fn init_val
-foreign import ccall unsafe "windows.h DialogBoxIndirectParamW"
+foreign import stdcall unsafe "windows.h DialogBoxIndirectParamW"
   c_DialogBoxIndirectParam :: HINSTANCE -> DTemplateMem -> HWND -> FunPtr DialogProc -> LPARAM -> IO Int
 
 
@@ -207,7 +207,7 @@ createDialog inst template mb_parent dia_fn = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIfNull "CreateDialog" $
     c_CreateDialog inst template (maybePtr mb_parent) c_dia_fn
-foreign import ccall unsafe "windows.h CreateDialogW"
+foreign import stdcall unsafe "windows.h CreateDialogW"
   c_CreateDialog :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> IO HWND
 
 createDialogParam :: HINSTANCE -> DTemplate -> Maybe HWND -> DialogProc -> LPARAM -> IO HWND
@@ -215,7 +215,7 @@ createDialogParam inst template mb_parent dia_fn init_val = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIfNull "CreateDialogParam" $
     c_CreateDialogParam inst template (maybePtr mb_parent) c_dia_fn init_val
-foreign import ccall unsafe "windows.h CreateDialogParamW"
+foreign import stdcall unsafe "windows.h CreateDialogParamW"
   c_CreateDialogParam :: HINSTANCE -> DTemplate -> HWND -> FunPtr DialogProc -> LPARAM -> IO HWND
 
 createDialogIndirect :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> IO HWND
@@ -223,7 +223,7 @@ createDialogIndirect inst template mb_parent dia_fn = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIfNull "CreateDialogIndirect" $
     c_CreateDialogIndirect inst template (maybePtr mb_parent) c_dia_fn
-foreign import ccall unsafe "windows.h CreateDialogIndirectW"
+foreign import stdcall unsafe "windows.h CreateDialogIndirectW"
   c_CreateDialogIndirect :: HINSTANCE -> DTemplateMem -> HWND -> FunPtr DialogProc -> IO HWND
 
 createDialogIndirectParam :: HINSTANCE -> DTemplateMem -> Maybe HWND -> DialogProc -> LPARAM -> IO HWND
@@ -231,31 +231,31 @@ createDialogIndirectParam inst template mb_parent dia_fn init_val = do
   c_dia_fn <- mkDialogClosure dia_fn
   failIfNull "CreateDialogIndirectParam" $
     c_CreateDialogIndirectParam inst template (maybePtr mb_parent) c_dia_fn init_val
-foreign import ccall unsafe "windows.h CreateDialogIndirectParamW"
+foreign import stdcall unsafe "windows.h CreateDialogIndirectParamW"
   c_CreateDialogIndirectParam :: HINSTANCE -> DTemplateMem -> HWND -> FunPtr DialogProc -> LPARAM -> IO HWND
 
-foreign import ccall unsafe "windows.h DefDlgProcW"
+foreign import stdcall unsafe "windows.h DefDlgProcW"
   defDlgProc :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
 endDialog :: HWND -> Int -> IO ()
 endDialog dlg res =
   failIfFalse_ "EndDialog" $ c_EndDialog dlg res
-foreign import ccall unsafe "windows.h EndDialog"
+foreign import stdcall unsafe "windows.h EndDialog"
   c_EndDialog :: HWND -> Int -> IO BOOL
 
-foreign import ccall unsafe "windows.h GetDialogBaseUnits"
+foreign import stdcall unsafe "windows.h GetDialogBaseUnits"
   getDialogBaseUnits :: IO LONG
 
 getDlgCtrlID :: HWND -> IO Int
 getDlgCtrlID ctl =
   failIfZero "GetDlgCtrlID" $ c_GetDlgCtrlID ctl
-foreign import ccall unsafe "windows.h GetDlgCtrlID"
+foreign import stdcall unsafe "windows.h GetDlgCtrlID"
   c_GetDlgCtrlID :: HWND -> IO Int
 
 getDlgItem :: HWND -> Int -> IO HWND
 getDlgItem dlg item =
   failIfNull "GetDlgItem" $ c_GetDlgItem dlg item
-foreign import ccall unsafe "windows.h GetDlgItem"
+foreign import stdcall unsafe "windows.h GetDlgItem"
   c_GetDlgItem :: HWND -> Int -> IO HWND
 
 getDlgItemInt :: HWND -> Int -> Bool -> IO Int
@@ -264,7 +264,7 @@ getDlgItemInt dlg item signed =
   res <- c_GetDlgItemInt dlg item p_trans signed
   failIfFalse_ "GetDlgItemInt" $ peek p_trans
   return (fromIntegral res)
-foreign import ccall unsafe "windows.h GetDlgItemInt"
+foreign import stdcall unsafe "windows.h GetDlgItemInt"
   c_GetDlgItemInt :: HWND -> Int -> Ptr Bool -> Bool -> IO UINT
 
 getDlgItemText :: HWND -> Int -> Int -> IO String
@@ -272,46 +272,46 @@ getDlgItemText dlg item size =
   allocaArray size $ \ p_buf -> do
   failIfZero "GetDlgItemInt" $ c_GetDlgItemText dlg item p_buf size
   peekTString p_buf
-foreign import ccall unsafe "windows.h GetDlgItemTextW"
+foreign import stdcall unsafe "windows.h GetDlgItemTextW"
   c_GetDlgItemText :: HWND -> Int -> LPTSTR -> Int -> IO Int
 
 getNextDlgGroupItem :: HWND -> HWND -> BOOL -> IO HWND
 getNextDlgGroupItem dlg ctl previous =
   failIfNull "GetNextDlgGroupItem" $ c_GetNextDlgGroupItem dlg ctl previous
-foreign import ccall unsafe "windows.h GetNextDlgGroupItem"
+foreign import stdcall unsafe "windows.h GetNextDlgGroupItem"
   c_GetNextDlgGroupItem :: HWND -> HWND -> BOOL -> IO HWND
 
 getNextDlgTabItem :: HWND -> HWND -> BOOL -> IO HWND
 getNextDlgTabItem dlg ctl previous =
   failIfNull "GetNextDlgTabItem" $ c_GetNextDlgTabItem dlg ctl previous
-foreign import ccall unsafe "windows.h GetNextDlgTabItem"
+foreign import stdcall unsafe "windows.h GetNextDlgTabItem"
   c_GetNextDlgTabItem :: HWND -> HWND -> BOOL -> IO HWND
 
-foreign import ccall unsafe "windows.h IsDialogMessageW"
+foreign import stdcall unsafe "windows.h IsDialogMessageW"
   isDialogMessage :: HWND -> LPMSG -> IO BOOL
 
 mapDialogRect :: HWND -> LPRECT -> IO ()
 mapDialogRect dlg p_rect =
   failIfFalse_ "MapDialogRect" $ c_MapDialogRect dlg p_rect
-foreign import ccall unsafe "windows.h MapDialogRect"
+foreign import stdcall unsafe "windows.h MapDialogRect"
   c_MapDialogRect :: HWND -> LPRECT -> IO Bool
 
 -- No MessageBox* funs in here just yet.
 
-foreign import ccall unsafe "windows.h SendDlgItemMessageW"
+foreign import stdcall unsafe "windows.h SendDlgItemMessageW"
   sendDlgItemMessage :: HWND -> Int -> WindowMessage -> WPARAM -> LPARAM -> IO LONG
 
 setDlgItemInt :: HWND -> Int -> UINT -> BOOL -> IO ()
 setDlgItemInt dlg item value signed =
   failIfFalse_ "SetDlgItemInt" $ c_SetDlgItemInt dlg item value signed
-foreign import ccall unsafe "windows.h SetDlgItemInt"
+foreign import stdcall unsafe "windows.h SetDlgItemInt"
   c_SetDlgItemInt :: HWND -> Int -> UINT -> BOOL -> IO Bool
 
 setDlgItemText :: HWND -> Int -> String -> IO ()
 setDlgItemText dlg item str =
   withTString str $ \ c_str ->
   failIfFalse_ "SetDlgItemText" $ c_SetDlgItemText dlg item c_str
-foreign import ccall unsafe "windows.h SetDlgItemTextW"
+foreign import stdcall unsafe "windows.h SetDlgItemTextW"
   c_SetDlgItemText :: HWND -> Int -> LPCTSTR -> IO Bool
 
 #{enum WindowStyle,

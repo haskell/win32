@@ -44,19 +44,19 @@ type Icon = LPSTR
 loadAccelerators :: Maybe HINSTANCE -> Accelerator -> IO HACCEL
 loadAccelerators mb_inst accel =
   failIfNull "LoadAccelerators" $ c_LoadAccelerators (maybePtr mb_inst) accel
-foreign import ccall unsafe "windows.h LoadAcceleratorsW"
+foreign import stdcall unsafe "windows.h LoadAcceleratorsW"
   c_LoadAccelerators :: HINSTANCE -> Accelerator -> IO HACCEL
 
 loadCursor :: Maybe HINSTANCE -> Cursor -> IO HCURSOR
 loadCursor mb_inst cursor =
   failIfNull "LoadCursor" $ c_LoadCursor (maybePtr mb_inst) cursor
-foreign import ccall unsafe "windows.h LoadCursorW"
+foreign import stdcall unsafe "windows.h LoadCursorW"
   c_LoadCursor :: HINSTANCE -> Cursor -> IO HCURSOR
 
 loadIcon :: Maybe HINSTANCE -> Icon -> IO HICON
 loadIcon mb_inst icon =
   failIfNull "LoadIcon" $ c_LoadIcon (maybePtr mb_inst) icon
-foreign import ccall unsafe "windows.h LoadIconW"
+foreign import stdcall unsafe "windows.h LoadIconW"
   c_LoadIcon :: HINSTANCE -> Icon -> IO HICON
 
 #{enum Cursor, castUINTToPtr
@@ -126,7 +126,7 @@ messageBox wnd text caption style =
   withTString text $ \ c_text ->
   withTString caption $ \ c_caption ->
   failIfZero "MessageBox" $ c_MessageBox wnd c_text c_caption style
-foreign import ccall unsafe "windows.h MessageBoxW"
+foreign import stdcall unsafe "windows.h MessageBoxW"
   c_MessageBox :: HWND -> LPCTSTR -> LPCTSTR -> MBStyle -> IO MBStatus
 
 ----------------------------------------------------------------
@@ -147,7 +147,7 @@ iNVALID_HANDLE_VALUE = castUINTToPtr 0xffffffff
 getStdHandle :: StdHandleId -> IO HANDLE
 getStdHandle hid =
   failIf (== iNVALID_HANDLE_VALUE) "GetStdHandle" $ c_GetStdHandle hid
-foreign import ccall unsafe "windows.h GetStdHandle"
+foreign import stdcall unsafe "windows.h GetStdHandle"
   c_GetStdHandle :: StdHandleId -> IO HANDLE
 
 ----------------------------------------------------------------
@@ -180,20 +180,20 @@ getCursorPos =
   allocaPOINT $ \ p_pt -> do
   failIfFalse_ "GetCursorPos" $ c_GetCursorPos p_pt
   peekPOINT p_pt
-foreign import ccall unsafe "windows.h GetCursorPos"
+foreign import stdcall unsafe "windows.h GetCursorPos"
   c_GetCursorPos :: Ptr POINT -> IO Bool
 
 setCursorPos :: POINT -> IO ()
 setCursorPos (x,y) =
   failIfFalse_ "setCursorPos" $ c_SetCursorPos x y
-foreign import ccall unsafe "windows.h SetCursorPos"
+foreign import stdcall unsafe "windows.h SetCursorPos"
   c_SetCursorPos :: LONG -> LONG -> IO Bool
 
 clipCursor :: RECT -> IO ()
 clipCursor rect =
   withRECT rect $ \ p_rect ->
   failIfFalse_ "ClipCursor" $ c_ClipCursor p_rect
-foreign import ccall unsafe "windows.h ClipCursor"
+foreign import stdcall unsafe "windows.h ClipCursor"
   c_ClipCursor :: Ptr RECT -> IO Bool
 
 getClipCursor :: IO RECT
@@ -201,7 +201,7 @@ getClipCursor =
   allocaRECT $ \ p_rect -> do
   failIfFalse_ "GetClipCursor" $ c_GetClipCursor p_rect
   peekRECT p_rect
-foreign import ccall unsafe "windows.h GetClipCursor"
+foreign import stdcall unsafe "windows.h GetClipCursor"
   c_GetClipCursor :: Ptr RECT -> IO Bool
 
 ----------------------------------------------------------------
@@ -221,7 +221,7 @@ type ExitOption = UINT
 exitWindowsEx :: ExitOption -> IO ()
 exitWindowsEx opt =
   failIfFalse_ "ExitWindowsEx" $ c_ExitWindowsEx opt 0
-foreign import ccall unsafe "windows.h ExitWindowsEx"
+foreign import stdcall unsafe "windows.h ExitWindowsEx"
   c_ExitWindowsEx :: ExitOption -> DWORD -> IO Bool
 
 exitWindows :: IO ()
@@ -247,13 +247,13 @@ maybeDuration = maybe (-1) id
 messageBeep :: Maybe Beep -> IO ()
 messageBeep mb_beep =
   c_MessageBeep (maybeBeep mb_beep)
-foreign import ccall unsafe "windows.h MessageBeep"
+foreign import stdcall unsafe "windows.h MessageBeep"
   c_MessageBeep :: Beep -> IO ()
 
 beep :: WORD -> MbDuration -> IO ()
 beep freq mb_dur =
   failIfFalse_ "Beep" $ c_Beep freq (maybeDuration mb_dur)
-foreign import ccall unsafe "windows.h Beep"
+foreign import stdcall unsafe "windows.h Beep"
   c_Beep :: WORD -> Duration -> IO Bool
 
 ----------------------------------------------------------------
@@ -271,19 +271,19 @@ type TIMERPROC = FunPtr (HWND -> UINT -> TimerId -> DWORD -> IO ())
 setWinTimer :: HWND -> TimerId -> UINT -> IO TimerId
 setWinTimer wnd timer elapse =
   failIfZero "SetTimer" $ c_SetTimer wnd timer elapse nullFunPtr
-foreign import ccall unsafe "windows.h SetTimer"
+foreign import stdcall unsafe "windows.h SetTimer"
   c_SetTimer :: HWND -> TimerId -> UINT -> TIMERPROC -> IO TimerId
 
 killTimer :: Maybe HWND -> TimerId -> IO ()
 killTimer mb_wnd timer =
   failIfFalse_ "KillTimer" $ c_KillTimer (maybePtr mb_wnd) timer
-foreign import ccall unsafe "windows.h KillTimer"
+foreign import stdcall unsafe "windows.h KillTimer"
   c_KillTimer :: HWND -> TimerId -> IO Bool
 
 -- For documentation purposes:
 type MilliSeconds = DWORD
 
-foreign import ccall unsafe "windows.h timeGetTime"
+foreign import stdcall unsafe "windows.h timeGetTime"
   timeGetTime :: IO MilliSeconds
 
 ----------------------------------------------------------------

@@ -29,56 +29,56 @@ import System.Win32.Types
 beginPath :: HDC -> IO ()
 beginPath dc =
   failIfFalse_ "BeginPath" $ c_BeginPath dc
-foreign import ccall unsafe "windows.h BeginPath"
+foreign import stdcall unsafe "windows.h BeginPath"
   c_BeginPath :: HDC -> IO Bool
 
 closeFigure :: HDC -> IO ()
 closeFigure dc =
   failIfFalse_ "CloseFigure" $ c_CloseFigure dc
-foreign import ccall unsafe "windows.h CloseFigure"
+foreign import stdcall unsafe "windows.h CloseFigure"
   c_CloseFigure :: HDC -> IO Bool
 
 endPath :: HDC -> IO ()
 endPath dc =
   failIfFalse_ "EndPath" $ c_EndPath dc
-foreign import ccall unsafe "windows.h EndPath"
+foreign import stdcall unsafe "windows.h EndPath"
   c_EndPath :: HDC -> IO Bool
 
 fillPath :: HDC -> IO ()
 fillPath dc =
   failIfFalse_ "FillPath" $ c_FillPath dc
-foreign import ccall unsafe "windows.h FillPath"
+foreign import stdcall unsafe "windows.h FillPath"
   c_FillPath :: HDC -> IO Bool
 
 flattenPath :: HDC -> IO ()
 flattenPath dc =
   failIfFalse_ "FlattenPath" $ c_FlattenPath dc
-foreign import ccall unsafe "windows.h FlattenPath"
+foreign import stdcall unsafe "windows.h FlattenPath"
   c_FlattenPath :: HDC -> IO Bool
 
 pathToRegion :: HDC -> IO HRGN
 pathToRegion dc = do
   ptr <- failIfNull "PathToRegion" $ c_PathToRegion dc
   newForeignHANDLE ptr
-foreign import ccall unsafe "windows.h PathToRegion"
+foreign import stdcall unsafe "windows.h PathToRegion"
   c_PathToRegion :: HDC -> IO PRGN
 
 strokeAndFillPath :: HDC -> IO ()
 strokeAndFillPath dc =
   failIfFalse_ "StrokeAndFillPath" $ c_StrokeAndFillPath dc
-foreign import ccall unsafe "windows.h StrokeAndFillPath"
+foreign import stdcall unsafe "windows.h StrokeAndFillPath"
   c_StrokeAndFillPath :: HDC -> IO Bool
 
 strokePath :: HDC -> IO ()
 strokePath dc =
   failIfFalse_ "StrokePath" $ c_StrokePath dc
-foreign import ccall unsafe "windows.h StrokePath"
+foreign import stdcall unsafe "windows.h StrokePath"
   c_StrokePath :: HDC -> IO Bool
 
 widenPath :: HDC -> IO ()
 widenPath dc =
   failIfFalse_ "WidenPath" $ c_WidenPath dc
-foreign import ccall unsafe "windows.h WidenPath"
+foreign import stdcall unsafe "windows.h WidenPath"
   c_WidenPath :: HDC -> IO Bool
 
 ----------------------------------------------------------------

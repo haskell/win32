@@ -69,20 +69,20 @@ type ButtonState = UINT
 checkDlgButton :: HWND -> Int -> ButtonState -> IO ()
 checkDlgButton dialog button check =
   failIfFalse_ "CheckDlgButton" $ c_CheckDlgButton dialog button check
-foreign import ccall unsafe "windows.h CheckDlgButton"
+foreign import stdcall unsafe "windows.h CheckDlgButton"
   c_CheckDlgButton :: HWND -> Int -> ButtonState -> IO Bool
 
 checkRadioButton :: HWND -> Int -> Int -> Int -> IO ()
 checkRadioButton dialog first_button last_button check =
   failIfFalse_ "CheckRadioButton" $
     c_CheckRadioButton dialog first_button last_button check
-foreign import ccall unsafe "windows.h CheckRadioButton"
+foreign import stdcall unsafe "windows.h CheckRadioButton"
   c_CheckRadioButton :: HWND -> Int -> Int -> Int -> IO Bool
 
 isDlgButtonChecked :: HWND -> Int -> IO ButtonState
 isDlgButtonChecked wnd button =
   failIfZero "IsDlgButtonChecked" $ c_IsDlgButtonChecked wnd button
-foreign import ccall unsafe "windows.h IsDlgButtonChecked"
+foreign import stdcall unsafe "windows.h IsDlgButtonChecked"
   c_IsDlgButtonChecked :: HWND -> Int -> IO ButtonState
 
 
@@ -320,7 +320,7 @@ createCommonControl c estyle nm wstyle mb_x mb_y mb_w mb_h mb_parent mb_menu h =
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
       (maybePtr mb_parent) (maybePtr mb_menu) h nullPtr
 
-foreign import ccall unsafe "windows.h InitCommonControls"
+foreign import stdcall unsafe "windows.h InitCommonControls"
   initCommonControls :: IO ()
 
 #endif

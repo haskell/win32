@@ -36,13 +36,13 @@ type StockPen   = WORD
 getStockPen :: StockPen -> IO HPEN
 getStockPen stockpen =
   failIfNull "GetStockPen" $ c_GetStockPen stockpen
-foreign import ccall unsafe "windows.h GetStockObject"
+foreign import stdcall unsafe "windows.h GetStockObject"
   c_GetStockPen :: StockPen -> IO HPEN
 
 deletePen :: HPEN -> IO ()
 deletePen pen =
   failIfFalse_ "DeletePen" $ c_DeletePen pen
-foreign import ccall unsafe "windows.h DeleteObject"
+foreign import stdcall unsafe "windows.h DeleteObject"
   c_DeletePen :: HPEN -> IO Bool
 
 ----------------------------------------------------------------
@@ -91,7 +91,7 @@ you'll have to define it.
 createPen :: PenStyle -> INT -> COLORREF -> IO HPEN
 createPen style n color =
   failIfNull "CreatePen" $ c_CreatePen style n color
-foreign import ccall unsafe "windows.h CreatePen"
+foreign import stdcall unsafe "windows.h CreatePen"
   c_CreatePen :: PenStyle -> INT -> COLORREF -> IO HPEN
 
 -- Not very well supported on Win'95
