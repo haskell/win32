@@ -289,7 +289,7 @@ foreign import stdcall "windows.h SendDlgItemMessageW"
 setDlgItemInt :: HWND -> Int -> UINT -> BOOL -> IO ()
 setDlgItemInt dlg item value signed =
   failIfFalse_ "SetDlgItemInt" $ c_SetDlgItemInt dlg item value signed
-foreign import stdcall unsafe "windows.h SetDlgItemInt"
+foreign import stdcall "windows.h SetDlgItemInt"
   c_SetDlgItemInt :: HWND -> Int -> UINT -> BOOL -> IO Bool
 
 setDlgItemText :: HWND -> Int -> String -> IO ()
