@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# $Id: Makefile,v 1.12 2004/05/06 19:10:05 ross Exp $
+# $Id: Makefile,v 1.13 2004/11/26 16:22:08 simonmar Exp $
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
@@ -19,6 +19,7 @@ ALL_DIRS = \
 	System/Win32 
 
 PACKAGE = Win32
+VERSION = 1.0
 PACKAGE_DEPS = base
 
 SRC_HSC2HS_OPTS += -Iinclude
