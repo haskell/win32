@@ -1,5 +1,5 @@
 Package {
-	name		= PACKAGE,
+	name		= "Win32",
 	auto		= True,
 #ifdef INSTALLING
 	import_dirs	= [ "$libdir/imports" ],
@@ -26,8 +26,8 @@ Package {
 #else
 	include_dirs	= [ "$libdir/libraries/Win32/include" ],
 #endif
-	c_includes	= [ "HsWin32.h" ],
-	package_deps	= [ PACKAGE_DEPS ],
+	c_includes	= [ "HsWin32.h", "WndProc.h" ],
+	package_deps	= [ "base" ],
 	extra_ghc_opts	= [],
 	extra_cc_opts	= [],
 	extra_ld_opts	= []
