@@ -47,7 +47,7 @@ library-dirs:	LIB_DIR
 #endif
 
 hs-libraries:   "HSWin32"
-extra-libs:	"HSWin32_cbits",
+extra-libraries:	"HSWin32_cbits",
 		"user32",
                 "gdi32",
                 "winmm",
@@ -57,10 +57,10 @@ extra-libs:	"HSWin32_cbits",
 include-dirs: 	INCLUDE_DIR
 includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
 depends:	base
-extra-hugs-opts:
-extra-cc-opts:	"-DUNICODE"
-extra-ld-opts:
+hugs-options:
+cc-options:	"-DUNICODE"
+ld-options:
 framework-dirs:
-extra-frameworks:
+frameworks:
 haddock-interfaces:	HADDOCK_IFACE
 haddock-html:		HTML_DIR
