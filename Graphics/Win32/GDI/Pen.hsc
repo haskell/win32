@@ -17,8 +17,6 @@ module Graphics.Win32.GDI.Pen where
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 
-import Foreign
-
 #include <windows.h>
 
 ----------------------------------------------------------------
