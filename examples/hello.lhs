@@ -20,7 +20,7 @@ import qualified System.Win32.DLL
 import qualified System.Win32.Types
 import Foreign
 import Foreign.C.Types
-{-import Addr-} 
+{-import Addr-}
 \end{code}
 
 Toplevel main just creates a window and pumps messages.
@@ -52,10 +52,10 @@ onPaint (_,_,w,h) hdc = do
 \end{code}
 
 Simple window procedure - one way to improve and generalise
-it would be to pass it a message map (represented as a 
+it would be to pass it a message map (represented as a
 finite map from WindowMessages to actions, perhaps).
 
-\begin{code} 
+\begin{code}
 
 wndProc :: Graphics.Win32.LPPAINTSTRUCT
 	-> (Graphics.Win32.RECT -> Graphics.Win32.HDC -> IO ()) -- on paint action
@@ -72,7 +72,7 @@ wndProc lpps onPaint hwnd wmsg wParam lParam
      r <- Graphics.Win32.getClientRect hwnd
      paintWith lpps hwnd (onPaint r)
      return 0
- | otherwise = 
+ | otherwise =
      Graphics.Win32.defWindowProc (Just hwnd) wmsg wParam lParam
 
 createWindow :: Int -> Int -> Graphics.Win32.WindowClosure -> IO Graphics.Win32.HWND
@@ -91,7 +91,7 @@ createWindow width height wndProc = do
 	  , Nothing
 	  , winClass
 	  )
-  w <- Graphics.Win32.createWindow 
+  w <- Graphics.Win32.createWindow
   		 winClass
 		 "Hello, World example"
 		 Graphics.Win32.wS_OVERLAPPEDWINDOW
