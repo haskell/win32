@@ -1,7 +1,7 @@
 #ifndef __HSWIN32_H
 #define __HSWIN32_H
 
-#include "config.h"
+#include "ghcconfig.h"
 
 #include <windows.h>
 
