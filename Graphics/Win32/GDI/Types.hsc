@@ -67,12 +67,12 @@ type POINT =
   , LONG  -- y
   )
 
-sizePOINT :: Int
-sizePOINT = #{size POINT}
+sizeofPOINT :: Int
+sizeofPOINT = #{size POINT}
 
 allocaPOINT :: (Ptr POINT -> IO a) -> IO a
 allocaPOINT =
-  allocaBytes sizePOINT
+  allocaBytes sizeofPOINT
 
 peekPOINT :: Ptr POINT -> IO POINT
 peekPOINT p = do
@@ -87,7 +87,7 @@ pokePOINT p (x,y) = do
 
 withPOINT :: POINT -> (Ptr POINT -> IO a) -> IO a
 withPOINT p f =
-  allocaBytes sizePOINT $ \ ptr -> do
+  allocaPOINT $ \ ptr -> do
   pokePOINT ptr p
   f ptr
 
@@ -140,7 +140,7 @@ pokeSIZE p (cx,cy) = do
 ----------------------------------------------------------------
 
 withPOINTArray :: [POINT] -> (Ptr POINT -> Int -> IO a) -> IO a
-withPOINTArray xs f = allocaBytes (sizePOINT * len) $ \ ptr -> do
+withPOINTArray xs f = allocaBytes (sizeofPOINT * len) $ \ ptr -> do
   pokePOINTArray ptr xs
   f ptr len
  where
@@ -150,7 +150,7 @@ pokePOINTArray :: Ptr POINT -> [POINT] -> IO ()
 pokePOINTArray ptr xs = zipWithM_ (setPOINT ptr) [0..] xs
 
 setPOINT :: Ptr POINT -> Int -> POINT -> IO ()
-setPOINT ptr off = pokePOINT (ptr `plusPtr` (off*sizePOINT))
+setPOINT ptr off = pokePOINT (ptr `plusPtr` (off*sizeofPOINT))
 
 type   LPRECT   = Ptr RECT
 type MbLPRECT   = Maybe LPRECT
