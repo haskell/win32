@@ -40,7 +40,7 @@ foreign import stdcall unsafe "windows.h Sleep"
 
 #ifdef __GLASGOW_HASKELL__
 foreign import ccall unsafe "spawnProc.h"
-  spawnProc :: CString -> Ptr CInt -> Ptr CInt -> Ptr CInt -> IO CInt
+  spawnProc :: LPCTSTR -> Ptr CInt -> Ptr CInt -> Ptr CInt -> IO CInt
 
 -- | Spawn a Win32 sub-process, to run the command given
 -- by the String, returning handles for the child's
@@ -51,7 +51,7 @@ spawn :: String
 	      , Handle  -- read handle to child's stderr
 	      )
 spawn cmd = 
-  withCString cmd $ \ p_cmd ->
+  withTString cmd $ \ p_cmd ->
    with 0 $ \ p_wIn  ->
     with 0 $ \ p_rOut ->
      with 0 $ \ p_rErr -> do

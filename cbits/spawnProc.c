@@ -9,6 +9,7 @@
 #include <windows.h>
 #include <io.h>
 #include <fcntl.h>
+#include "spawnProc.h"
 
 /*
  * Function: mkAnonPipe
@@ -76,7 +77,7 @@ mkAnonPipe( HANDLE* pHandleIn,  BOOL isInheritableIn,
 }
 
 int
-spawnProc ( char* cmd
+spawnProc ( LPTSTR cmd
 	  , int* pFdInWrite
 	  , int* pFdOutRead
 	  , int* pFdErrRead
