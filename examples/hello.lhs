@@ -5,7 +5,7 @@
 Haskell version of "Hello, World" using the Win32 library.
 Demonstrates how the Win32 library can be put to use.
 
-Works with Hugs and Ghc. To compile it up using the latter,
+Works with Hugs and GHC. To compile it up using the latter,
 do: "ghc -o main hello.lhs -syslib win32 -fglasgow-exts"
 
 For GHC 5.03:
@@ -18,8 +18,8 @@ module Main(main) where
 import qualified Graphics.Win32
 import qualified System.Win32.DLL
 import qualified System.Win32.Types
+import Control.Exception (bracket)
 import Foreign
-import Foreign.C.Types
 {-import Addr-}
 \end{code}
 
@@ -30,8 +30,8 @@ to repaint messages (WM_PAINT).
 
 \begin{code}
 main :: IO ()
-main = do
-  lpps <- mallocBytes ( fromIntegral Graphics.Win32.sizeofPAINTSTRUCT )
+main =
+  allocaBytes ( fromIntegral Graphics.Win32.sizeofPAINTSTRUCT ) $ \ lpps -> do
   hwnd <- createWindow 200 200 (wndProc lpps onPaint)
   messagePump hwnd
 
@@ -118,10 +118,10 @@ messagePump hwnd = do
     messagePump hwnd
 
 paintWith :: Graphics.Win32.LPPAINTSTRUCT -> Graphics.Win32.HWND -> (Graphics.Win32.HDC -> IO a) -> IO a
-paintWith lpps hwnd p = do
-  hdc  <- Graphics.Win32.beginPaint hwnd lpps
-  a    <- p hdc
-  Graphics.Win32.endPaint hwnd lpps
-  return a
+paintWith lpps hwnd p =
+  bracket
+    (Graphics.Win32.beginPaint hwnd lpps)
+    (const $ Graphics.Win32.endPaint hwnd lpps)
+    p
 
 \end{code}
