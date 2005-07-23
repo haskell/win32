@@ -1,15 +1,11 @@
 #ifndef __HSGDI_H
 #define __HSGDI_H
 
-#include "ghcconfig.h"
-
 #include <windows.h>
 
 #ifndef INLINE
 # if defined(_MSC_VER)
 #  define INLINE extern __inline
-# elif defined(__HUGS__)
-#  define INLINE INLINE_ONLY
 # else
 #  define INLINE extern inline
 # endif
