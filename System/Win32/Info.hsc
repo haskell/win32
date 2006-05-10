@@ -16,8 +16,11 @@ module System.Win32.Info where
 
 import System.Win32.Types
 
-#include <windows.h>
+import Foreign      ( Storable(sizeOf, alignment, peekByteOff, pokeByteOff,
+                               peek, poke),
+                    , Ptr, alloca )
 
+#include <windows.h>
 
 ----------------------------------------------------------------
 -- Environment Strings
@@ -91,27 +94,99 @@ type SystemColor   = UINT
 -- System Info (Info about processor and memory subsystem)
 ----------------------------------------------------------------
 
--- %fun GetSystemInfo :: IO SystemInfo
---
--- typedef struct _SYSTEM_INFO { // sinf
---     union {
--- 	   DWORD  dwOemId;
--- 	   struct {
--- 	       WORD wProcessorArchitecture;
--- 	       WORD wReserved;
--- 	   };
---     };
---     DWORD  dwPageSize;
---     LPVOID lpMinimumApplicationAddress;
---     LPVOID lpMaximumApplicationAddress;
---     DWORD  dwActiveProcessorMask;
---     DWORD  dwNumberOfProcessors;
---     DWORD  dwProcessorType;
---     DWORD  dwAllocationGranularity;
---     WORD  wProcessorLevel;
---     WORD  wProcessorRevision;
--- } SYSTEM_INFO;
+data ProcessorArchitecture = PaUnknown WORD | PaIntel | PaMips | PaAlpha | PaPpc | PaIa64 | PaIa32OnIa64 | PaAmd64
+    deriving (Show,Eq)
 
+instance Storable ProcessorArchitecture where
+    sizeOf _ = sizeOf (undefined::WORD)
+    alignment _ = alignment (undefined::WORD)
+    poke buf pa = pokeByteOff buf 0 $ case pa of
+        PaUnknown w -> w
+        PaIntel     -> #const PROCESSOR_ARCHITECTURE_INTEL
+        PaMips      -> #const PROCESSOR_ARCHITECTURE_MIPS
+        PaAlpha     -> #const PROCESSOR_ARCHITECTURE_ALPHA
+        PaPpc       -> #const PROCESSOR_ARCHITECTURE_PPC
+        PaIa64      -> #const PROCESSOR_ARCHITECTURE_IA64
+#ifndef __WINE_WINDOWS_H
+        PaIa32OnIa64 -> #const PROCESSOR_ARCHITECTURE_IA32_ON_WIN64
+#endif
+        PaAmd64     -> #const PROCESSOR_ARCHITECTURE_AMD64
+    peek buf = do
+        v <- (peekByteOff buf 0:: IO WORD)
+        return $ case v of
+            (#const PROCESSOR_ARCHITECTURE_INTEL) -> PaIntel
+            (#const PROCESSOR_ARCHITECTURE_MIPS)  -> PaMips
+            (#const PROCESSOR_ARCHITECTURE_ALPHA) -> PaAlpha
+            (#const PROCESSOR_ARCHITECTURE_PPC)   -> PaPpc
+            (#const PROCESSOR_ARCHITECTURE_IA64)  -> PaIa64
+#ifndef __WINE_WINDOWS_H
+            (#const PROCESSOR_ARCHITECTURE_IA32_ON_WIN64) -> PaIa32OnIa64
+#endif
+            (#const PROCESSOR_ARCHITECTURE_AMD64) -> PaAmd64
+            w                                   -> PaUnknown w
+
+data SYSTEM_INFO = SYSTEM_INFO
+    { siProcessorArchitecture :: ProcessorArchitecture
+    , siPageSize :: DWORD
+    , siMinimumApplicationAddress, siMaximumApplicationAddress :: LPVOID
+    , siActiveProcessorMask :: DWORD
+    , siNumberOfProcessors :: DWORD
+    , siProcessorType :: DWORD
+    , siAllocationGranularity :: DWORD
+    , siProcessorLevel :: WORD
+    , siProcessorRevision :: WORD
+    } deriving (Show)
+
+instance Storable SYSTEM_INFO where
+    sizeOf = const #size SYSTEM_INFO
+    alignment = sizeOf
+    poke buf si = do
+        (#poke SYSTEM_INFO, wProcessorArchitecture) buf (siProcessorArchitecture si)
+        (#poke SYSTEM_INFO, dwPageSize)             buf (siPageSize si)
+        (#poke SYSTEM_INFO, lpMinimumApplicationAddress) buf (siMinimumApplicationAddress si)
+        (#poke SYSTEM_INFO, lpMaximumApplicationAddress) buf (siMaximumApplicationAddress si)
+        (#poke SYSTEM_INFO, dwActiveProcessorMask)  buf (siActiveProcessorMask si)
+        (#poke SYSTEM_INFO, dwNumberOfProcessors)   buf (siNumberOfProcessors si)
+        (#poke SYSTEM_INFO, dwProcessorType)        buf (siProcessorType si)
+        (#poke SYSTEM_INFO, dwAllocationGranularity) buf (siAllocationGranularity si)
+        (#poke SYSTEM_INFO, wProcessorLevel)        buf (siProcessorLevel si)
+        (#poke SYSTEM_INFO, wProcessorRevision)     buf (siProcessorRevision si)
+
+    peek buf = do
+        processorArchitecture <-
+            (#peek SYSTEM_INFO, wProcessorArchitecture) buf
+        pageSize            <- (#peek SYSTEM_INFO, dwPageSize) buf
+        minimumApplicationAddress <-
+            (#peek SYSTEM_INFO, lpMinimumApplicationAddress) buf
+        maximumApplicationAddress <-
+            (#peek SYSTEM_INFO, lpMaximumApplicationAddress) buf
+        activeProcessorMask <- (#peek SYSTEM_INFO, dwActiveProcessorMask) buf
+        numberOfProcessors  <- (#peek SYSTEM_INFO, dwNumberOfProcessors) buf
+        processorType       <- (#peek SYSTEM_INFO, dwProcessorType) buf
+        allocationGranularity <-
+            (#peek SYSTEM_INFO, dwAllocationGranularity) buf
+        processorLevel      <- (#peek SYSTEM_INFO, wProcessorLevel) buf
+        processorRevision   <- (#peek SYSTEM_INFO, wProcessorRevision) buf
+        return $ SYSTEM_INFO {
+            siProcessorArchitecture     = processorArchitecture,
+            siPageSize                  = pageSize,
+            siMinimumApplicationAddress = minimumApplicationAddress,
+            siMaximumApplicationAddress = maximumApplicationAddress,
+            siActiveProcessorMask       = activeProcessorMask,
+            siNumberOfProcessors        = numberOfProcessors,
+            siProcessorType             = processorType,
+            siAllocationGranularity     = allocationGranularity,
+            siProcessorLevel            = processorLevel,
+            siProcessorRevision         = processorRevision
+            }
+
+foreign import stdcall unsafe "windows.h GetSystemInfo"
+    c_GetSystemInfo :: Ptr SYSTEM_INFO -> IO ()
+
+getSystemInfo :: IO SYSTEM_INFO
+getSystemInfo = alloca $ \ret -> do
+    c_GetSystemInfo ret
+    peek ret
 
 ----------------------------------------------------------------
 -- System metrics
