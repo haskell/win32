@@ -22,6 +22,7 @@ module System.Win32.File
 where
 
 import System.Win32.Types
+import System.Win32.Time
 
 import Foreign
 
@@ -203,6 +204,51 @@ type LPSECURITY_ATTRIBUTES = Ptr ()
 type MbLPSECURITY_ATTRIBUTES = Maybe LPSECURITY_ATTRIBUTES
 
 ----------------------------------------------------------------
+-- Other types
+----------------------------------------------------------------
+
+data BY_HANDLE_FILE_INFORMATION = BY_HANDLE_FILE_INFORMATION
+    { bhfiFileAttributes :: FileAttributeOrFlag
+    , bhfiCreationTime, bhfiLastAccessTime, bhfiLastWriteTime :: FILETIME
+    , bhfiVolumeSerialNumber :: DWORD
+    , bhfiSize :: DDWORD
+    , bhfiNumberOfLinks :: DWORD
+    , bhfiFileIndex :: DDWORD
+    } deriving (Show)
+
+instance Storable BY_HANDLE_FILE_INFORMATION where
+    sizeOf = const (#size BY_HANDLE_FILE_INFORMATION)
+    alignment = sizeOf
+    poke buf bhi = do
+        (#poke BY_HANDLE_FILE_INFORMATION, dwFileAttributes)     buf (bhfiFileAttributes bhi)
+        (#poke BY_HANDLE_FILE_INFORMATION, ftCreationTime)       buf (bhfiCreationTime bhi)
+        (#poke BY_HANDLE_FILE_INFORMATION, ftLastAccessTime)     buf (bhfiLastAccessTime bhi)
+        (#poke BY_HANDLE_FILE_INFORMATION, ftLastWriteTime)      buf (bhfiLastWriteTime bhi)
+        (#poke BY_HANDLE_FILE_INFORMATION, dwVolumeSerialNumber) buf (bhfiVolumeSerialNumber bhi)
+        (#poke BY_HANDLE_FILE_INFORMATION, nFileSizeHigh)        buf sizeHi
+        (#poke BY_HANDLE_FILE_INFORMATION, nFileSizeLow)         buf sizeLow
+        (#poke BY_HANDLE_FILE_INFORMATION, nNumberOfLinks)       buf (bhfiNumberOfLinks bhi)
+        (#poke BY_HANDLE_FILE_INFORMATION, nFileIndexHigh)       buf idxHi
+        (#poke BY_HANDLE_FILE_INFORMATION, nFileIndexLow)        buf idxLow
+        where
+            (sizeHi,sizeLow) = ddwordToDwords $ bhfiSize bhi
+            (idxHi,idxLow) = ddwordToDwords $ bhfiFileIndex bhi
+
+    peek buf = do
+        attr <- (#peek BY_HANDLE_FILE_INFORMATION, dwFileAttributes)     buf
+        ctim <- (#peek BY_HANDLE_FILE_INFORMATION, ftCreationTime)       buf
+        lati <- (#peek BY_HANDLE_FILE_INFORMATION, ftLastAccessTime)     buf
+        lwti <- (#peek BY_HANDLE_FILE_INFORMATION, ftLastWriteTime)      buf
+        vser <- (#peek BY_HANDLE_FILE_INFORMATION, dwVolumeSerialNumber) buf
+        fshi <- (#peek BY_HANDLE_FILE_INFORMATION, nFileSizeHigh)        buf
+        fslo <- (#peek BY_HANDLE_FILE_INFORMATION, nFileSizeLow)         buf
+        link <- (#peek BY_HANDLE_FILE_INFORMATION, nNumberOfLinks)       buf
+        idhi <- (#peek BY_HANDLE_FILE_INFORMATION, nFileIndexHigh)       buf
+        idlo <- (#peek BY_HANDLE_FILE_INFORMATION, nFileIndexLow)        buf
+        return $ BY_HANDLE_FILE_INFORMATION attr ctim lati lwti vser
+            (dwordsToDdword (fshi,fslo)) link (dwordsToDdword (idhi,idlo))
+
+----------------------------------------------------------------
 -- File operations
 ----------------------------------------------------------------
 
@@ -323,6 +369,13 @@ getFileAttributes name =
   failIf (== 0xFFFFFFFF) "GetFileAttributes" $ c_GetFileAttributes c_name
 foreign import stdcall unsafe "windows.h GetFileAttributesW"
   c_GetFileAttributes :: LPCTSTR -> IO FileAttributeOrFlag
+
+getFileInformationByHandle :: HANDLE -> IO BY_HANDLE_FILE_INFORMATION
+getFileInformationByHandle h = alloca $ \res -> do
+    failIfFalse_ "GetFileInformationByHandle" $ c_GetFileInformationByHandle h res
+    peek res
+foreign import stdcall unsafe "windows.h GetFileInformationByHandle"
+    c_GetFileInformationByHandle :: HANDLE -> Ptr BY_HANDLE_FILE_INFORMATION -> IO BOOL
 
 ----------------------------------------------------------------
 -- Read/write files
