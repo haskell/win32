@@ -283,7 +283,7 @@ foreign import stdcall unsafe "windows.h GetBinaryTypeW"
 createFile :: String -> AccessMode -> ShareMode -> Maybe LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> Maybe HANDLE -> IO HANDLE
 createFile name access share mb_attr mode flag mb_h =
   withTString name $ \ c_name ->
-  failIfNull "CreateFile" $
+  failIf (==iNVALID_HANDLE_VALUE) "CreateFile" $
     c_CreateFile c_name access share (maybePtr mb_attr) mode flag (maybePtr mb_h)
 foreign import stdcall unsafe "windows.h CreateFileW"
   c_CreateFile :: LPCTSTR -> AccessMode -> ShareMode -> LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> HANDLE -> IO HANDLE
