@@ -39,6 +39,10 @@ type WORD          = Word16
 type DWORD         = Word32
 type LONG          = Int32
 type FLOAT         = Float
+type LARGE_INTEGER = Int64
+
+-- Not really a basic type, but used in many places
+type DDWORD        = Word64
 
 ----------------------------------------------------------------
 
@@ -49,6 +53,7 @@ type ATOM          = UINT
 type WPARAM        = UINT
 type LPARAM        = LONG
 type LRESULT       = LONG
+type SIZE_T        = DWORD
 
 type MbATOM        = Maybe ATOM
 
@@ -195,6 +200,18 @@ failWith fn_name err_code =
   msg <- peekTString c_msg
   localFree c_msg
   fail (fn_name ++ ": " ++ msg ++ " (error code: " ++ showHex err_code ")")
+
+----------------------------------------------------------------
+-- Misc helpers
+----------------------------------------------------------------
+
+ddwordToDwords :: DDWORD -> (DWORD,DWORD)
+ddwordToDwords n =
+        (fromIntegral (n `shiftR` bitSize (undefined::DWORD))
+        ,fromIntegral (n .&. fromIntegral (maxBound :: DWORD)))
+
+dwordsToDdword:: (DWORD,DWORD) -> DDWORD
+dwordsToDdword (hi,low) = (fromIntegral low) .|. (fromIntegral hi `shiftL`bitSize hi)
 
 ----------------------------------------------------------------
 -- Primitives
