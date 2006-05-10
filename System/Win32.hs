@@ -20,6 +20,7 @@ module System.Win32
 	, module System.Win32.NLS
 	, module System.Win32.Process
 	, module System.Win32.Registry
+	, module System.Win32.Time
 	, module System.Win32.Types
 	) where
 
@@ -30,6 +31,7 @@ import System.Win32.Mem
 import System.Win32.NLS
 import System.Win32.Process
 import System.Win32.Registry
+import System.Win32.Time
 import System.Win32.Types
 
 ----------------------------------------------------------------

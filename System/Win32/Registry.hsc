@@ -57,6 +57,7 @@ module System.Win32.Registry
 
 -}
 
+import System.Win32.Time
 import System.Win32.Types
 import System.Win32.File
 
@@ -315,8 +316,6 @@ data RegInfoKey =
     lastWrite_lo       :: Word32,
     lastWrite_hi       :: Word32
   }
-
-type FILETIME = ()
 
 regQueryInfoKey :: HKEY -> IO RegInfoKey
 regQueryInfoKey key =
