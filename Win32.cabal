@@ -8,6 +8,7 @@ maintainer:	<libraries@haskell.org>
 category:	System, Graphics
 synopsis:	A binding to part of the Win32 library
 build-depends:	base
+ghc-options:    -O -fvia-C -Wall -fno-warn-name-shadowing
 exposed-modules:
 	Graphics.Win32.GDI,
 	Graphics.Win32.GDI.Bitmap,
@@ -40,6 +41,7 @@ exposed-modules:
 	System.Win32.Process,
 	System.Win32.Registry,
 	System.Win32.Types
+extensions: ForeignFunctionInterface
 extra-libraries:
 	"user32", "gdi32", "winmm", "kernel32", "advapi32"
 include-dirs: 	include
