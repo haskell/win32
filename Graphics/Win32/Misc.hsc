@@ -142,9 +142,6 @@ type StdHandleId   = DWORD
  , sTD_ERROR_HANDLE     = STD_ERROR_HANDLE
  }
 
-iNVALID_HANDLE_VALUE :: HANDLE
-iNVALID_HANDLE_VALUE = castUINTToPtr 0xffffffff
-
 getStdHandle :: StdHandleId -> IO HANDLE
 getStdHandle hid =
   failIf (== iNVALID_HANDLE_VALUE) "GetStdHandle" $ c_GetStdHandle hid

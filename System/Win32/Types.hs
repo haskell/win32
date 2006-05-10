@@ -143,6 +143,9 @@ type MbHMODULE     = Maybe HMODULE
 nullFinalHANDLE :: ForeignPtr a
 nullFinalHANDLE = unsafePerformIO (newForeignPtr_ nullPtr)
 
+iNVALID_HANDLE_VALUE :: HANDLE
+iNVALID_HANDLE_VALUE = castUINTToPtr 0xffffffff
+
 ----------------------------------------------------------------
 -- Errors
 ----------------------------------------------------------------
