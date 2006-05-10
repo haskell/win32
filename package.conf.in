@@ -29,6 +29,7 @@ exposed-modules:
 	Graphics.Win32,
 	System.Win32.DLL,
 	System.Win32.File,
+	System.Win32.FileMapping,
 	System.Win32.Info,
 	System.Win32.Mem,
 	System.Win32.NLS,
