@@ -30,7 +30,10 @@ import System.Win32.File
 import System.Win32.FileMapping
 import System.Win32.Info
 import System.Win32.Mem
-import System.Win32.NLS
+import System.Win32.NLS hiding  ( LCID, LANGID, SortID, SubLANGID
+                                , PrimaryLANGID, mAKELCID, lANGIDFROMLCID
+                                , sORTIDFROMLCID, mAKELANGID, pRIMARYLANGID
+                                , sUBLANGID )
 import System.Win32.Process
 import System.Win32.Registry
 import System.Win32.Time
