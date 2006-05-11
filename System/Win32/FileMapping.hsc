@@ -81,9 +81,6 @@ withMappedArea (MappedObject _ mh access) pos size act = do
         (blocks, offset) = divMod pos gran
         start = blocks*gran
         size' = fromIntegral $ size + fromIntegral (pos - start)
-    print start
-    print offset
-    print size'
     bracket
         (mapViewOfFileEx mh access (fromIntegral start) size' nullPtr)
         (unmapViewOfFile)
