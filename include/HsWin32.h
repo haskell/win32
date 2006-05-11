@@ -36,4 +36,6 @@ INLINE WORD prim_SORTIDFROMLCID(LCID id) {
   return SORTIDFROMLCID(id);
 }
 
+void UnmapViewOfFileFinaliser(void *);
+
 #endif /* __HSWIN32_H */

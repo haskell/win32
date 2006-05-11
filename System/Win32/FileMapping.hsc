@@ -7,11 +7,10 @@ import System.Win32.Mem
 import System.Win32.File
 import System.Win32.Info
 
-import Control.Exception    ( block, handle, throw, bracket )
+import Control.Exception    ( block, bracket )
 import Data.ByteString      ( ByteString(..) )
-import Foreign              ( Ptr, nullPtr, castPtr, plusPtr, maybeWith
-                            , ForeignPtr )
-import Foreign.Concurrent   ( newForeignPtr )
+import Foreign              ( Ptr, nullPtr, plusPtr, maybeWith, FunPtr
+                            , ForeignPtr, newForeignPtr )
 
 #include "windows.h"
 
@@ -22,15 +21,19 @@ import Foreign.Concurrent   ( newForeignPtr )
 -- | Maps file fully and returns ForeignPtr and length of the mapped area.
 -- The mapped file is opened read-only and shared reading.
 mapFile :: FilePath -> IO (ForeignPtr a, Int)
-mapFile path = block $ do
-    fh <- createFile path gENERIC_READ fILE_SHARE_READ Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
-    handle (\e -> closeHandle fh >> throw e) $ do
-        fm <- createFileMapping (Just fh) pAGE_READONLY 0 Nothing
-        handle (\e -> closeHandle fm >> throw e) $ do
-            ptr <- mapViewOfFile fm fILE_MAP_READ 0 0
-            fi <- getFileInformationByHandle fh
-            fp <- newForeignPtr ptr (unmapViewOfFile ptr >> closeHandle fm >> closeHandle fh)
-            return (fp, fromIntegral $ bhfiSize fi)
+mapFile path = do
+    bracket
+        (createFile path gENERIC_READ fILE_SHARE_READ Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing)
+        (closeHandle)
+        $ \fh -> bracket
+            (createFileMapping (Just fh) pAGE_READONLY 0 Nothing)
+            (closeHandle)
+            $ \fm -> do
+                fi <- getFileInformationByHandle fh
+                fp <- block $ do
+                    ptr <- mapViewOfFile fm fILE_MAP_READ 0 0
+                    newForeignPtr c_UnmapViewOfFileFinaliser ptr
+                return (fp, fromIntegral $ bhfiSize fi)
 
 -- | As mapFile, but returns ByteString
 mapFileBs :: FilePath -> IO ByteString
@@ -47,26 +50,24 @@ withMappedFile
     -> Maybe Bool           -- ^ Sharing mode, no sharing, share read, share read+write
     -> (Integer -> MappedObject -> IO a) -- ^ Action
     -> IO a
-withMappedFile path write share act = bracket make cleanup act'
-    where
-        act' (i,m) = act (fromIntegral i) m
-        make = do
-            let
-                (access, page, mapaccess) = case write of
-                    False   -> (gENERIC_READ, pAGE_READONLY, fILE_MAP_READ)
-                    True    -> (gENERIC_READ+gENERIC_WRITE, pAGE_READWRITE, fILE_MAP_ALL_ACCESS)
-                share' = case share of
-                    Nothing     -> fILE_SHARE_NONE
-                    Just False  -> fILE_SHARE_READ
-                    Just True   -> fILE_SHARE_READ + fILE_SHARE_WRITE
-            fh <- createFile path access share' Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing
-            handle (\e -> closeHandle fh >> throw e) $ do
+withMappedFile path write share act =
+    bracket
+        (createFile path access share' Nothing oPEN_EXISTING fILE_ATTRIBUTE_NORMAL Nothing)
+        (closeHandle)
+        $ \fh -> bracket
+            (createFileMapping (Just fh) page 0 Nothing)
+            (closeHandle)
+            $ \fm -> do
                 bhfi <- getFileInformationByHandle fh
-                fm <- createFileMapping (Just fh) page 0 Nothing
-                return $ (bhfiSize bhfi, MappedObject fh fm mapaccess)
-        cleanup (_,(MappedObject f m _)) = do
-            closeHandle m
-            closeHandle f
+                act (fromIntegral $ bhfiSize bhfi) (MappedObject fh fm mapaccess)
+    where
+        access    = if write then gENERIC_READ+gENERIC_WRITE else gENERIC_READ
+        page      = if write then pAGE_READWRITE else pAGE_READONLY
+        mapaccess = if write then fILE_MAP_ALL_ACCESS else fILE_MAP_READ
+        share' = case share of
+            Nothing     -> fILE_SHARE_NONE
+            Just False  -> fILE_SHARE_READ
+            Just True   -> fILE_SHARE_READ + fILE_SHARE_WRITE
 
 -- | Maps area into memory.
 withMappedArea
@@ -148,3 +149,6 @@ foreign import stdcall "windows.h MapViewOfFileEx"
 
 foreign import stdcall "windows.h UnmapViewOfFile"
     c_UnmapViewOfFile :: Ptr a -> IO BOOL
+
+foreign import ccall "HsWin32.h &UnmapViewOfFileFinaliser"
+    c_UnmapViewOfFileFinaliser :: FunPtr (Ptr a -> IO ())
