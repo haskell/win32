@@ -4,7 +4,7 @@
 -- Copyright   :  (c) Alastair Reid, 1999-2003
 -- License     :  BSD-style (see the file libraries/base/LICENSE)
 --
--- Maintainer  :  libraries@haskell.org
+-- Maintainer  :  Esa Ilari vuokko <ei@vuokko.info>
 -- Stability   :  provisional
 -- Portability :  portable
 --

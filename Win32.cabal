@@ -4,7 +4,7 @@ license:	BSD3
 license-file:	LICENSE
 author:		Alastair Reid
 copyright:	Alastair Reid, 1999-2003
-maintainer:	<libraries@haskell.org>
+maintainer:	Esa Ilari Vuokko <ei@vuokko.info>
 category:	System, Graphics
 synopsis:	A binding to part of the Win32 library
 build-depends:	base
