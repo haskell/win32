@@ -1,3 +1,16 @@
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  System.Win32.FileMapping
+-- Copyright   :  (c) Esa Ilari Vuokko, 2006
+-- License     :  BSD-style (see the file LICENSE)
+--
+-- Maintainer  :  Esa Ilari vuokko <ei@vuokko.info>
+-- Stability   :  provisional
+-- Portability :  portable
+--
+-- A collection of FFI declarations for interfacing with Win32 mapped files.
+--
+-----------------------------------------------------------------------------
 module System.Win32.FileMapping where
 
 import System.Win32.Types   ( HANDLE, DWORD, BOOL, SIZE_T, LPCTSTR, withTString
