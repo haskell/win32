@@ -17,7 +17,7 @@ module System.Win32.Info where
 import System.Win32.Types
 
 import Foreign      ( Storable(sizeOf, alignment, peekByteOff, pokeByteOff,
-                               peek, poke),
+                               peek, poke)
                     , Ptr, alloca )
 
 #include <windows.h>
