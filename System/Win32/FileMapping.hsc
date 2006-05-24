@@ -150,5 +150,6 @@ foreign import stdcall "windows.h MapViewOfFileEx"
 foreign import stdcall "windows.h UnmapViewOfFile"
     c_UnmapViewOfFile :: Ptr a -> IO BOOL
 
+{-# CFILES cbits/HsWin32.c #-}
 foreign import ccall "HsWin32.h &UnmapViewOfFileFinaliser"
     c_UnmapViewOfFileFinaliser :: FunPtr (Ptr a -> IO ())
