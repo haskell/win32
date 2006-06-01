@@ -22,6 +22,8 @@ PACKAGE = Win32
 VERSION = 1.0
 PACKAGE_DEPS = base
 
+EXCLUDED_SRCS += Setup.hs
+
 SRC_HSC2HS_OPTS += -Iinclude
 SRC_HC_OPTS += -Wall 
 SRC_HC_OPTS += -optc-Iinclude -Iinclude

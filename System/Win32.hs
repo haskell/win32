@@ -22,6 +22,7 @@ module System.Win32
 	, module System.Win32.Process
 	, module System.Win32.Registry
 	, module System.Win32.Time
+	, module System.Win32.Console
 	, module System.Win32.Types
 	) where
 
@@ -37,6 +38,7 @@ import System.Win32.NLS hiding  ( LCID, LANGID, SortID, SubLANGID
 import System.Win32.Process
 import System.Win32.Registry
 import System.Win32.Time
+import System.Win32.Console
 import System.Win32.Types
 
 ----------------------------------------------------------------
