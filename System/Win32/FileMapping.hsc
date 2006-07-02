@@ -21,7 +21,7 @@ import System.Win32.File
 import System.Win32.Info
 
 import Control.Exception    ( block, bracket )
-import Data.ByteString      ( ByteString(..) )
+import Data.ByteString.Base ( ByteString(..) )
 import Foreign              ( Ptr, nullPtr, plusPtr, maybeWith, FunPtr
                             , ForeignPtr, newForeignPtr )
 
