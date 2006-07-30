@@ -18,6 +18,9 @@ module System.Win32.Console (
 	setConsoleCP,
 	getConsoleOutputCP,
 	setConsoleOutputCP,
+	-- * Ctrl events
+	CtrlEvent, cTRL_C_EVENT, cTRL_BREAK_EVENT,
+	generateConsoleCtrlEvent
   ) where
 
 import System.Win32.Types
@@ -33,5 +36,20 @@ foreign import stdcall unsafe "windows.h GetConsoleOutputCP"
 
 foreign import stdcall unsafe "windows.h SetConsoleOutputCP"
 	setConsoleOutputCP :: UINT -> IO ()
+
+type CtrlEvent = DWORD
+#{enum CtrlEvent,
+    , cTRL_C_EVENT      = 0
+    , cTRL_BREAK_EVENT  = 1
+    }
+
+generateConsoleCtrlEvent :: CtrlEvent -> DWORD -> IO ()
+generateConsoleCtrlEvent e p
+    = failIfFalse_
+        "generateConsoleCtrlEvent"
+        $ c_GenerateConsoleCtrlEvent e p
+
+foreign import stdcall safe "windows.h GenerateConsoleCtrlEvent"
+    c_GenerateConsoleCtrlEvent :: CtrlEvent -> DWORD -> IO BOOL
 
 -- ToDo: lots more
