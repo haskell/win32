@@ -36,6 +36,8 @@
 (^|/)dist
 _stub\.[ch]$
 ^\.
+\.suo$
+\.sln$
 Graphics/Win32/Control.hs$
 Graphics/Win32/Dialogue.hs$
 Graphics/Win32/GDI/Bitmap.hs$
@@ -52,6 +54,7 @@ Graphics/Win32/Misc.hs$
 Graphics/Win32/Resource.hs$
 Graphics/Win32/Window.hs$
 System/Win32/DLL.hs$
+System/Win32/Console.hs$
 System/Win32/File.hs$
 System/Win32/FileMapping.hs$
 System/Win32/Info.hs$
