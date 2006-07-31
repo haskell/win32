@@ -32,6 +32,30 @@ foreign import stdcall unsafe "windows.h Sleep"
 
 
 type ProcessId = DWORD
+type ProcessHandle = HANDLE
+type ProcessAccessRights = DWORD
+#{enum ProcessAccessRights,
+    , pROCESS_ALL_ACCESS            = PROCESS_ALL_ACCESS
+    , pROCESS_CREATE_PROCESS        = PROCESS_CREATE_PROCESS
+    , pROCESS_CREATE_THREAD         = PROCESS_CREATE_THREAD
+    , pROCESS_DUP_HANDLE            = PROCESS_DUP_HANDLE
+    , pROCESS_QUERY_INFORMATION     = PROCESS_QUERY_INFORMATION
+    , pROCESS_SET_QUOTA             = PROCESS_SET_QUOTA
+    , pROCESS_SET_INFORMATION       = PROCESS_SET_INFORMATION
+    , pROCESS_TERMINATE             = PROCESS_TERMINATE
+    , pROCESS_VM_OPERATION          = PROCESS_VM_OPERATION
+    , pROCESS_VM_READ               = PROCESS_VM_READ
+    , pROCESS_VM_WRITE              = PROCESS_VM_WRITE
+    , sYNCHORNIZE                   = SYNCHRONIZE 
+    }
+
+foreign import stdcall unsafe "windows.h OpenProcess"
+    c_OpenProcess :: ProcessAccessRights -> BOOL -> ProcessId -> IO ProcessHandle
+
+
+openProcess :: ProcessAccessRights -> BOOL -> ProcessId -> IO ProcessHandle
+openProcess r inh i = failIfNull "OpenProcess" $ c_OpenProcess r inh i
+
 type Th32SnapHandle = HANDLE
 type Th32SnapFlags = DWORD
 -- | ProcessId, number of threads, parent ProcessId, process base priority, path of executable file
