@@ -194,8 +194,7 @@ errorWin fn_name = do
   failWith fn_name err_code
 
 failWith :: String -> ErrCode -> IO a
-failWith fn_name err_code =
-  withTString fn_name $ \ c_fn_name -> do
+failWith fn_name err_code = do
   c_msg <- getErrorMessage err_code
   msg <- peekTString c_msg
   localFree c_msg
