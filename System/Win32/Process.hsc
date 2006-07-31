@@ -12,11 +12,7 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.Process
-  ( sleep       -- :: DWORD -> IO ()
-  , iNFINITE    -- :: DWORD
-  ) where
-
+module System.Win32.Process where
 import System.Win32.Types
 
 #include <windows.h>
