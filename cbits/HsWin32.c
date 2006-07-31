@@ -5,3 +5,7 @@
 void UnmapViewOfFileFinaliser(void * p) {
     UnmapViewOfFile(p);
 }
+
+void CloseHandleFinaliser(HANDLE h) {
+    CloseHandle(h);
+}

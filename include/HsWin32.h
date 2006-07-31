@@ -38,4 +38,6 @@ INLINE WORD prim_SORTIDFROMLCID(LCID id) {
 
 void UnmapViewOfFileFinaliser(void *);
 
+void CloseHandleFinaliser(HANDLE);
+
 #endif /* __HSWIN32_H */
