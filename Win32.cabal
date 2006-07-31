@@ -33,6 +33,7 @@ exposed-modules:
 	Graphics.Win32.Resource,
 	Graphics.Win32.Window,
 	System.Win32,
+	System.Win32.DebugApi,
 	System.Win32.DLL,
 	System.Win32.File,
 	System.Win32.FileMapping,

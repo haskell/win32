@@ -53,6 +53,7 @@ Graphics/Win32/Message.hs$
 Graphics/Win32/Misc.hs$
 Graphics/Win32/Resource.hs$
 Graphics/Win32/Window.hs$
+System/Win32/DebugApi.hs$
 System/Win32/DLL.hs$
 System/Win32/Console.hs$
 System/Win32/File.hs$
