@@ -333,7 +333,7 @@ withAttachments att act = allocaBytes (len*as) $ \buf -> write (act len buf) buf
             withCString (maybe (attPath att) id (attName att)) $ \name -> do
                 (#poke MapiFileDesc, ulReserved)    buf (0::ULONG)
                 (#poke MapiFileDesc, flFlags)       buf (attFlag att)
-                (#poke MapiFileDesc, nPosition)     buf (maybe 0 id $ attPosition att)
+                (#poke MapiFileDesc, nPosition)     buf (maybe 0xffffffff id $ attPosition att)
                 (#poke MapiFileDesc, lpszPathName)  buf path
                 (#poke MapiFileDesc, lpszFileName)  buf name
                 (#poke MapiFileDesc, lpFileType)    buf tag
