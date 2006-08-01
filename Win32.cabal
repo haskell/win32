@@ -42,6 +42,7 @@ exposed-modules:
 	System.Win32.NLS,
 	System.Win32.Process,
 	System.Win32.Registry,
+	System.Win32.SimpleMAPI,
 	System.Win32.Time,
 	System.Win32.Console,
 	System.Win32.Types

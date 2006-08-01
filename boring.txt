@@ -63,4 +63,5 @@ System/Win32/Mem.hs$
 System/Win32/NLS.hs$
 System/Win32/Process.hs$
 System/Win32/Registry.hs$
+System/Win32/SimpleMAPI.hs$
 System/Win32/Time.hs$
