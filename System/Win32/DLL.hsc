@@ -33,6 +33,10 @@ freeLibrary hmod =
 foreign import stdcall unsafe "windows.h FreeLibrary"
   c_FreeLibrary :: HMODULE -> IO Bool
 
+{-# CFILES cbits/HsWin32.c #-}
+foreign import ccall "HsWin32.h &FreeLibraryFinaliser"
+    c_FreeLibraryFinaliser :: FunPtr (HMODULE -> IO ())
+
 getModuleFileName :: HMODULE -> IO String
 getModuleFileName hmod =
   allocaArray 512 $ \ c_str -> do

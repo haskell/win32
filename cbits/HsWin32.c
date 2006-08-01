@@ -9,3 +9,7 @@ void UnmapViewOfFileFinaliser(void * p) {
 void CloseHandleFinaliser(HANDLE h) {
     CloseHandle(h);
 }
+
+void FreeLibraryFinaliser(HMODULE m) {
+    FreeLibrary(m);
+}

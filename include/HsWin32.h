@@ -40,4 +40,6 @@ void UnmapViewOfFileFinaliser(void *);
 
 void CloseHandleFinaliser(HANDLE);
 
+void FreeLibraryFinaliser(HMODULE);
+
 #endif /* __HSWIN32_H */
