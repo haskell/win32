@@ -20,7 +20,7 @@ import Foreign          ( Ptr,  nullPtr, ForeignPtr, mallocForeignPtrBytes,
                         , withForeignPtr, Storable, sizeOf, peek, pokeByteOff )
 import System.IO        ( fixIO )
 import System.Win32.Types   ( HANDLE, BOOL, WORD, DWORD, failIf_, failWith
-                            , getLastError, failIf )
+                            , getLastError, failIf, LPTSTR, withTString )
 
 #include "windows.h"
 
@@ -335,6 +335,12 @@ modifyThreadContext :: THANDLE -> [(Int, DWORD->DWORD)] -> IO [DWORD]
 modifyThreadContext t a = withThreadContext t $ makeModThreadContext a
 
 --------------------------------------------------------------------------
+-- On process being debugged
+
+outputDebugString :: String -> IO ()
+outputDebugString s = withTString s $ \s -> c_OutputDebugString s
+
+--------------------------------------------------------------------------
 -- Raw imports
 
 foreign import stdcall "windows.h SuspendThread"
@@ -370,3 +376,12 @@ foreign import stdcall "windows.h SetThreadContext"
 
 --foreign import stdcall "windows.h GetThreadId"
 --    c_GetThreadId :: THANDLE -> IO TID
+
+foreign import stdcall "windows.h OutputDebugStringW"
+    c_OutputDebugString :: LPTSTR -> IO ()
+
+foreign import stdcall "windows.h IsDebuggerPresent"
+    isDebuggerPresent :: IO BOOL
+
+foreign import stdcall "windows.h  DebugBreak"
+    debugBreak :: IO ()
