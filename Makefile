@@ -19,7 +19,7 @@ ALL_DIRS = \
 	System/Win32 
 
 PACKAGE = Win32
-VERSION = 1.0
+VERSION = 2.0
 PACKAGE_DEPS = base
 
 EXCLUDED_SRCS += Setup.hs
