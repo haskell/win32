@@ -25,7 +25,7 @@ PACKAGE_DEPS = base
 EXCLUDED_SRCS += Setup.hs
 
 SRC_HSC2HS_OPTS += -Iinclude
-SRC_HC_OPTS += -Wall 
+SRC_HC_OPTS += -Wall -fno-warn-name-shadowing
 SRC_HC_OPTS += -optc-Iinclude -Iinclude
 SRC_HC_OPTS += -optc-DUNICODE
 SRC_HC_OPTS += -fffi -O
