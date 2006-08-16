@@ -11,11 +11,11 @@
 -- A collection of FFI declarations for using Windows DebugApi.
 --
 -----------------------------------------------------------------------------
-module System.Win32.DebugApi
-where
+module System.Win32.DebugApi where
+
 import Control.Exception( bracket_ )
 import Data.Word        ( Word8, Word32 )
-import Foreign          ( Ptr,  nullPtr, ForeignPtr, mallocForeignPtrBytes,
+import Foreign          ( Ptr, nullPtr, ForeignPtr, mallocForeignPtrBytes
                         , peekByteOff, plusPtr, allocaBytes, castPtr, poke
                         , withForeignPtr, Storable, sizeOf, peek, pokeByteOff )
 import System.IO        ( fixIO )
