@@ -4,7 +4,7 @@
 -- Copyright   :  (c) University of Glasgow 2006
 -- License     :  BSD-style (see the file LICENSE)
 --
--- Maintainer  :  Esa Ilari vuokko <ei@vuokko.info>
+-- Maintainer  :  Esa Ilari Vuokko <ei@vuokko.info>
 -- Stability   :  provisional
 -- Portability :  portable
 --

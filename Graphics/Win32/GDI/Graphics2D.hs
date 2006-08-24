@@ -4,7 +4,7 @@
 -- Copyright   :  (c) Alastair Reid, 1997-2003
 -- License     :  BSD-style (see the file libraries/base/LICENSE)
 --
--- Maintainer  :  Esa Ilari vuokko <ei@vuokko.info>
+-- Maintainer  :  Esa Ilari Vuokko <ei@vuokko.info>
 -- Stability   :  provisional
 -- Portability :  portable
 --
