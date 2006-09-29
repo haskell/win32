@@ -124,7 +124,7 @@ void CreateBMPFile(LPCSTR pszFileName, HBITMAP hBmp, HDC hDC)
 
         while(sizTmp--)
         {
-            *(((PBYTE)pjTmp)++) = *((pjTmpBmi)++);
+            *(pjTmp++) = *(pjTmpBmi++);
         }
     }
 
