@@ -18,7 +18,7 @@ import System.Win32.Types
 
 import Foreign      ( Storable(sizeOf, alignment, peekByteOff, pokeByteOff,
                                peek, poke)
-                    , Ptr, alloca )
+                    , Ptr, alloca, allocaArray )
 
 #include <windows.h>
 
@@ -87,8 +87,28 @@ type SystemColor   = UINT
 -- Standard Directories
 ----------------------------------------------------------------
 
--- %fun GetSystemDirectory  :: IO String
--- %fun GetWindowsDirectory :: IO String
+getSystemDirectory :: IO String
+getSystemDirectory = try "GetSystemDirectory" c_getSystemDirectory 512
+
+getWindowsDirectory :: IO String
+getWindowsDirectory = try "GetWindowsDirectory" c_getWindowsDirectory 512
+
+try :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String
+try loc f n = do
+   e <- allocaArray (fromIntegral n) $ \lptstr -> do
+	  r <- failIfZero loc $ f lptstr n
+	  if (r > n) then return (Left r) else do
+	    str <- peekTStringLen (lptstr, fromIntegral r)
+	    return (Right str)
+   case e of
+	Left n    -> try loc f n   
+	Right str -> return str
+
+foreign import ccall unsafe "GetWindowsDirectoryW"
+  c_getWindowsDirectory :: LPTSTR -> UINT -> IO UINT
+
+foreign import ccall unsafe "GetSystemDirectoryW"
+  c_getSystemDirectory :: LPTSTR -> UINT -> IO UINT
 
 ----------------------------------------------------------------
 -- System Info (Info about processor and memory subsystem)
