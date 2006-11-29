@@ -1,3 +1,4 @@
+#include "HsWin32Config.h"
 name:		PACKAGE
 version:	VERSION
 license:	BSD3
@@ -51,6 +52,9 @@ library-dirs:	LIB_DIR
 
 hs-libraries:   "HSWin32"
 extra-libraries:	"HSWin32_cbits",
+#if defined(UNICOWSLIB)
+                UNICOWSLIB ,
+#endif
 		"user32",
                 "gdi32",
                 "winmm",

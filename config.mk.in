@@ -1,0 +1,10 @@
+# Not much... 
+
+# Possible values: YES,NO
+HaveUnicows=@HaveUnicows@
+
+# Full path to DLL (or empty.)
+UnicowsDLL=@UnicowsDLL@
+
+# Path to directory containing libunicows.a (or empty.)
+LibUnicowsDir=@LibUnicowsDir@

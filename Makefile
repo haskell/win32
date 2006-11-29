@@ -3,6 +3,7 @@
 
 TOP = ..
 include $(TOP)/mk/boilerplate.mk
+-include config.mk
 
 # include mk/version.mk
 
@@ -30,6 +31,8 @@ SRC_HC_OPTS += -optc-Iinclude -Iinclude
 SRC_HC_OPTS += -optc-DUNICODE
 SRC_HC_OPTS += -fffi -O
 
+SRC_CC_OPTS += -Iinclude
+
 SRC_HADDOCK_OPTS += -t "Win32 Libraries ($(PACKAGE) package)"
 
 # _stub.o files are a side-effect from compiling .hs files that
@@ -42,6 +45,17 @@ Graphics/Win32/Dialogue_stub.o : Graphics/Win32/Dialogue.o
 	@:
 Graphics/Win32/Window_stub.o : Graphics/Win32/Window.o
 	@:
+
+ifneq "$(UnicowsDLL)" ""
+INSTALL_LIBEXECS += $(UnicowsDLL)
+
+endif
+
+ifeq "$(HaveUnicows)" "YES"
+ifneq "$(LibUnicowsDir)" ""
+INSTALL_LIBS  += $(LibUnicowsDir)/libunicows.a
+endif
+endif
 
 # -----------------------------------------------------------------------------
 
