@@ -48,9 +48,9 @@ if test "$fp_unicows_found" != "yes"; then
    echo "      copies of the unicows stub library (for mingw32) together with Mozilla's"
    echo "      opencow.dll (renamed as unicows.dll in its bin/ directory). This is with"
    echo "      ghc-6.6.1 and later."
-   AC_DEFINE(UNICOWSLIB,unicows,[Name of unicows import library])
    HaveUnicows=NO
 else
+   AC_DEFINE(UNICOWSLIB,unicows,[Name of unicows import library])
    HaveUnicows=YES
 fi
 AC_SUBST(HaveUnicows)
