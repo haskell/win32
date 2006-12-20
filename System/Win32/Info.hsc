@@ -104,10 +104,10 @@ try loc f n = do
 	Left n    -> try loc f n   
 	Right str -> return str
 
-foreign import ccall unsafe "GetWindowsDirectoryW"
+foreign import stdcall unsafe "GetWindowsDirectoryW"
   c_getWindowsDirectory :: LPTSTR -> UINT -> IO UINT
 
-foreign import ccall unsafe "GetSystemDirectoryW"
+foreign import stdcall unsafe "GetSystemDirectoryW"
   c_getSystemDirectory :: LPTSTR -> UINT -> IO UINT
 
 ----------------------------------------------------------------
