@@ -13,3 +13,7 @@ void CloseHandleFinaliser(HANDLE h) {
 void FreeLibraryFinaliser(HMODULE m) {
     FreeLibrary(m);
 }
+
+void DeleteObjectFinalizer(HGDIOBJ h) {
+    DeleteObject(h);
+}

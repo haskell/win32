@@ -42,4 +42,6 @@ void CloseHandleFinaliser(HANDLE);
 
 void FreeLibraryFinaliser(HMODULE);
 
+void DeleteObjectFinaliser(HGDIOBJ);
+
 #endif /* __HSWIN32_H */
