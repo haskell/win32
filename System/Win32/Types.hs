@@ -126,7 +126,7 @@ type   HANDLE      = Ptr ()
 type   ForeignHANDLE = ForeignPtr ()
 
 newForeignHANDLE :: HANDLE -> IO ForeignHANDLE
-newForeignHANDLE = newForeignPtr deleteObjectFinalizer
+newForeignHANDLE = newForeignPtr deleteObjectFinaliser
 
 handleToWord :: HANDLE -> UINT
 handleToWord = castPtrToUINT
@@ -217,8 +217,8 @@ dwordsToDdword (hi,low) = (fromIntegral low) .|. (fromIntegral hi `shiftL`bitSiz
 ----------------------------------------------------------------
 
 {-# CFILES cbits/HsWin32.c #-}
-foreign import ccall "HsWin32.h &DeleteObjectFinalizer"
-  deleteObjectFinalizer :: FunPtr (Ptr a -> IO ())
+foreign import ccall "HsWin32.h &DeleteObjectFinaliser"
+  deleteObjectFinaliser :: FunPtr (Ptr a -> IO ())
 
 foreign import stdcall unsafe "windows.h LocalFree"
   localFree :: Ptr a -> IO (Ptr a)

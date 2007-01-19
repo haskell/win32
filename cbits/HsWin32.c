@@ -14,6 +14,6 @@ void FreeLibraryFinaliser(HMODULE m) {
     FreeLibrary(m);
 }
 
-void DeleteObjectFinalizer(HGDIOBJ h) {
+void DeleteObjectFinaliser(HGDIOBJ h) {
     DeleteObject(h);
 }
