@@ -4,6 +4,11 @@ AC_INIT([Haskell Win32 package], [1.1], [libraries@haskell.org], [Win32])
 AC_CONFIG_SRCDIR([include/HsWin32.h])
 AC_CONFIG_HEADERS([include/HsWin32Config.h])
 
+AC_ARG_WITH([cc],
+	    [C compiler],
+	    [CC=$withval])
+AC_PROG_CC()
+
 AC_ARG_WITH([unicows-dll],
 [AC_HELP_STRING([--with-unicows-dll=ARG],
                 [Use ARG as the path to your local unicows DLL [default=autodetect]])],
