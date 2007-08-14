@@ -7,7 +7,7 @@ copyright:	Alastair Reid, 1999-2003
 maintainer:	Esa Ilari Vuokko <ei@vuokko.info>
 category:	System, Graphics
 synopsis:	A binding to part of the Win32 library
-build-depends:	base
+build-depends:	base, bytestring
 ghc-options:    -O -fvia-C -Wall -fno-warn-name-shadowing
 exposed-modules:
 	Graphics.Win32.GDI,
