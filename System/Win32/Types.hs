@@ -32,6 +32,7 @@ import Numeric (showHex)
 
 type BOOL          = Bool
 type BYTE          = Word8
+type UCHAR         = CUChar
 type USHORT        = Word16
 type UINT          = Word32
 type INT           = Int32
@@ -64,7 +65,10 @@ type MbATOM        = Maybe ATOM
 type Addr          = Ptr ()
 
 type LPVOID        = Ptr ()
+type LPBOOL        = Ptr BOOL
 type LPBYTE        = Ptr BYTE
+type PUCHAR        = Ptr UCHAR
+type LPDWORD       = Ptr DWORD
 type LPSTR         = Ptr CChar
 type LPCSTR        = LPSTR
 type LPWSTR        = Ptr CWchar

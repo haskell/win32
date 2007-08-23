@@ -23,6 +23,7 @@ module System.Win32
 	, module System.Win32.Registry
 	, module System.Win32.Time
 	, module System.Win32.Console
+	, module System.Win32.Security
 	, module System.Win32.Types
 	) where
 

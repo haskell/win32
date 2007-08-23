@@ -45,6 +45,7 @@ exposed-modules:
 	System.Win32.SimpleMAPI,
 	System.Win32.Time,
 	System.Win32.Console,
+	System.Win32.Security,
 	System.Win32.Types
 extensions: ForeignFunctionInterface
 extra-libraries:
