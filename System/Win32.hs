@@ -41,6 +41,7 @@ import System.Win32.Registry
 import System.Win32.Time
 import System.Win32.Console
 import System.Win32.Types
+import System.Win32.Security
 
 ----------------------------------------------------------------
 -- End
