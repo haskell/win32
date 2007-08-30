@@ -20,10 +20,11 @@ import System.Win32.Mem
 import System.Win32.File
 import System.Win32.Info
 
-import Control.Exception    ( block, bracket )
-import Data.ByteString.Base ( ByteString(..) )
-import Foreign              ( Ptr, nullPtr, plusPtr, maybeWith, FunPtr
-                            , ForeignPtr, newForeignPtr )
+import Control.Exception        ( block, bracket )
+import Data.ByteString          ( ByteString )
+import Data.ByteString.Internal ( fromForeignPtr )
+import Foreign                  ( Ptr, nullPtr, plusPtr, maybeWith, FunPtr
+                                , ForeignPtr, newForeignPtr )
 
 #include "windows.h"
 
@@ -52,7 +53,7 @@ mapFile path = do
 mapFileBs :: FilePath -> IO ByteString
 mapFileBs p = do
     (fp,i) <- mapFile p
-    return $ PS fp 0 i
+    return $ fromForeignPtr fp 0 i
 
 data MappedObject = MappedObject HANDLE HANDLE FileMapAccess
 
