@@ -86,11 +86,11 @@ arcTo dc left top right bottom x1 y1 x2 y2 =
 foreign import stdcall unsafe "windows.h ArcTo"
   c_ArcTo :: HDC -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> Int32 -> IO Bool
 
-angleArc :: HDC -> Int32 -> Int32 -> WORD -> Double -> Double -> IO ()
+angleArc :: HDC -> Int32 -> Int32 -> WORD -> Float -> Float -> IO ()
 angleArc dc x y r start sweep =
   failIfFalse_ "AngleArc" $ c_AngleArc dc x y r start sweep
 foreign import stdcall unsafe "windows.h AngleArc"
-  c_AngleArc :: HDC -> Int32 -> Int32 -> WORD -> Double -> Double -> IO Bool
+  c_AngleArc :: HDC -> Int32 -> Int32 -> WORD -> Float -> Float -> IO Bool
 
 ----------------------------------------------------------------
 -- Filled Shapes
