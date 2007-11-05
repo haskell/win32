@@ -8,6 +8,9 @@ maintainer:	Esa Ilari Vuokko <ei@vuokko.info>
 category:	System, Graphics
 synopsis:	A binding to part of the Win32 library
 build-type: Configure
+extra-source-files:
+	include/diatemp.h include/dumpBMP.h include/ellipse.h include/errors.h
+	include/gettime.h include/Win32Aux.h include/win32debug.h
 build-depends:	base, bytestring
 ghc-options:    -O -fvia-C -Wall -fno-warn-name-shadowing
 exposed-modules:
