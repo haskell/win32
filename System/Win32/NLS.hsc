@@ -24,6 +24,7 @@ module System.Win32.NLS  (
 import System.Win32.Types
 
 import Foreign
+import Foreign.C
 
 #include <windows.h>
 #include "errors.h"
@@ -336,3 +337,40 @@ foreign import stdcall unsafe "windows.h GetOEMCP"
  }
 
 -- , SUBLANG_LITHUANIAN_CLASSIC (not in mingw-20001111)
+
+-- ----------------------------------------------------------------------------
+
+-- | The `System.IO` input functions (e.g. `getLine`) don't
+-- automatically convert to Unicode, so this function is provided to
+-- make the conversion from a multibyte string in the given code page 
+-- to a proper Unicode string.  To get the code page for the console,
+-- use `getConsoleCP`.
+
+stringToUnicode :: CodePage -> String -> IO String
+stringToUnicode cp mbstr =
+  withCStringLen mbstr $ \(cstr,len) -> do
+    wchars <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar 
+                cp
+                0
+                cstr
+                (fromIntegral len)
+                nullPtr 0
+    -- wchars is the length of buffer required
+    allocaArray (fromIntegral wchars) $ \cwstr -> do
+      wchars <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar 
+                cp
+                0
+                cstr
+                (fromIntegral len)
+                cwstr wchars
+      peekCWStringLen (cwstr,fromIntegral wchars)  -- converts UTF-16 to [Char]
+
+foreign import stdcall unsafe "MultiByteToWideChar"
+  multiByteToWideChar
+        :: CodePage
+        -> DWORD   -- dwFlags,
+        -> LPCSTR  -- lpMultiByteStr
+        -> CInt    -- cbMultiByte
+        -> LPWSTR  -- lpWideCharStr
+        -> CInt    -- cchWideChar
+        -> IO CInt
