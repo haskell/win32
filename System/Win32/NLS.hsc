@@ -347,7 +347,7 @@ foreign import stdcall unsafe "windows.h GetOEMCP"
 -- use `getConsoleCP`.
 
 stringToUnicode :: CodePage -> String -> IO String
-stringToUnicode cp "" = return ""
+stringToUnicode _cp "" = return ""
      -- MultiByteToWideChar doesn't handle empty strings (#1929)
 stringToUnicode cp mbstr =
   withCStringLen mbstr $ \(cstr,len) -> do
