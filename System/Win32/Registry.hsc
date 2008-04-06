@@ -162,11 +162,16 @@ regDeleteValue key name =
 foreign import stdcall unsafe "windows.h RegDeleteValueW"
   c_RegDeleteValue :: PKEY -> LPCTSTR -> IO ErrCode
 
+-- XXX Not 100% sure this is right, but I think it is.
+-- Surely this function already exists somewhere?
+mallocWideChars :: Int -> IO (Ptr a)
+mallocWideChars i = mallocBytes (4 * i)
+
 regEnumKeys :: HKEY -> IO [String]
 regEnumKeys hkey = do
    hinfo <- regQueryInfoKey hkey
    let buflen = 1+max_subkey_len hinfo
-   buf   <- mallocBytes (fromIntegral buflen)
+   buf   <- mallocWideChars (fromIntegral buflen)
    ls    <- go 0 buf buflen
    free buf
    return ls
@@ -184,8 +189,8 @@ regEnumKeyVals hkey = do
    hinfo <- regQueryInfoKey hkey
    let nmlen  = 1+max_value_name_len hinfo  -- add spc for terminating NUL.
    let vallen = 1+max_value_len hinfo
-   nmbuf  <- mallocBytes (fromIntegral nmlen)
-   valbuf <- mallocBytes (fromIntegral vallen)
+   nmbuf  <- mallocWideChars (fromIntegral nmlen)
+   valbuf <- mallocWideChars (fromIntegral vallen)
    ls     <- go 0 nmbuf nmlen valbuf vallen
    free nmbuf
    free valbuf
