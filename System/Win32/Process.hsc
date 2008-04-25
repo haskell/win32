@@ -103,11 +103,8 @@ peekProcessEntry32 buf = liftM5 (,,,,)
 -- | Enumerate processes using Process32First and Process32Next
 th32SnapEnumProcesses :: Th32SnapHandle -> IO [ProcessEntry32]
 th32SnapEnumProcesses h = allocaBytes (#size PROCESSENTRY32) $ \pe -> do
-    putStrLn "1"
     (#poke PROCESSENTRY32, dwSize) pe ((#size PROCESSENTRY32)::DWORD)
-    putStrLn "2"
     ok <- c_Process32First h pe
-    putStrLn "3"
     readAndNext ok pe []
     where
         readAndNext ok pe res
@@ -118,7 +115,6 @@ th32SnapEnumProcesses h = allocaBytes (#size PROCESSENTRY32) $ \pe -> do
                     then return $ reverse res
                     else failWith "th32SnapEnumProcesses: Process32First/Process32Next" err
             | otherwise = do
-                putStrLn "reading"
                 entry <- peekProcessEntry32 pe
                 ok' <- c_Process32Next h pe
                 readAndNext ok' pe (entry:res)
