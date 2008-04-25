@@ -110,8 +110,7 @@ th32SnapEnumProcesses h = allocaBytes (#size PROCESSENTRY32) $ \pe -> do
         readAndNext ok pe res
             | not ok    = do
                 err <- getLastError
-                print err
-                if err==(#const ERROR_NO_MORE_FILES)
+                if err == (#const ERROR_NO_MORE_FILES)
                     then return $ reverse res
                     else failWith "th32SnapEnumProcesses: Process32First/Process32Next" err
             | otherwise = do
