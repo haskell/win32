@@ -87,7 +87,7 @@ withWNDCLASS (style, inst, mb_icon, mb_cursor, mb_bg, mb_menu, cls) f =
   #{poke WNDCLASS,lpszClassName} p cls
   f p
 
-foreign import ccall unsafe "WndProc.h &genericWndProc"
+foreign import stdcall unsafe "WndProc.h &genericWndProc"
   genericWndProc_p :: FunPtr WindowClosure
 
 {-# CFILES cbits/WndProc.c #-}
