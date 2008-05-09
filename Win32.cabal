@@ -12,7 +12,7 @@ extra-source-files:
 	include/diatemp.h include/dumpBMP.h include/ellipse.h include/errors.h
 	include/gettime.h include/Win32Aux.h include/win32debug.h
 build-depends:	base, bytestring
-ghc-options:    -O -fvia-C -Wall -fno-warn-name-shadowing
+ghc-options:    -Wall -fno-warn-name-shadowing
 exposed-modules:
 	Graphics.Win32.GDI,
 	Graphics.Win32.GDI.Bitmap,
