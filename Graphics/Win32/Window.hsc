@@ -176,7 +176,7 @@ maybePos = fromMaybe cW_USEDEFAULT
 
 type WindowClosure = HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
-foreign import ccall "wrapper"
+foreign import stdcall "wrapper"
   mkWindowClosure :: WindowClosure -> IO (FunPtr WindowClosure)
 
 setWindowClosure :: HWND -> WindowClosure -> IO ()
