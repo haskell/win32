@@ -39,4 +39,8 @@ INLINE HWND prim_ChildWindowFromPointEx(HWND parent, LPPOINT p_pt, UINT flags) {
   return ChildWindowFromPointEx(parent, *p_pt, flags);
 }
 
+INLINE INT SelectObjectInt(HANDLE h) {
+    return DeleteObject(h);
+}
+
 #endif /* __HSGDI_H */
