@@ -13,7 +13,8 @@
 -----------------------------------------------------------------------------
 module System.Win32.SimpleMAPI
 where
-import Control.Exception    ( bracket, handle, throw, finally )
+import Control.Exception    ( bracket, handle, throw, finally, onException
+                            , IOException )
 import Control.Monad        ( liftM5 )
 import Foreign              ( FunPtr, newForeignPtr, pokeByteOff, maybeWith
                             , Ptr, castPtr, castPtrToFunPtr, nullPtr
@@ -147,9 +148,9 @@ loadMapiFuncs dllname dll =  liftM5 MapiFuncs
 loadMapiDll :: String -> IO (MapiFuncs, HMODULE)
 loadMapiDll dllname = do
     dll <- loadLibrary dllname
-    handle (\e -> freeLibrary dll >> throw e) $ do
-        funcs <- loadMapiFuncs dllname dll
-        return (funcs, dll)
+    do funcs <- loadMapiFuncs dllname dll
+       return (funcs, dll)
+     `onException` freeLibrary dll
 
 -- |
 withMapiFuncs :: [String] -> (MapiFuncs -> IO a) -> IO a
@@ -157,7 +158,7 @@ withMapiFuncs dlls act = bracket load free (act . fst)
     where
         loadOne l = case l of
             []  -> fail $ "withMapiFuncs: Failed to load DLLs: " ++ show dlls
-            x:y -> handle (const $ loadOne y) (loadMapiDll x)
+            x:y -> handleIOException (const $ loadOne y) (loadMapiDll x)
         load = loadOne dlls
         free = freeLibrary . snd
 
@@ -170,7 +171,7 @@ loadMapi dlls = do
     where
         loadOne l = case l of
             []  -> fail $ "loadMapi: Failed to load any of DLLs: " ++ show dlls
-            x:y -> handle (const $ loadOne y) (loadMapiDll x)
+            x:y -> handleIOException (const $ loadOne y) (loadMapiDll x)
 
 -- |
 withMapiLoaded :: MapiLoaded -> (MapiFuncs -> IO a) -> IO a
@@ -387,3 +388,7 @@ withMessage f ses m act =
 mapiSendMail :: MapiFuncs -> LHANDLE -> Maybe HWND -> Message -> MapiFlag -> IO ()
 mapiSendMail f ses hwnd msg flag = withMessage f ses msg $ \msg ->
     mapiFail_ "MAPISendMail" $ mapifSendMail f ses (maybeHWND hwnd) msg flag 0
+
+handleIOException :: (IOException -> IO a) -> IO a -> IO a
+handleIOException = handle
+
