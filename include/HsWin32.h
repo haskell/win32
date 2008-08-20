@@ -1,6 +1,7 @@
 #ifndef __HSWIN32_H
 #define __HSWIN32_H
 
+#define UNICODE
 #include <windows.h>
 
 #ifndef INLINE

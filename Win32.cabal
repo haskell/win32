@@ -65,4 +65,3 @@ c-sources:
 	cbits/dumpBMP.c,
 	cbits/ellipse.c,
 	cbits/errors.c
-cc-options:	-DUNICODE
