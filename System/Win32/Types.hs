@@ -21,6 +21,9 @@ import Data.Maybe
 import Foreign
 import Foreign.C
 import Numeric (showHex)
+import Control.Exception
+import System.IO.Error
+import Data.Char
 
 ----------------------------------------------------------------
 -- Platform specific definitions
@@ -202,7 +205,17 @@ failWith fn_name err_code = do
   c_msg <- getErrorMessage err_code
   msg <- peekTString c_msg
   localFree c_msg
-  fail (fn_name ++ ": " ++ msg ++ " (error code: " ++ showHex err_code ")")
+  c_maperrno -- turn GetLastError() into errno, which errnoToIOError knows
+             -- how to convert to an IOException we can throw.
+             -- XXX we should really do this directly.
+  errno <- getErrno
+  let msg' = reverse $ dropWhile isSpace $ reverse msg -- drop trailing \n
+      ioerror = errnoToIOError fn_name errno Nothing Nothing
+                  `ioeSetErrorString` msg'
+  throw ioerror
+
+foreign import ccall unsafe "maperrno" -- in base/cbits/Win32Utils.c
+   c_maperrno :: IO ()
 
 ----------------------------------------------------------------
 -- Misc helpers
