@@ -1,6 +1,7 @@
 #ifndef __HSGDI_H
 #define __HSGDI_H
 
+#define UNICODE
 #include <windows.h>
 
 #ifndef INLINE

@@ -16,6 +16,7 @@
 *       #include <windows.h>
 *
 \**************************************************************************/
+#define UNICODE
 #include <windows.h>
 #include <stdio.h>
 #include "dumpBMP.h"

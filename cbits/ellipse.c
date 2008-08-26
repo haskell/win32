@@ -1,3 +1,4 @@
+#define UNICODE
 #include <windows.h>
 #include <math.h>
 

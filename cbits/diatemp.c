@@ -10,6 +10,7 @@
  *
  */
 
+#define UNICODE
 #include <windows.h>
 #include <wchar.h>
 #include <stdlib.h>
