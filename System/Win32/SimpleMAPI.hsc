@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------------
 module System.Win32.SimpleMAPI
 where
-import Control.Exception    ( bracket, handle, throw, finally, onException
+import Control.Exception    ( bracket, handle, finally, onException
                             , IOException )
 import Control.Monad        ( liftM5 )
 import Foreign              ( FunPtr, newForeignPtr, pokeByteOff, maybeWith

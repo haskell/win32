@@ -20,7 +20,6 @@ module System.Win32.Types
 import Data.Maybe
 import Foreign
 import Foreign.C
-import Numeric (showHex)
 import Control.Exception
 import System.IO.Error
 import Data.Char
