@@ -93,6 +93,9 @@ getSystemDirectory = try "GetSystemDirectory" c_getSystemDirectory 512
 getWindowsDirectory :: IO String
 getWindowsDirectory = try "GetWindowsDirectory" c_getWindowsDirectory 512
 
+getCurrentDirectory :: IO String
+getCurrentDirectory = try "GetCurrentDirectory" (flip c_getCurrentDirectory) 512
+
 try :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String
 try loc f n = do
    e <- allocaArray (fromIntegral n) $ \lptstr -> do
@@ -109,6 +112,9 @@ foreign import stdcall unsafe "GetWindowsDirectoryW"
 
 foreign import stdcall unsafe "GetSystemDirectoryW"
   c_getSystemDirectory :: LPTSTR -> UINT -> IO UINT
+
+foreign import stdcall unsafe "GetCurrentDirectoryW"
+  c_getCurrentDirectory :: DWORD -> LPTSTR -> IO UINT
 
 ----------------------------------------------------------------
 -- System Info (Info about processor and memory subsystem)
