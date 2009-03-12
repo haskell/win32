@@ -95,6 +95,8 @@ getWindowsDirectory = try "GetWindowsDirectory" c_getWindowsDirectory 512
 
 getCurrentDirectory :: IO String
 getCurrentDirectory = try "GetCurrentDirectory" (flip c_getCurrentDirectory) 512
+getTemporaryDirectory :: IO String
+getTemporaryDirectory = try "GetTempPath" (flip c_getTempPath) 512
 
 try :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String
 try loc f n = do
@@ -115,6 +117,9 @@ foreign import stdcall unsafe "GetSystemDirectoryW"
 
 foreign import stdcall unsafe "GetCurrentDirectoryW"
   c_getCurrentDirectory :: DWORD -> LPTSTR -> IO UINT
+
+foreign import stdcall unsafe "GetTempPathW"
+  c_getTempPath :: DWORD -> LPTSTR -> IO UINT
 
 ----------------------------------------------------------------
 -- System Info (Info about processor and memory subsystem)
