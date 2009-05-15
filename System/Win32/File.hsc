@@ -255,7 +255,8 @@ instance Storable BY_HANDLE_FILE_INFORMATION where
 deleteFile :: String -> IO ()
 deleteFile name =
   withTString name $ \ c_name ->
-  failIfFalse_ "DeleteFile" $ c_DeleteFile c_name
+  failIfFalse_ (unwords ["DeleteFile",show name]) $
+    c_DeleteFile c_name
 foreign import stdcall unsafe "windows.h DeleteFileW"
   c_DeleteFile :: LPCTSTR -> IO Bool
 
@@ -263,7 +264,8 @@ copyFile :: String -> String -> Bool -> IO ()
 copyFile src dest over =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
-  failIfFalse_ "CopyFile" $ c_CopyFile c_src c_dest over
+  failIfFalse_ (unwords ["CopyFile",show src,show dest]) $
+    c_CopyFile c_src c_dest over
 foreign import stdcall unsafe "windows.h CopyFileW"
   c_CopyFile :: LPCTSTR -> LPCTSTR -> Bool -> IO Bool
 
@@ -271,7 +273,8 @@ moveFile :: String -> String -> IO ()
 moveFile src dest =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
-  failIfFalse_ "MoveFile" $ c_MoveFile c_src c_dest
+  failIfFalse_ (unwords ["MoveFile",show src,show dest]) $
+    c_MoveFile c_src c_dest
 foreign import stdcall unsafe "windows.h MoveFileW"
   c_MoveFile :: LPCTSTR -> LPCTSTR -> IO Bool
 
@@ -279,21 +282,24 @@ moveFileEx :: String -> String -> MoveFileFlag -> IO ()
 moveFileEx src dest flags =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
-  failIfFalse_ "MoveFileEx" $ c_MoveFileEx c_src c_dest flags
+  failIfFalse_ (unwords ["MoveFileEx",show src,show dest]) $
+    c_MoveFileEx c_src c_dest flags
 foreign import stdcall unsafe "windows.h MoveFileExW"
   c_MoveFileEx :: LPCTSTR -> LPCTSTR -> MoveFileFlag -> IO Bool
 
 setCurrentDirectory :: String -> IO ()
 setCurrentDirectory name =
   withTString name $ \ c_name ->
-  failIfFalse_ "SetCurrentDirectory" $ c_SetCurrentDirectory c_name
+  failIfFalse_ (unwords ["SetCurrentDirectory",show name]) $
+    c_SetCurrentDirectory c_name
 foreign import stdcall unsafe "windows.h SetCurrentDirectoryW"
   c_SetCurrentDirectory :: LPCTSTR -> IO Bool
 
 createDirectory :: String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
 createDirectory name mb_attr =
   withTString name $ \ c_name ->
-  failIfFalse_ "CreateDirectory" $ c_CreateDirectory c_name (maybePtr mb_attr)
+  failIfFalse_ (unwords ["CreateDirectory",show name]) $
+    c_CreateDirectory c_name (maybePtr mb_attr)
 foreign import stdcall unsafe "windows.h CreateDirectoryW"
   c_CreateDirectory :: LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
 
@@ -301,7 +307,7 @@ createDirectoryEx :: String -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
 createDirectoryEx template name mb_attr =
   withTString template $ \ c_template ->
   withTString name $ \ c_name ->
-  failIfFalse_ "CreateDirectoryEx" $
+  failIfFalse_ (unwords ["CreateDirectoryEx",show template,show name]) $
     c_CreateDirectoryEx c_template c_name (maybePtr mb_attr)
 foreign import stdcall unsafe "windows.h CreateDirectoryExW"
   c_CreateDirectoryEx :: LPCTSTR -> LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
@@ -309,7 +315,8 @@ foreign import stdcall unsafe "windows.h CreateDirectoryExW"
 removeDirectory :: String -> IO ()
 removeDirectory name =
   withTString name $ \ c_name ->
-  failIfFalse_ "RemoveDirectory" $ c_RemoveDirectory c_name
+  failIfFalse_ (unwords ["RemoveDirectory",show name]) $
+    c_RemoveDirectory c_name
 foreign import stdcall unsafe "windows.h RemoveDirectoryW"
   c_RemoveDirectory :: LPCTSTR -> IO Bool
 
@@ -317,7 +324,8 @@ getBinaryType :: String -> IO BinaryType
 getBinaryType name =
   withTString name $ \ c_name ->
   alloca $ \ p_btype -> do
-  failIfFalse_ "GetBinaryType" $ c_GetBinaryType c_name p_btype
+  failIfFalse_ (unwords ["GetBinaryType",show name]) $
+    c_GetBinaryType c_name p_btype
   peek p_btype
 foreign import stdcall unsafe "windows.h GetBinaryTypeW"
   c_GetBinaryType :: LPCTSTR -> Ptr DWORD -> IO Bool
@@ -329,7 +337,7 @@ foreign import stdcall unsafe "windows.h GetBinaryTypeW"
 createFile :: String -> AccessMode -> ShareMode -> Maybe LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> Maybe HANDLE -> IO HANDLE
 createFile name access share mb_attr mode flag mb_h =
   withTString name $ \ c_name ->
-  failIf (==iNVALID_HANDLE_VALUE) "CreateFile" $
+  failIf (==iNVALID_HANDLE_VALUE) (unwords ["CreateFile",show name]) $
     c_CreateFile c_name access share (maybePtr mb_attr) mode flag (maybePtr mb_h)
 foreign import stdcall unsafe "windows.h CreateFileW"
   c_CreateFile :: LPCTSTR -> AccessMode -> ShareMode -> LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> HANDLE -> IO HANDLE
@@ -363,14 +371,16 @@ foreign import stdcall unsafe "windows.h SetEndOfFile"
 setFileAttributes :: String -> FileAttributeOrFlag -> IO ()
 setFileAttributes name attr =
   withTString name $ \ c_name ->
-  failIfFalse_ "SetFileAttributes" $ c_SetFileAttributes c_name attr
+  failIfFalse_ (unwords ["SetFileAttributes",show name])
+    $ c_SetFileAttributes c_name attr
 foreign import stdcall unsafe "windows.h SetFileAttributesW"
   c_SetFileAttributes :: LPCTSTR -> FileAttributeOrFlag -> IO Bool
 
 getFileAttributes :: String -> IO FileAttributeOrFlag
 getFileAttributes name =
   withTString name $ \ c_name ->
-  failIf (== 0xFFFFFFFF) "GetFileAttributes" $ c_GetFileAttributes c_name
+  failIf (== 0xFFFFFFFF) (unwords ["GetFileAttributes",show name]) $
+    c_GetFileAttributes c_name
 foreign import stdcall unsafe "windows.h GetFileAttributesW"
   c_GetFileAttributes :: LPCTSTR -> IO FileAttributeOrFlag
 
@@ -428,7 +438,7 @@ foreign import stdcall unsafe "windows.h WriteFile"
 findFirstChangeNotification :: String -> Bool -> FileNotificationFlag -> IO HANDLE
 findFirstChangeNotification path watch flag =
   withTString path $ \ c_path ->
-  failIfNull "FindFirstChangeNotification" $
+  failIfNull (unwords ["FindFirstChangeNotification",show path]) $
     c_FindFirstChangeNotification c_path watch flag
 foreign import stdcall unsafe "windows.h FindFirstChangeNotificationW"
   c_FindFirstChangeNotification :: LPCTSTR -> Bool -> FileNotificationFlag -> IO HANDLE
