@@ -57,7 +57,7 @@ Library
         System.Win32.Types
     extensions: ForeignFunctionInterface
     extra-libraries:
-        "user32", "gdi32", "winmm", "kernel32", "advapi32"
+        "user32", "gdi32", "winmm", "advapi32"
     include-dirs: 	include
     includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
     install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
