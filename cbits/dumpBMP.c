@@ -162,7 +162,8 @@ void CreateBMPFile(LPCSTR pszFileName, HBITMAP hBmp, HDC hDC)
     // Assume that the hDC is the DC where the bitmap would have been selected
     // if indeed it has been selected
     //
-    if (hTmpBmp = CreateCompatibleBitmap(hDC, pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight)) {
+    hTmpBmp = CreateCompatibleBitmap(hDC, pbmi->bmiHeader.biWidth, pbmi->bmiHeader.biHeight);
+    if (hTmpBmp) {
         hBmpOld = SelectObject(hDC, hTmpBmp);
         if ((GetDIBits(hDC, hBmp, 0, pbmi->bmiHeader.biHeight, (LPSTR)pBits, pbmi, DIB_RGB_COLORS))==0){
             fprintf(stderr, "Failed in GetDIBits!");
