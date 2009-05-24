@@ -17,6 +17,7 @@ extra-source-files:
 Library
     build-depends:	base, bytestring
     ghc-options:    -Wall -fno-warn-name-shadowing
+    cc-options:     -fno-strict-aliasing
     exposed-modules:
         Graphics.Win32.GDI
         Graphics.Win32.GDI.Bitmap
