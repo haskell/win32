@@ -98,6 +98,12 @@ getCurrentDirectory = try "GetCurrentDirectory" (flip c_getCurrentDirectory) 512
 getTemporaryDirectory :: IO String
 getTemporaryDirectory = try "GetTempPath" (flip c_getTempPath) 512
 
+getFullPathName :: FilePath -> IO FilePath
+getFullPathName name = do
+  withTString name $ \ c_name ->
+    try "getFullPathName"
+      (\buf len -> c_GetFullPathName c_name len buf nullPtr) 512
+
 try :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String
 try loc f n = do
    e <- allocaArray (fromIntegral n) $ \lptstr -> do
@@ -120,6 +126,9 @@ foreign import stdcall unsafe "GetCurrentDirectoryW"
 
 foreign import stdcall unsafe "GetTempPathW"
   c_getTempPath :: DWORD -> LPTSTR -> IO UINT
+
+foreign import stdcall unsafe "GetFullPathNameW"
+  c_GetFullPathName :: LPCTSTR -> DWORD -> LPTSTR -> Ptr LPTSTR -> IO DWORD
 
 ----------------------------------------------------------------
 -- System Info (Info about processor and memory subsystem)
