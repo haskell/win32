@@ -446,6 +446,49 @@ foreign import stdcall unsafe "windows.h FindCloseChangeNotification"
   c_FindCloseChangeNotification :: HANDLE -> IO Bool
 
 ----------------------------------------------------------------
+-- Directories
+----------------------------------------------------------------
+
+type WIN32_FIND_DATA = ()
+
+newtype FindData = FindData (ForeignPtr WIN32_FIND_DATA)
+
+getFindDataFileName :: FindData -> IO FilePath
+getFindDataFileName (FindData fp) = 
+  withForeignPtr fp $ \p -> 
+    peekTString ((# ptr WIN32_FIND_DATA, cFileName ) p)
+
+findFirstFile :: String -> IO (HANDLE, FindData)
+findFirstFile str = do
+  fp_finddata <- mallocForeignPtrBytes (# const sizeof(WIN32_FIND_DATA) )
+  withForeignPtr fp_finddata $ \p_finddata -> do
+    handle <- withTString str $ \tstr -> do
+                failIf (== iNVALID_HANDLE_VALUE) "findFirstFile" $ 
+                  c_FindFirstFile tstr p_finddata
+    return (handle, FindData fp_finddata)
+foreign import stdcall unsafe "windows.h FindFirstFileW"
+  c_FindFirstFile :: LPCTSTR -> Ptr WIN32_FIND_DATA -> IO HANDLE
+
+findNextFile :: HANDLE -> FindData -> IO Bool -- False -> no more files
+findNextFile h (FindData finddata) = do
+  withForeignPtr finddata $ \p_finddata -> do
+    b <- c_FindNextFile h p_finddata
+    if b
+       then return True
+       else do
+             err_code <- getLastError
+             if err_code == (# const ERROR_NO_MORE_FILES )
+                then return False
+                else failWith "findNextFile" err_code
+foreign import stdcall unsafe "windows.h FindNextFileW"
+  c_FindNextFile :: HANDLE -> Ptr WIN32_FIND_DATA -> IO BOOL
+
+findClose :: HANDLE -> IO ()
+findClose h = failIfFalse_ "findClose" $ c_FindClose h
+foreign import stdcall unsafe "windows.h FindClose"
+  c_FindClose :: HANDLE -> IO BOOL
+
+----------------------------------------------------------------
 -- DOS Device flags
 ----------------------------------------------------------------
 
