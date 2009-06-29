@@ -16,6 +16,7 @@ module System.Win32.Info where
 
 import System.Win32.Types
 
+import System.IO.Error hiding (try)
 import Foreign      ( Storable(sizeOf, alignment, peekByteOff, pokeByteOff,
                                peek, poke)
                     , Ptr, alloca, allocaArray )
@@ -104,6 +105,22 @@ getFullPathName name = do
     try "getFullPathName"
       (\buf len -> c_GetFullPathName c_name len buf nullPtr) 512
 
+searchPath :: Maybe String -> FilePath -> String -> IO (Maybe FilePath)
+searchPath path filename ext =
+  maybe ($ nullPtr) withTString path $ \p_path ->
+  withTString filename $ \p_filename ->
+  withTString ext      $ \p_ext ->
+  alloca $ \ppFilePart -> (do
+    s <- try "searchPath" (\buf len -> c_SearchPath p_path p_filename p_ext
+                          len buf ppFilePart) 512
+    return (Just s))
+     `catch` \e -> if isDoesNotExistError e
+                       then return Nothing
+                       else ioError e
+
+-- Support for API calls that are passed a fixed-size buffer and tell
+-- you via the return value if the buffer was too small.  In that
+-- case, we double the buffer size and try again.
 try :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String
 try loc f n = do
    e <- allocaArray (fromIntegral n) $ \lptstr -> do
@@ -129,6 +146,10 @@ foreign import stdcall unsafe "GetTempPathW"
 
 foreign import stdcall unsafe "GetFullPathNameW"
   c_GetFullPathName :: LPCTSTR -> DWORD -> LPTSTR -> Ptr LPTSTR -> IO DWORD
+
+foreign import stdcall unsafe "SearchPathW"
+  c_SearchPath :: LPCTSTR -> LPCTSTR -> LPCTSTR -> DWORD -> LPTSTR -> Ptr LPTSTR
+               -> IO DWORD
 
 ----------------------------------------------------------------
 -- System Info (Info about processor and memory subsystem)

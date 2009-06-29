@@ -56,9 +56,10 @@ Library
         System.Win32.Console
         System.Win32.Security
         System.Win32.Types
+        System.Win32.Shell
     extensions: ForeignFunctionInterface
     extra-libraries:
-        "user32", "gdi32", "winmm", "advapi32"
+        "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder"
     include-dirs: 	include
     includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
     install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"

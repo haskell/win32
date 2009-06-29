@@ -25,6 +25,7 @@ module System.Win32
 	, module System.Win32.Console
 	, module System.Win32.Security
 	, module System.Win32.Types
+	, module System.Win32.Shell
 	) where
 
 import System.Win32.DLL
@@ -42,6 +43,7 @@ import System.Win32.Time
 import System.Win32.Console
 import System.Win32.Types
 import System.Win32.Security
+import System.Win32.Shell
 
 ----------------------------------------------------------------
 -- End
