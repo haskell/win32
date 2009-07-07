@@ -17,7 +17,6 @@ module Graphics.Win32.GDI.Graphics2D
 
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
-import Graphics.Win32.GDI.Bitmap
 
 import Foreign
 
