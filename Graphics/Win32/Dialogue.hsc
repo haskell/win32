@@ -179,7 +179,7 @@ addControl dtemp (DialogControl x y cx cy mb_text mb_class
 				dia_id) = do
    prim_text  <- marshall_res mb_text
    prim_class <- marshall_res mb_class
-   addDiaControl dtemp prim_text dia_id prim_class style
+   _ <- addDiaControl dtemp prim_text dia_id prim_class style
   		 x y cx cy exstyle
    return ()
 
@@ -255,7 +255,7 @@ foreign import stdcall "windows.h GetDlgItemInt"
 getDlgItemText :: HWND -> Int -> Int -> IO String
 getDlgItemText dlg item size =
   allocaArray size $ \ p_buf -> do
-  failIfZero "GetDlgItemInt" $ c_GetDlgItemText dlg item p_buf size
+  _ <- failIfZero "GetDlgItemInt" $ c_GetDlgItemText dlg item p_buf size
   peekTString p_buf
 foreign import stdcall "windows.h GetDlgItemTextW"
   c_GetDlgItemText :: HWND -> Int -> LPTSTR -> Int -> IO Int

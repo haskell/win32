@@ -205,7 +205,8 @@ failWith :: String -> ErrCode -> IO a
 failWith fn_name err_code = do
   c_msg <- getErrorMessage err_code
   msg <- peekTString c_msg
-  localFree c_msg
+  -- We ignore failure of freeing c_msg, given we're already failing
+  _ <- localFree c_msg
   c_maperrno -- turn GetLastError() into errno, which errnoToIOError knows
              -- how to convert to an IOException we can throw.
              -- XXX we should really do this directly.

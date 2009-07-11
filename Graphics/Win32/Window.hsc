@@ -182,7 +182,7 @@ foreign import stdcall "wrapper"
 setWindowClosure :: HWND -> WindowClosure -> IO ()
 setWindowClosure wnd closure = do
   fp <- mkWindowClosure closure
-  c_SetWindowLong wnd (#{const GWL_USERDATA}) (castFunPtrToLONG fp)
+  _ <- c_SetWindowLong wnd (#{const GWL_USERDATA}) (castFunPtrToLONG fp)
   return ()
 foreign import stdcall unsafe "windows.h SetWindowLongW"
   c_SetWindowLong :: HWND -> INT -> LONG -> IO LONG
@@ -648,9 +648,8 @@ foreign import stdcall "windows.h GetMessageW"
 
 peekMessage :: LPMSG -> Maybe HWND -> UINT -> UINT -> UINT -> IO ()
 peekMessage msg mb_wnd filterMin filterMax remove = do
-  failIf (== -1) "PeekMessage" $
+  failIf_ (== -1) "PeekMessage" $
     c_PeekMessage msg (maybePtr mb_wnd) filterMin filterMax remove
-  return ()
 foreign import stdcall "windows.h PeekMessageW"
   c_PeekMessage :: LPMSG -> HWND -> UINT -> UINT -> UINT -> IO LONG
 

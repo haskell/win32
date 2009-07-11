@@ -155,7 +155,7 @@ foreign import stdcall "windows.h GetSystemTimeAdjustment"
     c_GetSystemTimeAdjustment :: Ptr DWORD -> Ptr DWORD -> Ptr BOOL -> IO BOOL
 getSystemTimeAdjustment :: IO (Maybe (Int, Int))
 getSystemTimeAdjustment = alloca $ \ta -> alloca $ \ti -> alloca $ \enabled -> do
-    failIf not "getSystemTimeAdjustment: GetSystemTimeAdjustment" $
+    failIf_ not "getSystemTimeAdjustment: GetSystemTimeAdjustment" $
         c_GetSystemTimeAdjustment ta ti enabled
     enabled <- peek enabled
     if enabled
@@ -195,7 +195,7 @@ foreign import stdcall "windows.h SystemTimeToFileTime"
     c_SystemTimeToFileTime :: Ptr SYSTEMTIME -> Ptr FILETIME -> IO BOOL
 systemTimeToFileTime :: SYSTEMTIME -> IO FILETIME
 systemTimeToFileTime s = with s $ \s -> alloca $ \ret -> do
-    failIf not "systemTimeToFileTime: SystemTimeToFileTime" $
+    failIf_ not "systemTimeToFileTime: SystemTimeToFileTime" $
         c_SystemTimeToFileTime s ret
     peek ret
 
@@ -203,7 +203,7 @@ foreign import stdcall "windows.h FileTimeToSystemTime"
     c_FileTimeToSystemTime :: Ptr FILETIME -> Ptr SYSTEMTIME -> IO BOOL
 fileTimeToSystemTime :: FILETIME -> IO SYSTEMTIME
 fileTimeToSystemTime s = with s $ \s -> alloca $ \ret -> do
-    failIf not "fileTimeToSystemTime: FileTimeToSystemTime" $
+    failIf_ not "fileTimeToSystemTime: FileTimeToSystemTime" $
         c_FileTimeToSystemTime s ret
     peek ret
 
@@ -211,21 +211,20 @@ foreign import stdcall "windows.h GetFileTime"
     c_GetFileTime :: HANDLE -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 getFileTime :: HANDLE -> IO (FILETIME,FILETIME,FILETIME)
 getFileTime h = alloca $ \crt -> alloca $ \acc -> alloca $ \wrt -> do
-    failIf not "getFileTime: GetFileTime" $ c_GetFileTime h crt acc wrt
+    failIf_ not "getFileTime: GetFileTime" $ c_GetFileTime h crt acc wrt
     liftM3 (,,) (peek crt) (peek acc) (peek wrt)
 
 foreign import stdcall "windows.h SetFileTime"
     c_SetFileTime :: HANDLE -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 setFileTime :: HANDLE -> FILETIME -> FILETIME -> FILETIME -> IO ()
 setFileTime h crt acc wrt = with crt $ \crt -> with acc $ \acc -> with wrt $ \wrt -> do
-    failIf not "setFileTime: SetFileTime" $ c_SetFileTime h crt acc wrt
-    return ()
+    failIf_ not "setFileTime: SetFileTime" $ c_SetFileTime h crt acc wrt
 
 foreign import stdcall "windows.h FileTimeToLocalFileTime"
     c_FileTimeToLocalFileTime :: Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 fileTimeToLocalFileTime :: FILETIME -> IO FILETIME
 fileTimeToLocalFileTime ft = with ft $ \ft -> alloca $ \res -> do
-    failIf not "fileTimeToLocalFileTime: FileTimeToLocalFileTime"
+    failIf_ not "fileTimeToLocalFileTime: FileTimeToLocalFileTime"
         $ c_FileTimeToLocalFileTime ft res
     peek res
 
@@ -233,7 +232,7 @@ foreign import stdcall "windows.h LocalFileTimeToFileTime"
     c_LocalFileTimeToFileTime :: Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 localFileTimeToFileTime :: FILETIME -> IO FILETIME
 localFileTimeToFileTime ft = with ft $ \ft -> alloca $ \res -> do
-    failIf not "localFileTimeToFileTime: LocalFileTimeToFileTime"
+    failIf_ not "localFileTimeToFileTime: LocalFileTimeToFileTime"
         $ c_LocalFileTimeToFileTime ft res
     peek res
 
@@ -270,7 +269,7 @@ foreign import stdcall "windows.h QueryPerformanceFrequency"
     c_QueryPerformanceFrequency :: Ptr LARGE_INTEGER -> IO BOOL
 queryPerformanceFrequency :: IO Integer
 queryPerformanceFrequency = alloca $ \res -> do
-    failIf not "queryPerformanceFrequency: QueryPerformanceFrequency" $
+    failIf_ not "queryPerformanceFrequency: QueryPerformanceFrequency" $
         c_QueryPerformanceFrequency res
     liftM fromIntegral $ peek res
 
@@ -278,7 +277,7 @@ foreign import stdcall "windows.h QueryPerformanceCounter"
     c_QueryPerformanceCounter:: Ptr LARGE_INTEGER -> IO BOOL
 queryPerformanceCounter:: IO Integer
 queryPerformanceCounter= alloca $ \res -> do
-    failIf not "queryPerformanceCounter: QueryPerformanceCounter" $
+    failIf_ not "queryPerformanceCounter: QueryPerformanceCounter" $
         c_QueryPerformanceCounter res
     liftM fromIntegral $ peek res
 

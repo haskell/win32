@@ -192,7 +192,7 @@ mapiLogon f hwnd ses pw flags =
     maybeWith withCString ses   $ \ses  ->
     maybeWith withCString pw    $ \pw   ->
     alloca                      $ \out  -> do
-        mapiFail "MAPILogon: " $ mapifLogon
+        mapiFail_ "MAPILogon: " $ mapifLogon
             f (maybeHWND hwnd) 
             ses pw flags 0 out
         peek out
@@ -259,7 +259,7 @@ withRecipient f ses rcls rec act = resolve "" rec
                                 then do
                                     buf <- peek res
                                     v <- a buf
-                                    mapifFreeBuffer f $ castPtr buf
+                                    _ <- mapifFreeBuffer f $ castPtr buf
                                     return $ Right v
                                 else return $ Left
                                     $ err ++ ", "

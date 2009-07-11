@@ -121,7 +121,7 @@ lCMapString :: LCID -> LCMapFlags -> String -> Int -> IO String
 lCMapString locale flags src dest_size =
   withTStringLen src $ \ (c_src, src_len) ->
   allocaArray dest_size $ \ c_dest -> do
-  failIfZero "LCMapString" $
+  _ <- failIfZero "LCMapString" $
     c_LCMapString locale flags c_src src_len c_dest dest_size
   peekTString c_dest
 foreign import stdcall unsafe "windows.h LCMapStringW"
