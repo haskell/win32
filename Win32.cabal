@@ -15,7 +15,7 @@ extra-source-files:
 	include/gettime.h include/Win32Aux.h include/win32debug.h
 
 Library
-    build-depends:	base, bytestring
+    build-depends:	base >= 3 && < 5, bytestring
     ghc-options:    -Wall -fno-warn-name-shadowing
     cc-options:     -fno-strict-aliasing
     exposed-modules:
