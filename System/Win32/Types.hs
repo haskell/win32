@@ -23,6 +23,7 @@ import Foreign.C
 import Control.Exception
 import System.IO.Error
 import Data.Char
+import Numeric (showHex)
 
 ----------------------------------------------------------------
 -- Platform specific definitions
@@ -204,9 +205,12 @@ errorWin fn_name = do
 failWith :: String -> ErrCode -> IO a
 failWith fn_name err_code = do
   c_msg <- getErrorMessage err_code
-  msg <- peekTString c_msg
-  -- We ignore failure of freeing c_msg, given we're already failing
-  _ <- localFree c_msg
+  msg <- if c_msg == nullPtr
+           then return $ "Error 0x" ++ Numeric.showHex err_code ""
+           else do msg <- peekTString c_msg
+                   -- We ignore failure of freeing c_msg, given we're already failing
+                   _ <- localFree c_msg
+                   return msg
   c_maperrno -- turn GetLastError() into errno, which errnoToIOError knows
              -- how to convert to an IOException we can throw.
              -- XXX we should really do this directly.
@@ -215,6 +219,7 @@ failWith fn_name err_code = do
       ioerror = errnoToIOError fn_name errno Nothing Nothing
                   `ioeSetErrorString` msg'
   throw ioerror
+
 
 foreign import ccall unsafe "maperrno" -- in base/cbits/Win32Utils.c
    c_maperrno :: IO ()
