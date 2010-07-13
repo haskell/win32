@@ -20,7 +20,7 @@ import System.Win32.Mem
 import System.Win32.File
 import System.Win32.Info
 
-import Control.Exception        ( block, bracket )
+import Control.Exception        ( mask_, bracket )
 import Data.ByteString          ( ByteString )
 import Data.ByteString.Internal ( fromForeignPtr )
 import Foreign                  ( Ptr, nullPtr, plusPtr, maybeWith, FunPtr
@@ -44,7 +44,7 @@ mapFile path = do
             (closeHandle)
             $ \fm -> do
                 fi <- getFileInformationByHandle fh
-                fp <- block $ do
+                fp <- mask_ $ do
                     ptr <- mapViewOfFile fm fILE_MAP_READ 0 0
                     newForeignPtr c_UnmapViewOfFileFinaliser ptr
                 return (fp, fromIntegral $ bhfiSize fi)
