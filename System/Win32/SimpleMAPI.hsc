@@ -140,7 +140,8 @@ loadMapiFuncs dllname dll =  liftM5 MapiFuncs
     (loadProc "MAPIFreeBuffer"  dll mkMapiFreeBuffer)
     (loadProc "MAPISendMail"    dll mkMapiSendMail)
     where
-        loadProc name dll conv = withCString name $ \name' -> do
+       loadProc :: String -> HMODULE -> (FunPtr a -> a) -> IO a
+       loadProc name dll conv = withCString name $ \name' -> do
             proc <- failIfNull ("loadMapiDll: " ++ dllname ++ ": " ++ name)
                         $ c_GetProcAddress dll name'
             return $ conv $ castPtrToFunPtr proc
