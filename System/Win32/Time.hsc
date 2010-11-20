@@ -300,5 +300,5 @@ getTimeFormat locale flags st fmt =
         size <- c_GetTimeFormat locale flags st fmt nullPtr 0
         allocaBytes ((fromIntegral size) * (sizeOf (undefined::CWchar))) $ \out -> do
             size <- failIf (==0) "getTimeFormat: GetTimeFormat" $
-                c_GetTimeFormat locale flags st fmt (castPtr out) (fromIntegral size)
+                c_GetTimeFormat locale flags st fmt (castPtr out) size
             peekTStringLen (out,fromIntegral size)
