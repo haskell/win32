@@ -58,6 +58,8 @@ Library
         System.Win32.Types
         System.Win32.Shell
     extensions: ForeignFunctionInterface
+    if impl(ghc >= 7.1)
+        extensions: NondecreasingIndentation
     extra-libraries:
         "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder"
     include-dirs: 	include
