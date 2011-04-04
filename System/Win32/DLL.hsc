@@ -54,7 +54,7 @@ foreign import stdcall unsafe "windows.h GetModuleHandleW"
 
 getProcAddress :: HMODULE -> String -> IO Addr
 getProcAddress hmod procname =
-  withCString procname $ \ c_procname ->
+  withCAString procname $ \ c_procname ->
   failIfNull "GetProcAddress" $ c_GetProcAddress hmod c_procname
 foreign import stdcall unsafe "windows.h GetProcAddress"
   c_GetProcAddress :: HMODULE -> LPCSTR -> IO Addr

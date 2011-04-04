@@ -34,10 +34,9 @@
 
 //typedef LPBITMAPINFO PBITMAPINFO; // hack to keep cygwin32b17 happy
 
-void CreateBMPFile(LPCSTR pszFileName, HBITMAP hBmp, HDC hDC)
+void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
 {
     int         hFile;
-    OFSTRUCT    ofReOpenBuff;
     HBITMAP     hTmpBmp, hBmpOld;
     BOOL        bSuccess;
     BITMAPFILEHEADER    bfh;
@@ -132,8 +131,8 @@ void CreateBMPFile(LPCSTR pszFileName, HBITMAP hBmp, HDC hDC)
     //
     // Lets open the file and get ready for writing
     //
-    if ((hFile = OpenFile(pszFileName, (LPOFSTRUCT)&ofReOpenBuff,
-                 OF_CREATE | OF_WRITE)) == -1) {
+    if ((hFile = CreateFileW(pszFileName, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL))
+          == INVALID_HANDLE_VALUE) {
         fprintf(stderr, "Failed in OpenFile!");
         goto ErrExit2;
     }
