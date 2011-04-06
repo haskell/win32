@@ -36,7 +36,7 @@
 
 void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
 {
-    int         hFile;
+    HANDLE      hFile;
     HBITMAP     hTmpBmp, hBmpOld;
     BOOL        bSuccess;
     BITMAPFILEHEADER    bfh;
@@ -45,6 +45,7 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     BITMAPINFO  bmi;
     PBYTE pjTmp, pjTmpBmi;
     ULONG sizBMI;
+	DWORD 		dwBytesWritten;
 
 
     bSuccess = TRUE;
@@ -150,7 +151,7 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     //
     // Write out the file header now
     //
-    if (_lwrite(hFile, (LPSTR)&bfh, sizeof(BITMAPFILEHEADER)) == -1) {
+    if (WriteFile(hFile, (LPCVOID)&bfh, sizeof(BITMAPFILEHEADER), &dwBytesWritten, NULL) == -1) {
         fprintf(stderr, "Failed in WriteFile!");
         bSuccess = FALSE;
         goto ErrExit3;
@@ -178,7 +179,7 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     //
     // Now write out the BitmapInfoHeader and color table, if any
     //
-    if (_lwrite(hFile, (LPSTR)pbmi, sizBMI) == -1) {
+    if (WriteFile(hFile, (LPCVOID)pbmi, sizBMI, &dwBytesWritten, NULL) == -1) {
         fprintf(stderr, "Failed in WriteFile!");
         bSuccess = FALSE;
         goto ErrExit4;
@@ -187,7 +188,7 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     //
     // write the bits also
     //
-    if (_lwrite(hFile, (LPSTR)pBits, pbmi->bmiHeader.biSizeImage) == -1) {
+    if (WriteFile(hFile, (LPCVOID)pBits, pbmi->bmiHeader.biSizeImage, &dwBytesWritten, NULL) == -1) {
         fprintf(stderr, "Failed in WriteFile!");
         bSuccess = FALSE;
         goto ErrExit4;
@@ -198,7 +199,7 @@ ErrExit4:
     SelectObject(hDC, hBmpOld);
     DeleteObject(hTmpBmp);
 ErrExit3:
-    _lclose(hFile);
+    CloseHandle(hFile);
 ErrExit2:
     GlobalFree(pbmi);
 ErrExit1:
