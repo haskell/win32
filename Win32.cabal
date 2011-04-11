@@ -75,6 +75,6 @@ Library
         cbits/errors.c
 
 source-repository head
-    type:     darcs
-    location: http://darcs.haskell.org/packages/Win32/
+    type:     git
+    location: http://darcs.haskell.org/packages/Win32.git/
 
