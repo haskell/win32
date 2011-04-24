@@ -56,6 +56,12 @@ foreign import stdcall unsafe "windows.h OpenProcess"
 openProcess :: ProcessAccessRights -> BOOL -> ProcessId -> IO ProcessHandle
 openProcess r inh i = failIfNull "OpenProcess" $ c_OpenProcess r inh i
 
+foreign import stdcall unsafe "windows.h GetProcessId"
+    c_GetProcessId :: ProcessHandle -> IO ProcessId
+
+getProcessId :: ProcessHandle -> IO ProcessId
+getProcessId h = failIfZero "GetProcessId" $ c_GetProcessId h
+
 type Th32SnapHandle = HANDLE
 type Th32SnapFlags = DWORD
 -- | ProcessId, number of threads, parent ProcessId, process base priority, path of executable file
