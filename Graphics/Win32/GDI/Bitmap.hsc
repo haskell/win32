@@ -376,10 +376,10 @@ sizeofLPBITMAPFILEHEADER = #{size BITMAPFILEHEADER}
 
 createBMPFile :: String -> HBITMAP -> HDC -> IO ()
 createBMPFile name bm dc =
-  withCString name $ \ c_name ->
+  withCWString name $ \ c_name ->
   c_CreateBMPFile c_name bm dc
 foreign import ccall unsafe "dumpBMP.h CreateBMPFile"
-  c_CreateBMPFile :: LPCSTR -> HBITMAP -> HDC -> IO ()
+  c_CreateBMPFile :: LPCTSTR -> HBITMAP -> HDC -> IO ()
 
 {-# CFILES cbits/dumpBMP.c #-}
 

@@ -350,7 +350,7 @@ stringToUnicode :: CodePage -> String -> IO String
 stringToUnicode _cp "" = return ""
      -- MultiByteToWideChar doesn't handle empty strings (#1929)
 stringToUnicode cp mbstr =
-  withCStringLen mbstr $ \(cstr,len) -> do
+  withCAStringLen mbstr $ \(cstr,len) -> do
     wchars <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar 
                 cp
                 0

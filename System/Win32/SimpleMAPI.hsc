@@ -20,7 +20,9 @@ import Foreign              ( FunPtr, newForeignPtr, pokeByteOff, maybeWith
                             , Ptr, castPtr, castPtrToFunPtr, nullPtr
                             , touchForeignPtr, alloca, peek, allocaBytes
                             , minusPtr, plusPtr, copyBytes, ForeignPtr )
-import Foreign.C            ( withCString, withCStringLen )
+import Foreign.C            ( withCAString, withCAStringLen )
+  -- Apparently, simple MAPI does not support unicode and probably never will,
+  -- so this module will just mangle any Unicode in your strings
 import Graphics.Win32.GDI.Types     ( HWND)
 import System.Win32.DLL     ( loadLibrary, c_GetProcAddress, freeLibrary
                             , c_FreeLibraryFinaliser )
@@ -141,7 +143,7 @@ loadMapiFuncs dllname dll =  liftM5 MapiFuncs
     (loadProc "MAPISendMail"    dll mkMapiSendMail)
     where
        loadProc :: String -> HMODULE -> (FunPtr a -> a) -> IO a
-       loadProc name dll conv = withCString name $ \name' -> do
+       loadProc name dll conv = withCAString name $ \name' -> do
             proc <- failIfNull ("loadMapiDll: " ++ dllname ++ ": " ++ name)
                         $ c_GetProcAddress dll name'
             return $ conv $ castPtrToFunPtr proc
@@ -190,8 +192,8 @@ mapiLogon
     -> MapiFlag     -- ^ None, one or many flags: FORCE_DOWNLOAD, NEW_SESSION, LOGON_UI, PASSWORD_UI
     -> IO LHANDLE
 mapiLogon f hwnd ses pw flags =
-    maybeWith withCString ses   $ \ses  ->
-    maybeWith withCString pw    $ \pw   ->
+    maybeWith withCAString ses  $ \ses  ->
+    maybeWith withCAString pw   $ \pw   ->
     alloca                      $ \out  -> do
         mapiFail_ "MAPILogon: " $ mapifLogon
             f (maybeHWND hwnd) 
@@ -242,8 +244,8 @@ withRecipient f ses rcls rec act = resolve "" rec
             act buf
         resolve err rc = case rc of
             Recip name addr ->
-                withCString name $ \name ->
-                withCString addr $ \addr ->
+                withCAString name $ \name ->
+                withCAString addr $ \addr ->
                 allocaBytes (#size MapiRecipDesc) $ \buf -> do
                     (#poke MapiRecipDesc, ulReserved)   buf (0::ULONG)
                     (#poke MapiRecipDesc, lpszName)     buf name
@@ -253,7 +255,7 @@ withRecipient f ses rcls rec act = resolve "" rec
                     a buf
             RecipResolve hwnd flag name fallback -> do
                 res <-  alloca          $ \res ->
-                        withCString name $ \name' -> do
+                        withCAString name $ \name' -> do
                             errn <- mapifResolveName
                                     f ses (maybeHWND hwnd) name' flag 0 res
                             if errn==(#const SUCCESS_SUCCESS)
@@ -310,7 +312,7 @@ withFileTag ft act =
     where
         w v a = case v of
             Nothing -> a (nullPtr, 0)
-            Just x  -> withCStringLen x a
+            Just x  -> withCAStringLen x a
 
 data Attachment = Attachment
     { attFlag       :: MapiFlag
@@ -330,9 +332,9 @@ withAttachments att act = allocaBytes (len*as) $ \buf -> write (act len buf) buf
         len = length att
         write act _ [] = act
         write act buf (att:y) =
-            withCString (attPath att) $ \path ->
+            withCAString (attPath att) $ \path ->
             maybeWith withFileTag (attTag att) $ \tag ->
-            withCString (maybe (attPath att) id (attName att)) $ \name -> do
+            withCAString (maybe (attPath att) id (attName att)) $ \name -> do
                 (#poke MapiFileDesc, ulReserved)    buf (0::ULONG)
                 (#poke MapiFileDesc, flFlags)       buf (attFlag att)
                 (#poke MapiFileDesc, nPosition)     buf (maybe 0xffffffff id $ attPosition att)
@@ -363,11 +365,11 @@ withMessage
     -> (Ptr Message -> IO a)
     -> IO a
 withMessage f ses m act =
-    withCString (msgSubject m)              $ \subject ->
-    withCString (msgBody m)                 $ \body ->
-    maybeWith withCString (msgType m)       $ \message_type ->
-    maybeWith withCString (msgDate m)       $ \date ->
-    maybeWith withCString (msgConversationId m) $ \conv_id ->
+    withCAString (msgSubject m)             $ \subject ->
+    withCAString (msgBody m)                $ \body ->
+    maybeWith withCAString (msgType m)      $ \message_type ->
+    maybeWith withCAString (msgDate m)      $ \date ->
+    maybeWith withCAString (msgConversationId m) $ \conv_id ->
     withRecipients f ses (msgRecips m)          $ \rlen rbuf ->
     withAttachments (msgAttachments m)      $ \alen abuf ->
     maybeWith (withRecipient f ses RcOriginal) (msgFrom m) $ \from ->
