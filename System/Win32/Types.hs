@@ -18,10 +18,11 @@ module System.Win32.Types
 	) where
 
 import Data.Maybe
-import Foreign
+import Foreign hiding (unsafePerformIO)
 import Foreign.C
 import Control.Exception
 import System.IO.Error
+import System.IO.Unsafe
 import Data.Char
 import Numeric (showHex)
 

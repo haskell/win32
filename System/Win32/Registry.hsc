@@ -61,7 +61,8 @@ import System.Win32.Time
 import System.Win32.Types
 import System.Win32.File
 
-import Foreign
+import System.IO.Unsafe
+import Foreign hiding (unsafePerformIO)
 
 #include <windows.h>
 

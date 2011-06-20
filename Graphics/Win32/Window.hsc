@@ -20,7 +20,8 @@ import Graphics.Win32.Message
 
 import Control.Monad
 import Data.Maybe
-import Foreign
+import Foreign hiding (unsafePerformIO)
+import System.IO.Unsafe
 
 #include <windows.h>
 

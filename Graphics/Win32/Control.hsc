@@ -19,7 +19,8 @@ import Graphics.Win32.Window
 import System.Win32.Types
 import Graphics.Win32.Message
 
-import Foreign
+import Foreign hiding (unsafePerformIO)
+import System.IO.Unsafe
 
 #include <windows.h>
 #include <commctrl.h>
