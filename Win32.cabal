@@ -4,8 +4,9 @@ license:	BSD3
 license-file:	LICENSE
 author:		Alastair Reid
 copyright:	Alastair Reid, 1999-2003
-maintainer:	Esa Ilari Vuokko <ei@vuokko.info>
-bug-reports: http://hackage.haskell.org/trac/ghc/newticket?component=libraries%20%28other%29
+maintainer:	Bryan O'Sullivan <bos@serpentine.com>
+bug-reports:    https://github.com/haskell/win32/issues
+homerpage:      https://github.com/haskell/win32
 category:	System, Graphics
 synopsis:	A binding to part of the Win32 library
 build-type:     Simple
@@ -76,5 +77,4 @@ Library
 
 source-repository head
     type:     git
-    location: http://darcs.haskell.org/packages/Win32.git/
-
+    location: git://github.com/haskell/win32
