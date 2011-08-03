@@ -9,6 +9,7 @@ bug-reports:    https://github.com/haskell/win32/issues
 homepage:       https://github.com/haskell/win32
 category:	System, Graphics
 synopsis:	A binding to part of the Win32 library
+description:	A binding to part of the Win32 library.
 build-type:     Simple
 cabal-version:  >=1.6
 extra-source-files:
