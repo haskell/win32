@@ -59,7 +59,7 @@ Library
         System.Win32.Security
         System.Win32.Types
         System.Win32.Shell
-    extensions: ForeignFunctionInterface
+    extensions: ForeignFunctionInterface, CPP
     if impl(ghc >= 7.1)
         extensions: NondecreasingIndentation
     extra-libraries:
