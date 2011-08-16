@@ -27,7 +27,9 @@ where
 import System.Win32.Types
 import System.Win32.Time
 
-import Foreign
+import Foreign hiding (void)
+import Control.Monad
+import Control.Concurrent
 
 #include <windows.h>
 
@@ -255,11 +257,41 @@ instance Storable BY_HANDLE_FILE_INFORMATION where
 -- File operations
 ----------------------------------------------------------------
 
+-- | like failIfFalse_, but retried on sharing violations.
+-- This is necessary for many file operations; see
+--   http://support.microsoft.com/kb/316609
+--
+failIfWithRetry :: (a -> Bool) -> String -> IO a -> IO a
+failIfWithRetry cond msg action = retryOrFail retries
+  where
+    delay   = 100*1000 -- in ms, we use threadDelay
+    retries = 20 :: Int
+      -- KB article recommends 250/5
+
+    -- retryOrFail :: Int -> IO a
+    retryOrFail times
+      | times <= 0 = errorWin msg
+      | otherwise  = do
+         ret <- action
+         if not (cond ret)
+            then return ret
+            else do
+              err_code <- getLastError
+              if err_code == (# const ERROR_SHARING_VIOLATION)
+                then do threadDelay delay; retryOrFail (times - 1)
+                else errorWin msg
+
+failIfWithRetry_ :: (a -> Bool) -> String -> IO a -> IO ()
+failIfWithRetry_ cond msg action = void $ failIfWithRetry cond msg action
+
+failIfFalseWithRetry_ :: String -> IO Bool -> IO ()
+failIfFalseWithRetry_ = failIfWithRetry_ not
+
 deleteFile :: String -> IO ()
 deleteFile name =
   withTString name $ \ c_name ->
-  failIfFalse_ (unwords ["DeleteFile",show name]) $
-    c_DeleteFile c_name
+    failIfFalseWithRetry_ (unwords ["DeleteFile",show name]) $
+      c_DeleteFile c_name
 foreign import stdcall unsafe "windows.h DeleteFileW"
   c_DeleteFile :: LPCTSTR -> IO Bool
 
@@ -267,7 +299,7 @@ copyFile :: String -> String -> Bool -> IO ()
 copyFile src dest over =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
-  failIfFalse_ (unwords ["CopyFile",show src,show dest]) $
+  failIfFalseWithRetry_ (unwords ["CopyFile",show src,show dest]) $
     c_CopyFile c_src c_dest over
 foreign import stdcall unsafe "windows.h CopyFileW"
   c_CopyFile :: LPCTSTR -> LPCTSTR -> Bool -> IO Bool
@@ -276,7 +308,7 @@ moveFile :: String -> String -> IO ()
 moveFile src dest =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
-  failIfFalse_ (unwords ["MoveFile",show src,show dest]) $
+  failIfFalseWithRetry_ (unwords ["MoveFile",show src,show dest]) $
     c_MoveFile c_src c_dest
 foreign import stdcall unsafe "windows.h MoveFileW"
   c_MoveFile :: LPCTSTR -> LPCTSTR -> IO Bool
@@ -285,7 +317,7 @@ moveFileEx :: String -> String -> MoveFileFlag -> IO ()
 moveFileEx src dest flags =
   withTString src $ \ c_src ->
   withTString dest $ \ c_dest ->
-  failIfFalse_ (unwords ["MoveFileEx",show src,show dest]) $
+  failIfFalseWithRetry_ (unwords ["MoveFileEx",show src,show dest]) $
     c_MoveFileEx c_src c_dest flags
 foreign import stdcall unsafe "windows.h MoveFileExW"
   c_MoveFileEx :: LPCTSTR -> LPCTSTR -> MoveFileFlag -> IO Bool
@@ -301,7 +333,7 @@ foreign import stdcall unsafe "windows.h SetCurrentDirectoryW"
 createDirectory :: String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
 createDirectory name mb_attr =
   withTString name $ \ c_name ->
-  failIfFalse_ (unwords ["CreateDirectory",show name]) $
+  failIfFalseWithRetry_ (unwords ["CreateDirectory",show name]) $
     c_CreateDirectory c_name (maybePtr mb_attr)
 foreign import stdcall unsafe "windows.h CreateDirectoryW"
   c_CreateDirectory :: LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
@@ -310,7 +342,7 @@ createDirectoryEx :: String -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
 createDirectoryEx template name mb_attr =
   withTString template $ \ c_template ->
   withTString name $ \ c_name ->
-  failIfFalse_ (unwords ["CreateDirectoryEx",show template,show name]) $
+  failIfFalseWithRetry_ (unwords ["CreateDirectoryEx",show template,show name]) $
     c_CreateDirectoryEx c_template c_name (maybePtr mb_attr)
 foreign import stdcall unsafe "windows.h CreateDirectoryExW"
   c_CreateDirectoryEx :: LPCTSTR -> LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
@@ -318,7 +350,7 @@ foreign import stdcall unsafe "windows.h CreateDirectoryExW"
 removeDirectory :: String -> IO ()
 removeDirectory name =
   withTString name $ \ c_name ->
-  failIfFalse_ (unwords ["RemoveDirectory",show name]) $
+  failIfFalseWithRetry_ (unwords ["RemoveDirectory",show name]) $
     c_RemoveDirectory c_name
 foreign import stdcall unsafe "windows.h RemoveDirectoryW"
   c_RemoveDirectory :: LPCTSTR -> IO Bool
@@ -340,7 +372,7 @@ foreign import stdcall unsafe "windows.h GetBinaryTypeW"
 createFile :: String -> AccessMode -> ShareMode -> Maybe LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> Maybe HANDLE -> IO HANDLE
 createFile name access share mb_attr mode flag mb_h =
   withTString name $ \ c_name ->
-  failIf (==iNVALID_HANDLE_VALUE) (unwords ["CreateFile",show name]) $
+  failIfWithRetry (==iNVALID_HANDLE_VALUE) (unwords ["CreateFile",show name]) $
     c_CreateFile c_name access share (maybePtr mb_attr) mode flag (maybePtr mb_h)
 foreign import stdcall unsafe "windows.h CreateFileW"
   c_CreateFile :: LPCTSTR -> AccessMode -> ShareMode -> LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> HANDLE -> IO HANDLE
@@ -374,7 +406,7 @@ foreign import stdcall unsafe "windows.h SetEndOfFile"
 setFileAttributes :: String -> FileAttributeOrFlag -> IO ()
 setFileAttributes name attr =
   withTString name $ \ c_name ->
-  failIfFalse_ (unwords ["SetFileAttributes",show name])
+  failIfFalseWithRetry_ (unwords ["SetFileAttributes",show name])
     $ c_SetFileAttributes c_name attr
 foreign import stdcall unsafe "windows.h SetFileAttributesW"
   c_SetFileAttributes :: LPCTSTR -> FileAttributeOrFlag -> IO Bool
@@ -382,14 +414,14 @@ foreign import stdcall unsafe "windows.h SetFileAttributesW"
 getFileAttributes :: String -> IO FileAttributeOrFlag
 getFileAttributes name =
   withTString name $ \ c_name ->
-  failIf (== 0xFFFFFFFF) (unwords ["GetFileAttributes",show name]) $
+  failIfWithRetry (== 0xFFFFFFFF) (unwords ["GetFileAttributes",show name]) $
     c_GetFileAttributes c_name
 foreign import stdcall unsafe "windows.h GetFileAttributesW"
   c_GetFileAttributes :: LPCTSTR -> IO FileAttributeOrFlag
 
 getFileInformationByHandle :: HANDLE -> IO BY_HANDLE_FILE_INFORMATION
 getFileInformationByHandle h = alloca $ \res -> do
-    failIfFalse_ "GetFileInformationByHandle" $ c_GetFileInformationByHandle h res
+    failIfFalseWithRetry_ "GetFileInformationByHandle" $ c_GetFileInformationByHandle h res
     peek res
 foreign import stdcall unsafe "windows.h GetFileInformationByHandle"
     c_GetFileInformationByHandle :: HANDLE -> Ptr BY_HANDLE_FILE_INFORMATION -> IO BOOL
