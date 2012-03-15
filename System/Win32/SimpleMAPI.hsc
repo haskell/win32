@@ -16,6 +16,14 @@
 -----------------------------------------------------------------------------
 module System.Win32.SimpleMAPI
 where
+
+-- I am not sure why exactly, but with mingw64 mapi.h does not define
+-- some of the values we use, e.g. MAPI_LOGOFF_SHARED.
+-- mapix.h does define MAPI_LOGOFF_SHARED, but the various flags
+-- clash with each other.
+-- So for now we only define the module content on i386.
+#if __i386__
+
 import Control.Exception    ( bracket, handle, finally, onException
                             , IOException )
 import Control.Monad        ( liftM5 )
@@ -398,3 +406,4 @@ mapiSendMail f ses hwnd msg flag = withMessage f ses msg $ \msg ->
 handleIOException :: (IOException -> IO a) -> IO a -> IO a
 handleIOException = handle
 
+#endif
