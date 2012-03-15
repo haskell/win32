@@ -1,3 +1,4 @@
+{-# LANGUAGE CApiFFI #-}
 #if __GLASGOW_HASKELL__ >= 701
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -186,10 +187,11 @@ foreign import stdcall "wrapper"
 setWindowClosure :: HWND -> WindowClosure -> IO ()
 setWindowClosure wnd closure = do
   fp <- mkWindowClosure closure
-  _ <- c_SetWindowLong wnd (#{const GWL_USERDATA}) (castFunPtrToLONG fp)
+  _ <- c_SetWindowLongPtr wnd (#{const GWLP_USERDATA})
+                              (castPtr (castFunPtrToPtr fp))
   return ()
-foreign import stdcall unsafe "windows.h SetWindowLongW"
-  c_SetWindowLong :: HWND -> INT -> LONG -> IO LONG
+foreign import capi unsafe "windows.h SetWindowLongPtrW"
+  c_SetWindowLongPtr :: HWND -> INT -> Ptr LONG -> IO (Ptr LONG)
 
 createWindow
   :: ClassName -> String -> WindowStyle ->
