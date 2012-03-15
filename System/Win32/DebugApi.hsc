@@ -287,12 +287,10 @@ withThreadContext t act =
             (act buf)
 
 
+#if __i386__
 eax, ebx, ecx, edx :: Int
 esi, edi :: Int
 ebp, eip, esp :: Int
-segCs, segDs, segEs, segFs, segGs :: Int
-eFlags :: Int
-
 eax = (#offset CONTEXT, Eax)
 ebx = (#offset CONTEXT, Ebx)
 ecx = (#offset CONTEXT, Ecx)
@@ -302,11 +300,31 @@ edi = (#offset CONTEXT, Edi)
 ebp = (#offset CONTEXT, Ebp)
 eip = (#offset CONTEXT, Eip)
 esp = (#offset CONTEXT, Esp)
+#elif __x86_64__
+rax, rbx, rcx, rdx :: Int
+rsi, rdi :: Int
+rbp, rip, rsp :: Int
+rax = (#offset CONTEXT, Rax)
+rbx = (#offset CONTEXT, Rbx)
+rcx = (#offset CONTEXT, Rcx)
+rdx = (#offset CONTEXT, Rdx)
+rsi = (#offset CONTEXT, Rsi)
+rdi = (#offset CONTEXT, Rdi)
+rbp = (#offset CONTEXT, Rbp)
+rip = (#offset CONTEXT, Rip)
+rsp = (#offset CONTEXT, Rsp)
+#else
+#error Unsupported architecture
+#endif
+
+segCs, segDs, segEs, segFs, segGs :: Int
 segCs = (#offset CONTEXT, SegCs)
 segDs = (#offset CONTEXT, SegDs)
 segEs = (#offset CONTEXT, SegEs)
 segFs = (#offset CONTEXT, SegFs)
 segGs = (#offset CONTEXT, SegGs)
+
+eFlags :: Int
 eFlags  = (#offset CONTEXT, EFlags)
 
 dr :: Int -> Int
