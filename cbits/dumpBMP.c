@@ -38,7 +38,6 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
 {
     HANDLE      hFile;
     HBITMAP     hTmpBmp, hBmpOld;
-    BOOL        bSuccess;
     BITMAPFILEHEADER    bfh;
     LPBITMAPINFO pbmi;
     PBYTE       pBits;
@@ -48,7 +47,6 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
 	DWORD 		dwBytesWritten;
 
 
-    bSuccess = TRUE;
 #if 0
     if (ghPal) {
         SelectPalette(hDC, ghPal, FALSE);
@@ -112,7 +110,6 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
         //
         if ((pbmi = (LPBITMAPINFO)GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, sizBMI )) == NULL) {
             fprintf(stderr, "Failed in Memory Allocation for pbmi!");
-            bSuccess = FALSE;
             goto ErrExit1;
         }
         //
@@ -153,7 +150,6 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     //
     if (WriteFile(hFile, (LPCVOID)&bfh, sizeof(BITMAPFILEHEADER), &dwBytesWritten, NULL) == -1) {
         fprintf(stderr, "Failed in WriteFile!");
-        bSuccess = FALSE;
         goto ErrExit3;
     }
 
@@ -167,12 +163,10 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
         hBmpOld = SelectObject(hDC, hTmpBmp);
         if ((GetDIBits(hDC, hBmp, 0, pbmi->bmiHeader.biHeight, (LPSTR)pBits, pbmi, DIB_RGB_COLORS))==0){
             fprintf(stderr, "Failed in GetDIBits!");
-            bSuccess = FALSE;
             goto ErrExit4;
         }
     } else {
         fprintf(stderr, "Failed in creating bitmap!");
-        bSuccess = FALSE;
         goto ErrExit3;
     }
 
@@ -181,7 +175,6 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     //
     if (WriteFile(hFile, (LPCVOID)pbmi, sizBMI, &dwBytesWritten, NULL) == -1) {
         fprintf(stderr, "Failed in WriteFile!");
-        bSuccess = FALSE;
         goto ErrExit4;
     }
 
@@ -190,7 +183,6 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     //
     if (WriteFile(hFile, (LPCVOID)pBits, pbmi->bmiHeader.biSizeImage, &dwBytesWritten, NULL) == -1) {
         fprintf(stderr, "Failed in WriteFile!");
-        bSuccess = FALSE;
         goto ErrExit4;
     }
 
