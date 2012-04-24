@@ -12,8 +12,8 @@
 # endif
 #endif
 
-INLINE UINT castPtrToUINT(void *p) { return (UINT)p; }
-INLINE void *castUINTToPtr(UINT n) { return (void *)n; }
+INLINE UINT_PTR castPtrToUINTPtr(void *p) { return (UINT_PTR)p; }
+INLINE void *castUINTPtrToPtr(UINT_PTR n) { return (void *)n; }
 INLINE LONG castFunPtrToLONG(void *p) { return (LONG)p; }
 INLINE WORD hIWORD(DWORD w) { return HIWORD(w); }
 INLINE WORD lOWORD(DWORD w) { return LOWORD(w); }

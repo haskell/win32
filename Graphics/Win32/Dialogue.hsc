@@ -43,7 +43,7 @@ mkDialogTemplate = newTString
 type ResourceID = Int
 
 mkResource :: ResourceID -> IO (Ptr a)
-mkResource res = return (castUINTToPtr (fromIntegral res))
+mkResource res = return (castUINTPtrToPtr (fromIntegral res))
 
 mkDialogTemplateFromResource :: Int -> IO DTemplate
 mkDialogTemplateFromResource = mkResource

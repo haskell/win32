@@ -56,24 +56,24 @@ foreign import stdcall unsafe "windows.h EndUpdateResourceW"
 
 type ResourceType = LPCTSTR
 
-#{enum ResourceType, castUINTToPtr
- , rT_ACCELERATOR  = (UINT)RT_ACCELERATOR // Accelerator table
- , rT_ANICURSOR    = (UINT)RT_ANICURSOR // Animated cursor
- , rT_ANIICON      = (UINT)RT_ANIICON   // Animated icon
- , rT_BITMAP       = (UINT)RT_BITMAP    // Bitmap resource
- , rT_CURSOR       = (UINT)RT_CURSOR    // Hardware-dependent cursor resource
- , rT_DIALOG       = (UINT)RT_DIALOG    // Dialog box
- , rT_FONT         = (UINT)RT_FONT      // Font resource
- , rT_FONTDIR      = (UINT)RT_FONTDIR    // Font directory resource
- , rT_GROUP_CURSOR = (UINT)RT_GROUP_CURSOR // Hardware-independent cursor resource
- , rT_GROUP_ICON   = (UINT)RT_GROUP_ICON // Hardware-independent icon resource
- , rT_HTML         = (UINT)RT_HTML      // HTML document
- , rT_ICON         = (UINT)RT_ICON      // Hardware-dependent icon resource
- , rT_MENU         = (UINT)RT_MENU      // Menu resource
- , rT_MESSAGETABLE = (UINT)RT_MESSAGETABLE // Message-table entry
- , rT_RCDATA       = (UINT)RT_RCDATA    // Application-defined resource (raw data)
- , rT_STRING       = (UINT)RT_STRING    // String-table entry
- , rT_VERSION      = (UINT)RT_VERSION   // Version resource
+#{enum ResourceType, castUINTPtrToPtr
+ , rT_ACCELERATOR  = (UINT_PTR)RT_ACCELERATOR // Accelerator table
+ , rT_ANICURSOR    = (UINT_PTR)RT_ANICURSOR // Animated cursor
+ , rT_ANIICON      = (UINT_PTR)RT_ANIICON   // Animated icon
+ , rT_BITMAP       = (UINT_PTR)RT_BITMAP    // Bitmap resource
+ , rT_CURSOR       = (UINT_PTR)RT_CURSOR    // Hardware-dependent cursor resource
+ , rT_DIALOG       = (UINT_PTR)RT_DIALOG    // Dialog box
+ , rT_FONT         = (UINT_PTR)RT_FONT      // Font resource
+ , rT_FONTDIR      = (UINT_PTR)RT_FONTDIR    // Font directory resource
+ , rT_GROUP_CURSOR = (UINT_PTR)RT_GROUP_CURSOR // Hardware-independent cursor resource
+ , rT_GROUP_ICON   = (UINT_PTR)RT_GROUP_ICON // Hardware-independent icon resource
+ , rT_HTML         = (UINT_PTR)RT_HTML      // HTML document
+ , rT_ICON         = (UINT_PTR)RT_ICON      // Hardware-dependent icon resource
+ , rT_MENU         = (UINT_PTR)RT_MENU      // Menu resource
+ , rT_MESSAGETABLE = (UINT_PTR)RT_MESSAGETABLE // Message-table entry
+ , rT_RCDATA       = (UINT_PTR)RT_RCDATA    // Application-defined resource (raw data)
+ , rT_STRING       = (UINT_PTR)RT_STRING    // String-table entry
+ , rT_VERSION      = (UINT_PTR)RT_VERSION   // Version resource
  }
 
 findResource :: HMODULE -> String -> ResourceType -> IO HRSRC

@@ -24,7 +24,6 @@ import Data.Maybe
 import Foreign
 
 #include <windows.h>
-#include "gettime.h"
 
 ----------------------------------------------------------------
 -- Resources
@@ -63,24 +62,24 @@ loadIcon mb_inst icon =
 foreign import stdcall unsafe "windows.h LoadIconW"
   c_LoadIcon :: HINSTANCE -> Icon -> IO HICON
 
-#{enum Cursor, castUINTToPtr
- , iDC_ARROW        = (UINT)IDC_ARROW
- , iDC_IBEAM        = (UINT)IDC_IBEAM
- , iDC_WAIT         = (UINT)IDC_WAIT
- , iDC_CROSS        = (UINT)IDC_CROSS
- , iDC_UPARROW      = (UINT)IDC_UPARROW
- , iDC_SIZENWSE     = (UINT)IDC_SIZENWSE
- , iDC_SIZENESW     = (UINT)IDC_SIZENESW
- , iDC_SIZEWE       = (UINT)IDC_SIZEWE
- , iDC_SIZENS       = (UINT)IDC_SIZENS
+#{enum Cursor, castUINTPtrToPtr
+ , iDC_ARROW        = (UINT_PTR)IDC_ARROW
+ , iDC_IBEAM        = (UINT_PTR)IDC_IBEAM
+ , iDC_WAIT         = (UINT_PTR)IDC_WAIT
+ , iDC_CROSS        = (UINT_PTR)IDC_CROSS
+ , iDC_UPARROW      = (UINT_PTR)IDC_UPARROW
+ , iDC_SIZENWSE     = (UINT_PTR)IDC_SIZENWSE
+ , iDC_SIZENESW     = (UINT_PTR)IDC_SIZENESW
+ , iDC_SIZEWE       = (UINT_PTR)IDC_SIZEWE
+ , iDC_SIZENS       = (UINT_PTR)IDC_SIZENS
  }
 
-#{enum Icon, castUINTToPtr
- , iDI_APPLICATION  = (UINT)IDI_APPLICATION
- , iDI_HAND         = (UINT)IDI_HAND
- , iDI_QUESTION     = (UINT)IDI_QUESTION
- , iDI_EXCLAMATION  = (UINT)IDI_EXCLAMATION
- , iDI_ASTERISK     = (UINT)IDI_ASTERISK
+#{enum Icon, castUINTPtrToPtr
+ , iDI_APPLICATION  = (UINT_PTR)IDI_APPLICATION
+ , iDI_HAND         = (UINT_PTR)IDI_HAND
+ , iDI_QUESTION     = (UINT_PTR)IDI_QUESTION
+ , iDI_EXCLAMATION  = (UINT_PTR)IDI_EXCLAMATION
+ , iDI_ASTERISK     = (UINT_PTR)IDI_ASTERISK
  }
 
 ----------------------------------------------------------------

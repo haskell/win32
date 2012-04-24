@@ -215,11 +215,11 @@ type MbHDWP       = Maybe HDWP
 type   HWND       = HANDLE
 type MbHWND       = Maybe HWND
 
-#{enum HWND, castUINTToPtr
- , hWND_BOTTOM    = HWND_BOTTOM
- , hWND_NOTOPMOST = HWND_NOTOPMOST
- , hWND_TOP       = HWND_TOP
- , hWND_TOPMOST   = HWND_TOPMOST
+#{enum HWND, castUINTPtrToPtr
+ , hWND_BOTTOM    = (UINT_PTR)HWND_BOTTOM
+ , hWND_NOTOPMOST = (UINT_PTR)HWND_NOTOPMOST
+ , hWND_TOP       = (UINT_PTR)HWND_TOP
+ , hWND_TOPMOST   = (UINT_PTR)HWND_TOPMOST
  }
 
 type   HMENU      = HANDLE
