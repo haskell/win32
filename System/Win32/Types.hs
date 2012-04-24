@@ -275,9 +275,6 @@ foreign import ccall unsafe "HsWin32.h"
 foreign import ccall unsafe "HsWin32.h"
   castPtrToUINTPtr :: Ptr s -> UINT_PTR
 
-foreign import ccall unsafe "HsWin32.h"
-  castFunPtrToLONG :: FunPtr a -> LONG
-
 type LCID = DWORD
 
 type LANGID = WORD
