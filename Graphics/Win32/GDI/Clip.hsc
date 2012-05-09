@@ -17,6 +17,7 @@
 
 module Graphics.Win32.GDI.Clip where
 
+import Control.Monad
 import Graphics.Win32.GDI.Types
 import System.Win32.Types
 
@@ -75,8 +76,11 @@ foreign import stdcall unsafe "windows.h EmptyClipboard"
 -- original also tested GetLastError() != NO_ERROR
 
 enumClipboardFormats :: ClipboardFormat -> IO ClipboardFormat
-enumClipboardFormats format =
-  failIfZero "EnumClipboardFormats" $ c_EnumClipboardFormats format
+enumClipboardFormats format = do
+  format' <- c_EnumClipboardFormats format
+  when (format' == 0) $
+    failUnlessSuccess "EnumClipboardFormats" getLastError
+  return format'
 foreign import stdcall unsafe "windows.h EnumClipboardFormats"
   c_EnumClipboardFormats :: ClipboardFormat -> IO ClipboardFormat
 
