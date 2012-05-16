@@ -26,18 +26,20 @@ module System.Win32.Console (
 	generateConsoleCtrlEvent
   ) where
 
+##include "windows_cconv.h"
+
 import System.Win32.Types
 
-foreign import stdcall unsafe "windows.h GetConsoleCP"
+foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleCP"
 	getConsoleCP :: IO UINT
 
-foreign import stdcall unsafe "windows.h SetConsoleCP"
+foreign import WINDOWS_CCONV unsafe "windows.h SetConsoleCP"
 	setConsoleCP :: UINT -> IO ()
 
-foreign import stdcall unsafe "windows.h GetConsoleOutputCP"
+foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleOutputCP"
 	getConsoleOutputCP :: IO UINT
 
-foreign import stdcall unsafe "windows.h SetConsoleOutputCP"
+foreign import WINDOWS_CCONV unsafe "windows.h SetConsoleOutputCP"
 	setConsoleOutputCP :: UINT -> IO ()
 
 type CtrlEvent = DWORD
@@ -52,7 +54,7 @@ generateConsoleCtrlEvent e p
         "generateConsoleCtrlEvent"
         $ c_GenerateConsoleCtrlEvent e p
 
-foreign import stdcall safe "windows.h GenerateConsoleCtrlEvent"
+foreign import WINDOWS_CCONV safe "windows.h GenerateConsoleCtrlEvent"
     c_GenerateConsoleCtrlEvent :: CtrlEvent -> DWORD -> IO BOOL
 
 -- ToDo: lots more

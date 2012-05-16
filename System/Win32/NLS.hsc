@@ -29,6 +29,8 @@ import System.Win32.Types
 import Foreign
 import Foreign.C
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 #include "errors.h"
 #include "win32debug.h"
@@ -39,7 +41,7 @@ import Foreign.C
  , lOCALE_NEUTRAL        = LOCALE_NEUTRAL
  }
 
-foreign import stdcall unsafe "windows.h ConvertDefaultLocale"
+foreign import WINDOWS_CCONV unsafe "windows.h ConvertDefaultLocale"
   convertDefaultLocale :: LCID -> IO LCID
 
 -- ToDo: various enum functions.
@@ -52,10 +54,10 @@ type CodePage = UINT
  , cP_OEMCP     = CP_OEMCP
  }
 
-foreign import stdcall unsafe "windows.h GetACP"
+foreign import WINDOWS_CCONV unsafe "windows.h GetACP"
   getACP :: IO CodePage
 
-foreign import stdcall unsafe "windows.h SetThreadLocale"
+foreign import WINDOWS_CCONV unsafe "windows.h SetThreadLocale"
   setThreadLocale :: LCID -> IO ()
 
 type LCTYPE = UINT
@@ -95,7 +97,7 @@ setLocaleInfo :: LCID -> LCTYPE -> String -> IO ()
 setLocaleInfo locale ty info =
   withTString info $ \ c_info ->
   failIfFalse_ "SetLocaleInfo" $ c_SetLocaleInfo locale ty c_info
-foreign import stdcall unsafe "windows.h SetLocaleInfoW"
+foreign import WINDOWS_CCONV unsafe "windows.h SetLocaleInfoW"
   c_SetLocaleInfo :: LCID -> LCTYPE -> LPCTSTR -> IO Bool
 
 type LCMapFlags = DWORD
@@ -127,7 +129,7 @@ lCMapString locale flags src dest_size =
   _ <- failIfZero "LCMapString" $
     c_LCMapString locale flags c_src src_len c_dest dest_size
   peekTString c_dest
-foreign import stdcall unsafe "windows.h LCMapStringW"
+foreign import WINDOWS_CCONV unsafe "windows.h LCMapStringW"
   c_LCMapString :: LCID -> LCMapFlags -> LPCTSTR -> Int -> LPCTSTR -> Int -> IO Int
 
 type LocaleTestFlags = DWORD
@@ -137,28 +139,28 @@ type LocaleTestFlags = DWORD
  , lCID_SUPPORTED       = LCID_SUPPORTED
  }
 
-foreign import stdcall unsafe "windows.h IsValidLocale"
+foreign import WINDOWS_CCONV unsafe "windows.h IsValidLocale"
   isValidLocale :: LCID -> LocaleTestFlags -> IO Bool
 
-foreign import stdcall unsafe "windows.h IsValidCodePage"
+foreign import WINDOWS_CCONV unsafe "windows.h IsValidCodePage"
   isValidCodePage :: CodePage -> IO Bool
 
-foreign import stdcall unsafe "windows.h GetUserDefaultLCID"
+foreign import WINDOWS_CCONV unsafe "windows.h GetUserDefaultLCID"
   getUserDefaultLCID :: LCID
 
-foreign import stdcall unsafe "windows.h GetUserDefaultLangID"
+foreign import WINDOWS_CCONV unsafe "windows.h GetUserDefaultLangID"
   getUserDefaultLangID :: LANGID
 
-foreign import stdcall unsafe "windows.h GetThreadLocale"
+foreign import WINDOWS_CCONV unsafe "windows.h GetThreadLocale"
   getThreadLocale :: IO LCID
 
-foreign import stdcall unsafe "windows.h GetSystemDefaultLCID"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSystemDefaultLCID"
   getSystemDefaultLCID :: LCID
 
-foreign import stdcall unsafe "windows.h GetSystemDefaultLangID"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSystemDefaultLangID"
   getSystemDefaultLangID :: LANGID
 
-foreign import stdcall unsafe "windows.h GetOEMCP"
+foreign import WINDOWS_CCONV unsafe "windows.h GetOEMCP"
   getOEMCP :: CodePage
 
 #{enum PrimaryLANGID,
@@ -370,7 +372,7 @@ stringToUnicode cp mbstr =
                 cwstr wchars
       peekCWStringLen (cwstr,fromIntegral wchars)  -- converts UTF-16 to [Char]
 
-foreign import stdcall unsafe "MultiByteToWideChar"
+foreign import WINDOWS_CCONV unsafe "MultiByteToWideChar"
   multiByteToWideChar
         :: CodePage
         -> DWORD   -- dwFlags,

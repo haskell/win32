@@ -20,6 +20,7 @@ module Graphics.Win32.GDI.Palette where
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 
+##include "windows_cconv.h"
 #include <windows.h>
 
 ----------------------------------------------------------------
@@ -35,13 +36,13 @@ type StockPalette   = WORD
 getStockPalette :: StockPalette -> IO HPALETTE
 getStockPalette sp =
   failIfNull "GetStockPalette" $ c_GetStockPalette sp
-foreign import stdcall unsafe "windows.h GetStockObject"
+foreign import WINDOWS_CCONV unsafe "windows.h GetStockObject"
   c_GetStockPalette :: StockPalette -> IO HPALETTE
 
 deletePalette :: HPALETTE -> IO ()
 deletePalette p =
   failIfFalse_ "DeletePalette" $ c_DeletePalette p
-foreign import stdcall unsafe "windows.h DeleteObject"
+foreign import WINDOWS_CCONV unsafe "windows.h DeleteObject"
   c_DeletePalette :: HPALETTE -> IO Bool
 
 ----------------------------------------------------------------

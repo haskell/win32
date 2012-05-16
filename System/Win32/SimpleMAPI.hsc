@@ -39,6 +39,8 @@ import System.Win32.DLL     ( loadLibrary, c_GetProcAddress, freeLibrary
                             , c_FreeLibraryFinaliser )
 import System.Win32.Types   ( DWORD, LPSTR, HMODULE, failIfNull )
 
+##include "windows_cconv.h"
+
 #include "windows.h"
 #include "mapi.h"
 
@@ -117,21 +119,21 @@ mapiFail_ :: String -> IO ULONG -> IO ()
 mapiFail_ n a = mapiFail n a >> return ()
 
 type MapiLogonType = ULONG -> LPSTR -> LPSTR -> MapiFlag -> ULONG -> Ptr LHANDLE -> IO ULONG
-foreign import stdcall "dynamic" mkMapiLogon :: FunPtr MapiLogonType -> MapiLogonType
+foreign import WINDOWS_CCONV "dynamic" mkMapiLogon :: FunPtr MapiLogonType -> MapiLogonType
 
 type MapiLogoffType = LHANDLE -> ULONG -> MapiFlag -> ULONG -> IO ULONG
-foreign import stdcall "dynamic" mkMapiLogoff :: FunPtr MapiLogoffType -> MapiLogoffType
+foreign import WINDOWS_CCONV "dynamic" mkMapiLogoff :: FunPtr MapiLogoffType -> MapiLogoffType
 
 type MapiResolveNameType =
     LHANDLE -> ULONG -> LPSTR -> MapiFlag -> ULONG
     -> Ptr (Ptr MapiRecipDesc) -> IO ULONG
-foreign import stdcall "dynamic" mkMapiResolveName :: FunPtr MapiResolveNameType -> MapiResolveNameType
+foreign import WINDOWS_CCONV "dynamic" mkMapiResolveName :: FunPtr MapiResolveNameType -> MapiResolveNameType
 
 type MapiFreeBufferType = Ptr () -> IO ULONG
-foreign import stdcall "dynamic" mkMapiFreeBuffer :: FunPtr MapiFreeBufferType -> MapiFreeBufferType
+foreign import WINDOWS_CCONV "dynamic" mkMapiFreeBuffer :: FunPtr MapiFreeBufferType -> MapiFreeBufferType
 
 type MapiSendMailType = LHANDLE -> ULONG -> Ptr Message -> MapiFlag -> ULONG -> IO ULONG
-foreign import stdcall "dynamic" mkMapiSendMail :: FunPtr MapiSendMailType -> MapiSendMailType
+foreign import WINDOWS_CCONV "dynamic" mkMapiSendMail :: FunPtr MapiSendMailType -> MapiSendMailType
 
 data MapiFuncs = MapiFuncs
     { mapifLogon    :: MapiLogonType

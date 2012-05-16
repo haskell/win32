@@ -29,6 +29,8 @@ import System.IO.Unsafe
 import Data.Char
 import Numeric (showHex)
 
+#include "windows_cconv.h"
+
 ----------------------------------------------------------------
 -- Platform specific definitions
 --
@@ -250,10 +252,10 @@ dwordsToDdword (hi,low) = (fromIntegral low) .|. (fromIntegral hi `shiftL`bitSiz
 foreign import ccall "HsWin32.h &DeleteObjectFinaliser"
   deleteObjectFinaliser :: FunPtr (Ptr a -> IO ())
 
-foreign import stdcall unsafe "windows.h LocalFree"
+foreign import WINDOWS_CCONV unsafe "windows.h LocalFree"
   localFree :: Ptr a -> IO (Ptr a)
 
-foreign import stdcall unsafe "windows.h GetLastError"
+foreign import WINDOWS_CCONV unsafe "windows.h GetLastError"
   getLastError :: IO ErrCode
 
 {-# CFILES cbits/errors.c #-}

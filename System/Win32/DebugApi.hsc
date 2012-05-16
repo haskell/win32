@@ -25,6 +25,7 @@ import System.IO        ( fixIO )
 import System.Win32.Types   ( HANDLE, BOOL, WORD, DWORD, failIf_, failWith
                             , getLastError, failIf, LPTSTR, withTString )
 
+##include "windows_cconv.h"
 #include "windows.h"
 
 type PID = DWORD
@@ -364,45 +365,45 @@ outputDebugString s = withTString s $ \s -> c_OutputDebugString s
 --------------------------------------------------------------------------
 -- Raw imports
 
-foreign import stdcall "windows.h SuspendThread"
+foreign import WINDOWS_CCONV "windows.h SuspendThread"
     c_SuspendThread :: THANDLE -> IO DWORD
 
-foreign import stdcall "windows.h ResumeThread"
+foreign import WINDOWS_CCONV "windows.h ResumeThread"
     c_ResumeThread :: THANDLE -> IO DWORD
 
-foreign import stdcall "windows.h WaitForDebugEvent"
+foreign import WINDOWS_CCONV "windows.h WaitForDebugEvent"
     c_WaitForDebugEvent :: Ptr () -> DWORD -> IO BOOL
 
-foreign import stdcall "windows.h ContinueDebugEvent"
+foreign import WINDOWS_CCONV "windows.h ContinueDebugEvent"
     c_ContinueDebugEvent :: DWORD -> DWORD -> DWORD -> IO BOOL
 
-foreign import stdcall "windows.h DebugActiveProcess"
+foreign import WINDOWS_CCONV "windows.h DebugActiveProcess"
     c_DebugActiveProcess :: DWORD -> IO Bool
     
 -- Windows XP
--- foreign import stdcall "windows.h DebugActiveProcessStop"
+-- foreign import WINDOWS_CCONV "windows.h DebugActiveProcessStop"
 --     c_DebugActiveProcessStop :: DWORD -> IO Bool
 
-foreign import stdcall "windows.h ReadProcessMemory" c_ReadProcessMemory :: 
+foreign import WINDOWS_CCONV "windows.h ReadProcessMemory" c_ReadProcessMemory :: 
     PHANDLE -> Ptr () -> Ptr Word8 -> DWORD -> Ptr DWORD -> IO BOOL
 
-foreign import stdcall "windows.h WriteProcessMemory" c_WriteProcessMemory ::
+foreign import WINDOWS_CCONV "windows.h WriteProcessMemory" c_WriteProcessMemory ::
     PHANDLE -> Ptr () -> Ptr Word8 -> DWORD -> Ptr DWORD -> IO BOOL
 
-foreign import stdcall "windows.h GetThreadContext"
+foreign import WINDOWS_CCONV "windows.h GetThreadContext"
     c_GetThreadContext :: THANDLE -> Ptr () -> IO BOOL
 
-foreign import stdcall "windows.h SetThreadContext"
+foreign import WINDOWS_CCONV "windows.h SetThreadContext"
     c_SetThreadContext :: THANDLE -> Ptr () -> IO BOOL
 
---foreign import stdcall "windows.h GetThreadId"
+--foreign import WINDOWS_CCONV "windows.h GetThreadId"
 --    c_GetThreadId :: THANDLE -> IO TID
 
-foreign import stdcall "windows.h OutputDebugStringW"
+foreign import WINDOWS_CCONV "windows.h OutputDebugStringW"
     c_OutputDebugString :: LPTSTR -> IO ()
 
-foreign import stdcall "windows.h IsDebuggerPresent"
+foreign import WINDOWS_CCONV "windows.h IsDebuggerPresent"
     isDebuggerPresent :: IO BOOL
 
-foreign import stdcall "windows.h  DebugBreak"
+foreign import WINDOWS_CCONV "windows.h  DebugBreak"
     debugBreak :: IO ()

@@ -26,6 +26,8 @@ import Foreign      ( Storable(sizeOf, alignment, peekByteOff, pokeByteOff,
                                peek, poke)
                     , Ptr, alloca, allocaArray )
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 
 ----------------------------------------------------------------
@@ -137,22 +139,22 @@ try loc f n = do
 	Left n    -> try loc f n   
 	Right str -> return str
 
-foreign import stdcall unsafe "GetWindowsDirectoryW"
+foreign import WINDOWS_CCONV unsafe "GetWindowsDirectoryW"
   c_getWindowsDirectory :: LPTSTR -> UINT -> IO UINT
 
-foreign import stdcall unsafe "GetSystemDirectoryW"
+foreign import WINDOWS_CCONV unsafe "GetSystemDirectoryW"
   c_getSystemDirectory :: LPTSTR -> UINT -> IO UINT
 
-foreign import stdcall unsafe "GetCurrentDirectoryW"
+foreign import WINDOWS_CCONV unsafe "GetCurrentDirectoryW"
   c_getCurrentDirectory :: DWORD -> LPTSTR -> IO UINT
 
-foreign import stdcall unsafe "GetTempPathW"
+foreign import WINDOWS_CCONV unsafe "GetTempPathW"
   c_getTempPath :: DWORD -> LPTSTR -> IO UINT
 
-foreign import stdcall unsafe "GetFullPathNameW"
+foreign import WINDOWS_CCONV unsafe "GetFullPathNameW"
   c_GetFullPathName :: LPCTSTR -> DWORD -> LPTSTR -> Ptr LPTSTR -> IO DWORD
 
-foreign import stdcall unsafe "SearchPathW"
+foreign import WINDOWS_CCONV unsafe "SearchPathW"
   c_SearchPath :: LPCTSTR -> LPCTSTR -> LPCTSTR -> DWORD -> LPTSTR -> Ptr LPTSTR
                -> IO DWORD
 
@@ -246,7 +248,7 @@ instance Storable SYSTEM_INFO where
             siProcessorRevision         = processorRevision
             }
 
-foreign import stdcall unsafe "windows.h GetSystemInfo"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSystemInfo"
     c_GetSystemInfo :: Ptr SYSTEM_INFO -> IO ()
 
 getSystemInfo :: IO SYSTEM_INFO

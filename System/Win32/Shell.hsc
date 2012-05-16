@@ -36,6 +36,8 @@ import Foreign.C
 import Control.Monad
 import System.IO.Error
 
+##include "windows_cconv.h"
+
 -- for SHGetFolderPath stuff
 #define _WIN32_IE 0x500
 #include <windows.h>
@@ -76,6 +78,6 @@ raiseUnsupported :: String -> IO ()
 raiseUnsupported loc = 
    ioError (ioeSetErrorString (mkIOError illegalOperationErrorType loc Nothing Nothing) "unsupported operation")
 
-foreign import stdcall unsafe "SHGetFolderPathW"
+foreign import WINDOWS_CCONV unsafe "SHGetFolderPathW"
   c_SHGetFolderPath :: HWND -> CInt -> HANDLE -> DWORD -> LPTSTR
                     -> IO HRESULT

@@ -89,6 +89,8 @@ import Foreign
 import Foreign.C
 
 #include "Win32Aux.h"
+##include "windows_cconv.h"
+
 #include <windows.h>
 
 ----------------------------------------------------------------
@@ -212,32 +214,32 @@ setBITMAP = pokeBITMAP
 deleteBitmap :: HBITMAP -> IO ()
 deleteBitmap bitmap =
   failIfFalse_ "DeleteBitmap" $ c_DeleteBitmap bitmap
-foreign import stdcall unsafe "windows.h DeleteObject"
+foreign import WINDOWS_CCONV unsafe "windows.h DeleteObject"
   c_DeleteBitmap :: HBITMAP -> IO Bool
 
 createBitmap :: INT -> INT -> UINT -> UINT -> Maybe LPVOID -> IO HBITMAP
 createBitmap w h planes bits mb_color_data =
   failIfNull "CreateBitmap" $
     c_CreateBitmap w h planes bits (maybePtr mb_color_data)
-foreign import stdcall unsafe "windows.h CreateBitmap"
+foreign import WINDOWS_CCONV unsafe "windows.h CreateBitmap"
   c_CreateBitmap :: INT -> INT -> UINT -> UINT -> LPVOID -> IO HBITMAP
 
 createBitmapIndirect :: LPBITMAP -> IO HBITMAP
 createBitmapIndirect p_bm =
   failIfNull "CreateBitmapIndirect" $ c_CreateBitmapIndirect p_bm
-foreign import stdcall unsafe "windows.h CreateBitmapIndirect"
+foreign import WINDOWS_CCONV unsafe "windows.h CreateBitmapIndirect"
   c_CreateBitmapIndirect :: LPBITMAP -> IO HBITMAP
 
 createCompatibleBitmap :: HDC -> Int32 -> Int32 -> IO HBITMAP
 createCompatibleBitmap dc w h =
   failIfNull "CreateCompatibleBitmap" $ c_CreateCompatibleBitmap dc w h
-foreign import stdcall unsafe "windows.h CreateCompatibleBitmap"
+foreign import WINDOWS_CCONV unsafe "windows.h CreateCompatibleBitmap"
   c_CreateCompatibleBitmap :: HDC -> Int32 -> Int32 -> IO HBITMAP
 
 createDIBPatternBrushPt :: LPVOID -> ColorFormat -> IO HBRUSH
 createDIBPatternBrushPt bm usage =
   failIfNull "CreateDIBPatternBrushPt" $ c_CreateDIBPatternBrushPt bm usage
-foreign import stdcall unsafe "windows.h CreateDIBPatternBrushPt"
+foreign import WINDOWS_CCONV unsafe "windows.h CreateDIBPatternBrushPt"
   c_CreateDIBPatternBrushPt :: LPVOID -> ColorFormat -> IO HBRUSH
 
 ----------------------------------------------------------------
@@ -249,7 +251,7 @@ getBitmapDimensionEx bm =
   allocaSIZE $ \ p_size -> do
   failIfFalse_ "GetBitmapDimensionEx" $ c_GetBitmapDimensionEx bm p_size
   peekSIZE p_size
-foreign import stdcall unsafe "windows.h GetBitmapDimensionEx"
+foreign import WINDOWS_CCONV unsafe "windows.h GetBitmapDimensionEx"
   c_GetBitmapDimensionEx :: HBITMAP -> Ptr SIZE -> IO Bool
 
 setBitmapDimensionEx :: HBITMAP -> SIZE -> IO SIZE
@@ -258,7 +260,7 @@ setBitmapDimensionEx bm (cx,cy) =
   failIfFalse_ "SetBitmapDimensionEx" $ do
     c_SetBitmapDimensionEx bm cx cy p_size
   peekSIZE p_size
-foreign import stdcall unsafe "windows.h SetBitmapDimensionEx"
+foreign import WINDOWS_CCONV unsafe "windows.h SetBitmapDimensionEx"
   c_SetBitmapDimensionEx :: HBITMAP -> LONG -> LONG -> Ptr SIZE -> IO Bool
 
 getBitmapInfo :: HBITMAP -> IO BITMAP
@@ -266,7 +268,7 @@ getBitmapInfo bm =
   allocaBytes (fromIntegral sizeofBITMAP) $ \ p_bm -> do
   failIfFalse_ "GetBitmapInfo" $ c_GetBitmapInfo bm sizeofBITMAP p_bm
   peekBITMAP p_bm
-foreign import stdcall unsafe "windows.h GetObjectW"
+foreign import WINDOWS_CCONV unsafe "windows.h GetObjectW"
   c_GetBitmapInfo :: HBITMAP -> DWORD -> LPBITMAP -> IO Bool
 
 ----------------------------------------------------------------
@@ -398,20 +400,20 @@ getDIBits :: HDC -> HBITMAP -> INT -> INT -> Maybe LPVOID -> LPBITMAPINFO -> Col
 getDIBits dc bm start nlines mb_bits info usage =
   failIfZero "GetDIBits" $
     c_GetDIBits dc bm start nlines (maybePtr mb_bits) info usage
-foreign import stdcall unsafe "windows.h GetDIBits"
+foreign import WINDOWS_CCONV unsafe "windows.h GetDIBits"
   c_GetDIBits :: HDC -> HBITMAP -> INT -> INT -> LPVOID -> LPBITMAPINFO -> ColorFormat -> IO INT
 
 setDIBits :: HDC -> HBITMAP -> INT -> INT -> LPVOID -> LPBITMAPINFO -> ColorFormat -> IO INT
 setDIBits dc bm start nlines bits info use =
   failIfZero "SetDIBits" $ c_SetDIBits dc bm start nlines bits info use
-foreign import stdcall unsafe "windows.h SetDIBits"
+foreign import WINDOWS_CCONV unsafe "windows.h SetDIBits"
   c_SetDIBits :: HDC -> HBITMAP -> INT -> INT -> LPVOID -> LPBITMAPINFO -> ColorFormat -> IO INT
 
 createDIBitmap :: HDC -> LPBITMAPINFOHEADER -> DWORD -> LPVOID -> LPBITMAPINFO -> ColorFormat -> IO HBITMAP
 createDIBitmap dc hdr option init_val info usage =
   failIfNull "CreateDIBitmap" $
     c_CreateDIBitmap dc hdr option init_val info usage
-foreign import stdcall unsafe "windows.h CreateDIBitmap"
+foreign import WINDOWS_CCONV unsafe "windows.h CreateDIBitmap"
   c_CreateDIBitmap :: HDC -> LPBITMAPINFOHEADER -> DWORD -> LPVOID -> LPBITMAPINFO -> ColorFormat -> IO HBITMAP
 
 ----------------------------------------------------------------

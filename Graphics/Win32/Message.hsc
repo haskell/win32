@@ -19,6 +19,8 @@ module Graphics.Win32.Message where
 
 import System.Win32.Types
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 
 type WindowMessage   = DWORD
@@ -159,7 +161,7 @@ type WindowMessage   = DWORD
 registerWindowMessage :: String -> IO WindowMessage
 registerWindowMessage msg =
   withTString msg c_RegisterWindowMessage
-foreign import stdcall unsafe "windows.h RegisterWindowMessageW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegisterWindowMessageW"
   c_RegisterWindowMessage :: LPCTSTR -> IO WindowMessage
 
 -- These are WM_SIZE specific

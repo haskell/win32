@@ -22,6 +22,8 @@ import System.Win32.Types
 import Foreign
 import Foreign.C.Types
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 
 copyMemory :: Ptr a -> Ptr a -> DWORD -> IO ()
@@ -39,11 +41,11 @@ zeroMemory dest nbytes = memset dest 0 (fromIntegral nbytes)
 
 foreign import ccall unsafe "string.h" memset :: Ptr a -> CInt -> CSize -> IO ()
 
-foreign import stdcall unsafe "windows.h GetProcessHeap"
+foreign import WINDOWS_CCONV unsafe "windows.h GetProcessHeap"
   getProcessHeap :: IO HANDLE
 
 #ifndef __WINE_WINDOWS_H
-foreign import stdcall unsafe "windows.h GetProcessHeaps"
+foreign import WINDOWS_CCONV unsafe "windows.h GetProcessHeaps"
   getProcessHeaps :: DWORD -> Addr -> IO DWORD
 #endif
 
@@ -72,7 +74,7 @@ gMEM_INVALID_HANDLE = #{const GMEM_INVALID_HANDLE}
 globalAlloc :: GlobalAllocFlags -> DWORD -> IO HGLOBAL
 globalAlloc flags size =
   failIfNull "GlobalAlloc" $ c_GlobalAlloc flags size
-foreign import stdcall unsafe "windows.h GlobalAlloc"
+foreign import WINDOWS_CCONV unsafe "windows.h GlobalAlloc"
   c_GlobalAlloc :: GlobalAllocFlags -> DWORD -> IO HGLOBAL
 
 -- %fun GlobalDiscard :: HGLOBAL -> IO HGLOBAL
@@ -81,25 +83,25 @@ foreign import stdcall unsafe "windows.h GlobalAlloc"
 globalFlags :: HGLOBAL -> IO GlobalAllocFlags
 globalFlags mem =
   failIf (== gMEM_INVALID_HANDLE) "GlobalFlags" $ c_GlobalFlags mem
-foreign import stdcall unsafe "windows.h GlobalFlags"
+foreign import WINDOWS_CCONV unsafe "windows.h GlobalFlags"
   c_GlobalFlags :: HGLOBAL -> IO GlobalAllocFlags
 
 globalFree :: HGLOBAL -> IO HGLOBAL
 globalFree mem =
   failIfNull "GlobalFree" $ c_GlobalFree mem
-foreign import stdcall unsafe "windows.h GlobalFree"
+foreign import WINDOWS_CCONV unsafe "windows.h GlobalFree"
   c_GlobalFree :: HGLOBAL -> IO HGLOBAL
 
 globalHandle :: Addr -> IO HGLOBAL
 globalHandle addr =
   failIfNull "GlobalHandle" $ c_GlobalHandle addr
-foreign import stdcall unsafe "windows.h GlobalHandle"
+foreign import WINDOWS_CCONV unsafe "windows.h GlobalHandle"
   c_GlobalHandle :: Addr -> IO HGLOBAL
 
 globalLock :: HGLOBAL -> IO Addr
 globalLock mem =
   failIfNull "GlobalLock" $ c_GlobalLock mem
-foreign import stdcall unsafe "windows.h GlobalLock"
+foreign import WINDOWS_CCONV unsafe "windows.h GlobalLock"
   c_GlobalLock :: HGLOBAL -> IO Addr
 
 -- %fun GlobalMemoryStatus :: IO MEMORYSTATUS
@@ -107,19 +109,19 @@ foreign import stdcall unsafe "windows.h GlobalLock"
 globalReAlloc :: HGLOBAL -> DWORD -> GlobalAllocFlags -> IO HGLOBAL
 globalReAlloc mem size flags =
   failIfNull "GlobalReAlloc" $ c_GlobalReAlloc mem size flags
-foreign import stdcall unsafe "windows.h GlobalReAlloc"
+foreign import WINDOWS_CCONV unsafe "windows.h GlobalReAlloc"
   c_GlobalReAlloc :: HGLOBAL -> DWORD -> GlobalAllocFlags -> IO HGLOBAL
 
 globalSize :: HGLOBAL -> IO DWORD
 globalSize mem =
   failIfZero "GlobalSize" $ c_GlobalSize mem
-foreign import stdcall unsafe "windows.h GlobalSize"
+foreign import WINDOWS_CCONV unsafe "windows.h GlobalSize"
   c_GlobalSize :: HGLOBAL -> IO DWORD
 
 globalUnlock :: HGLOBAL -> IO ()
 globalUnlock mem =
   failIfFalse_ "GlobalUnlock" $ c_GlobalUnlock mem
-foreign import stdcall unsafe "windows.h GlobalUnlock"
+foreign import WINDOWS_CCONV unsafe "windows.h GlobalUnlock"
   c_GlobalUnlock :: HGLOBAL -> IO Bool
 
 type HeapAllocFlags = DWORD
@@ -133,58 +135,58 @@ type HeapAllocFlags = DWORD
 heapAlloc :: HANDLE -> HeapAllocFlags -> DWORD -> IO Addr
 heapAlloc heap flags size =
   failIfNull "HeapAlloc" $ c_HeapAlloc heap flags size
-foreign import stdcall unsafe "windows.h HeapAlloc"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapAlloc"
   c_HeapAlloc :: HANDLE -> HeapAllocFlags -> DWORD -> IO Addr
 
 heapCompact :: HANDLE -> HeapAllocFlags -> IO UINT
 heapCompact heap flags =
   failIfZero "HeapCompact" $ c_HeapCompact heap flags
-foreign import stdcall unsafe "windows.h HeapCompact"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapCompact"
   c_HeapCompact :: HANDLE -> HeapAllocFlags -> IO UINT
 
 heapCreate :: HeapAllocFlags -> DWORD -> DWORD -> IO HANDLE
 heapCreate flags initSize maxSize =
   failIfNull "HeapCreate" $ c_HeapCreate flags initSize maxSize
-foreign import stdcall unsafe "windows.h HeapCreate"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapCreate"
   c_HeapCreate :: HeapAllocFlags -> DWORD -> DWORD -> IO HANDLE
 
 heapDestroy :: HANDLE -> IO ()
 heapDestroy heap =
   failIfFalse_ "HeapDestroy" $ c_HeapDestroy heap
-foreign import stdcall unsafe "windows.h HeapDestroy"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapDestroy"
   c_HeapDestroy :: HANDLE -> IO Bool
 
 heapFree :: HANDLE -> HeapAllocFlags -> Addr -> IO ()
 heapFree heap flags addr =
   failIfFalse_ "HeapFree" $ c_HeapFree heap flags addr
-foreign import stdcall unsafe "windows.h HeapFree"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapFree"
   c_HeapFree :: HANDLE -> HeapAllocFlags -> Addr -> IO Bool
 
 heapLock :: HANDLE -> IO ()
 heapLock heap =
   failIfFalse_ "HeapLock" $ c_HeapLock heap
-foreign import stdcall unsafe "windows.h HeapLock"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapLock"
   c_HeapLock :: HANDLE -> IO Bool
 
 heapReAlloc :: HANDLE -> HeapAllocFlags -> Addr -> DWORD -> IO Addr
 heapReAlloc heap flags addr size =
   failIfNull "HeapReAlloc" $ c_HeapReAlloc heap flags addr size
-foreign import stdcall unsafe "windows.h HeapReAlloc"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapReAlloc"
   c_HeapReAlloc :: HANDLE -> HeapAllocFlags -> Addr -> DWORD -> IO Addr
 
 heapSize :: HANDLE -> HeapAllocFlags -> Addr -> IO DWORD
 heapSize heap flags addr =
   failIfZero "HeapSize" $ c_HeapSize heap flags addr
-foreign import stdcall unsafe "windows.h HeapSize"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapSize"
   c_HeapSize :: HANDLE -> HeapAllocFlags -> Addr -> IO DWORD
 
 heapUnlock :: HANDLE -> IO ()
 heapUnlock heap =
   failIfFalse_ "HeapUnlock" $ c_HeapUnlock heap
-foreign import stdcall unsafe "windows.h HeapUnlock"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapUnlock"
   c_HeapUnlock :: HANDLE -> IO Bool
 
-foreign import stdcall unsafe "windows.h HeapValidate"
+foreign import WINDOWS_CCONV unsafe "windows.h HeapValidate"
   heapValidate :: HANDLE -> HeapAllocFlags -> Addr -> IO Bool
 
 type VirtualAllocFlags = DWORD
@@ -219,7 +221,7 @@ type FreeFlags = DWORD
 virtualAlloc :: Addr -> DWORD -> VirtualAllocFlags -> ProtectFlags -> IO Addr
 virtualAlloc addt size ty flags =
   failIfNull "VirtualAlloc" $ c_VirtualAlloc addt size ty flags
-foreign import stdcall unsafe "windows.h VirtualAlloc"
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualAlloc"
   c_VirtualAlloc :: Addr -> DWORD -> DWORD -> DWORD -> IO Addr
 
 -- %fun VirtualAllocEx :: HANDLE -> Addr -> DWORD -> VirtualAllocFlags -> ProtectFlags ->IO Addr
@@ -230,7 +232,7 @@ foreign import stdcall unsafe "windows.h VirtualAlloc"
 virtualFree :: Addr -> DWORD -> FreeFlags -> IO ()
 virtualFree addr size flags =
   failIfFalse_ "VirtualFree" $ c_VirtualFree addr size flags
-foreign import stdcall unsafe "windows.h VirtualFree"
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualFree"
   c_VirtualFree :: Addr -> DWORD -> FreeFlags -> IO Bool
 
 -- %fun VirtualFreeEx :: HANDLE -> Addr -> DWORD -> FreeFlags -> IO ()
@@ -241,7 +243,7 @@ foreign import stdcall unsafe "windows.h VirtualFree"
 virtualLock :: Addr -> DWORD -> IO ()
 virtualLock addr size =
   failIfFalse_ "VirtualLock" $ c_VirtualLock addr size
-foreign import stdcall unsafe "windows.h VirtualLock"
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualLock"
   c_VirtualLock :: Addr -> DWORD -> IO Bool
 
 virtualProtect :: Addr -> DWORD -> ProtectFlags -> IO ProtectFlags
@@ -249,7 +251,7 @@ virtualProtect addr size new_prot =
   alloca $ \ p_old -> do
   failIfFalse_ "VirtualProtect" $ c_VirtualProtect addr size new_prot p_old
   peek p_old
-foreign import stdcall unsafe "windows.h VirtualProtect"
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualProtect"
   c_VirtualProtect :: Addr -> DWORD -> DWORD -> Ptr DWORD -> IO Bool
 
 virtualProtectEx :: HANDLE -> Addr -> DWORD -> ProtectFlags -> IO ProtectFlags
@@ -258,7 +260,7 @@ virtualProtectEx proc addr size new_prot =
   failIfFalse_ "VirtualProtectEx" $
     c_VirtualProtectEx proc addr size new_prot p_old
   peek p_old
-foreign import stdcall unsafe "windows.h VirtualProtectEx"
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualProtectEx"
   c_VirtualProtectEx :: HANDLE -> Addr -> DWORD -> DWORD -> Ptr DWORD -> IO Bool
 
 -- No VirtualQuery..()
@@ -266,5 +268,5 @@ foreign import stdcall unsafe "windows.h VirtualProtectEx"
 virtualUnlock :: Addr -> DWORD -> IO ()
 virtualUnlock addr size =
   failIfFalse_ "VirtualUnlock" $ c_VirtualUnlock addr size
-foreign import stdcall unsafe "windows.h VirtualUnlock"
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualUnlock"
   c_VirtualUnlock :: Addr -> DWORD -> IO Bool

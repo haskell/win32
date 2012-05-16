@@ -57,6 +57,8 @@ import Foreign
 -- import Foreign.C
 import System.Win32.Types
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 
 -- --------------------------------------------------------------------------
@@ -89,14 +91,14 @@ type PACL = Ptr ACL
 newtype SID = SID SID
 type PSID = Ptr SID
 
-foreign import stdcall unsafe "windows.h GetSecurityDescriptorControl"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorControl"
   c_getSecurityDescriptorControl
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> Ptr SECURITY_DESCRIPTOR_CONTROL -- pControl
     -> LPDWORD -- lpdwRevision
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h GetSecurityDescriptorDacl"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorDacl"
   c_getSecurityDescriptorDacl 
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> LPBOOL -- lpbDaclPresent
@@ -104,26 +106,26 @@ foreign import stdcall unsafe "windows.h GetSecurityDescriptorDacl"
     -> LPBOOL -- lpbDaclDefaulted
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h GetSecurityDescriptorGroup"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorGroup"
   c_getSecurityDescriptorGroup
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> Ptr PSID -- pGroup
     -> LPBOOL -- lpbGroupDefaulted
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h GetSecurityDescriptorLength"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorLength"
   c_getSecurityDescriptorLength
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> IO DWORD 
 
-foreign import stdcall unsafe "windows.h GetSecurityDescriptorOwner"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorOwner"
   c_getSecurityDescriptorOwner
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> Ptr PSID -- pOwner
     -> LPBOOL -- lpbOwnerDefaulted
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h GetSecurityDescriptorSacl"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorSacl"
   c_getSecurityDescriptorSacl
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> LPBOOL -- lpbSaclPresent
@@ -131,18 +133,18 @@ foreign import stdcall unsafe "windows.h GetSecurityDescriptorSacl"
     -> LPBOOL -- lpbSaclDefaulted
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h InitializeSecurityDescriptor"
+foreign import WINDOWS_CCONV unsafe "windows.h InitializeSecurityDescriptor"
   c_initializeSecurityDescriptor
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> DWORD -- dwRevision
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h IsValidSecurityDescriptor"
+foreign import WINDOWS_CCONV unsafe "windows.h IsValidSecurityDescriptor"
   c_isValidSecurityDescriptor
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h SetSecurityDescriptorDacl"
+foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorDacl"
   c_setSecurityDescriptorDacl
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> BOOL -- bDaclPresent
@@ -150,21 +152,21 @@ foreign import stdcall unsafe "windows.h SetSecurityDescriptorDacl"
     -> BOOL -- bDaclDefaulted
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h SetSecurityDescriptorGroup"
+foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorGroup"
   c_setSecurityDescriptorGroup
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> PSID -- pGroup
     -> BOOL -- bGroupDefaulted
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h SetSecurityDescriptorOwner"
+foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorOwner"
   c_setSecurityDescriptorOwner
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> PSID -- pOwner
     -> BOOL -- bOwnerDefaulted
     -> IO BOOL 
 
-foreign import stdcall unsafe "windows.h SetSecurityDescriptorSacl"
+foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorSacl"
   c_setSecurityDescriptorSacl
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> BOOL -- bSaclPresent
@@ -205,7 +207,7 @@ getFileSecurity filename si =
     c_GetFileSecurity lpFileName si pSd needed lpnLengthNeeded
   return (SecurityDescriptor fpSd)
 
-foreign import stdcall unsafe "windows.h GetFileSecurityW"
+foreign import WINDOWS_CCONV unsafe "windows.h GetFileSecurityW"
   c_GetFileSecurity
     :: LPCWSTR -- lpFileName
     -> SECURITY_INFORMATION -- RequestedInformation
@@ -214,7 +216,7 @@ foreign import stdcall unsafe "windows.h GetFileSecurityW"
     -> LPDWORD -- lpnLengthNeeded
     -> IO BOOL 
 
---foreign import stdcall unsafe "windows.h AccessCheck"
+--foreign import WINDOWS_CCONV unsafe "windows.h AccessCheck"
 --  c_AccessCheck
 --    :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
 --    -> HANDLE -- ClientToken
@@ -226,7 +228,7 @@ foreign import stdcall unsafe "windows.h GetFileSecurityW"
 --    -> LPBOOL -- AccessStatus
 --    -> IO BOOL
 
--- foreign import stdcall unsafe "windows.h OpenThreadToken"
+-- foreign import WINDOWS_CCONV unsafe "windows.h OpenThreadToken"
 --    OpenThreadToken
 --      :: HANDLE -- ThreadHandle
 --      -> DWORD -- DesiredAccess

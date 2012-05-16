@@ -20,6 +20,8 @@ module Graphics.Win32.GDI.Pen where
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 
 ----------------------------------------------------------------
@@ -37,13 +39,13 @@ type StockPen   = INT
 getStockPen :: StockPen -> IO HPEN
 getStockPen stockpen =
   failIfNull "GetStockPen" $ c_GetStockPen stockpen
-foreign import stdcall unsafe "windows.h GetStockObject"
+foreign import WINDOWS_CCONV unsafe "windows.h GetStockObject"
   c_GetStockPen :: StockPen -> IO HPEN
 
 deletePen :: HPEN -> IO ()
 deletePen pen =
   failIfFalse_ "DeletePen" $ c_DeletePen pen
-foreign import stdcall unsafe "windows.h DeleteObject"
+foreign import WINDOWS_CCONV unsafe "windows.h DeleteObject"
   c_DeletePen :: HPEN -> IO Bool
 
 ----------------------------------------------------------------
@@ -92,7 +94,7 @@ you'll have to define it.
 createPen :: PenStyle -> INT -> COLORREF -> IO HPEN
 createPen style n color =
   failIfNull "CreatePen" $ c_CreatePen style n color
-foreign import stdcall unsafe "windows.h CreatePen"
+foreign import WINDOWS_CCONV unsafe "windows.h CreatePen"
   c_CreatePen :: PenStyle -> INT -> COLORREF -> IO HPEN
 
 -- Not very well supported on Win'95

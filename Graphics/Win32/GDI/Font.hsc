@@ -38,6 +38,7 @@ import Graphics.Win32.GDI.Types
 
 import Foreign
 
+##include "windows_cconv.h"
 #include <windows.h>
 
 ----------------------------------------------------------------
@@ -148,7 +149,7 @@ createFont h w esc orient wt ital under strike cset out clip q pf face =
   withTString face $ \ c_face ->
   failIfNull "CreateFont" $
     c_CreateFont h w esc orient wt ital under strike cset out clip q pf c_face
-foreign import stdcall unsafe "windows.h CreateFontW"
+foreign import WINDOWS_CCONV unsafe "windows.h CreateFontW"
   c_CreateFont
      :: INT -> INT -> INT -> INT
      -> FontWeight -> Bool -> Bool -> Bool
@@ -182,7 +183,7 @@ foreign import stdcall unsafe "windows.h CreateFontW"
 
 -- missing CreateFontIndirect from WinFonts.ss; GSL ???
 
-foreign import stdcall unsafe "windows.h DeleteObject"
+foreign import WINDOWS_CCONV unsafe "windows.h DeleteObject"
   deleteFont :: HFONT -> IO ()
 
 ----------------------------------------------------------------
@@ -198,7 +199,7 @@ type StockFont      = WORD
  , sYSTEM_FIXED_FONT   = SYSTEM_FIXED_FONT
  }
 
-foreign import stdcall unsafe "windows.h GetStockObject"
+foreign import WINDOWS_CCONV unsafe "windows.h GetStockObject"
   getStockFont :: StockFont -> IO HFONT
 
 ----------------------------------------------------------------

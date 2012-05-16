@@ -23,6 +23,8 @@ import Foreign              ( Ptr, peekByteOff, allocaBytes, pokeByteOff
 import System.Win32.File    ( closeHandle )
 import System.Win32.Types
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 #include <tlhelp32.h>
 
@@ -30,7 +32,7 @@ import System.Win32.Types
 iNFINITE :: DWORD
 iNFINITE = #{const INFINITE}
 
-foreign import stdcall unsafe "windows.h Sleep"
+foreign import WINDOWS_CCONV unsafe "windows.h Sleep"
   sleep :: DWORD -> IO ()
 
 
@@ -52,14 +54,14 @@ type ProcessAccessRights = DWORD
     , sYNCHORNIZE                   = SYNCHRONIZE 
     }
 
-foreign import stdcall unsafe "windows.h OpenProcess"
+foreign import WINDOWS_CCONV unsafe "windows.h OpenProcess"
     c_OpenProcess :: ProcessAccessRights -> BOOL -> ProcessId -> IO ProcessHandle
 
 
 openProcess :: ProcessAccessRights -> BOOL -> ProcessId -> IO ProcessHandle
 openProcess r inh i = failIfNull "OpenProcess" $ c_OpenProcess r inh i
 
-foreign import stdcall unsafe "windows.h GetProcessId"
+foreign import WINDOWS_CCONV unsafe "windows.h GetProcessId"
     c_GetProcessId :: ProcessHandle -> IO ProcessId
 
 getProcessId :: ProcessHandle -> IO ProcessId
@@ -82,13 +84,13 @@ type ProcessEntry32 = (ProcessId, Int, ProcessId, LONG, String)
     , tH32CS_SNAPNOHEAPS    = TH32CS_SNAPNOHEAPS 
 -}
 
-foreign import stdcall unsafe "tlhelp32.h CreateToolhelp32Snapshot"
+foreign import WINDOWS_CCONV unsafe "tlhelp32.h CreateToolhelp32Snapshot"
     c_CreateToolhelp32Snapshot :: Th32SnapFlags -> ProcessId -> IO Th32SnapHandle
 
-foreign import stdcall unsafe "tlhelp32.h Process32FirstW"
+foreign import WINDOWS_CCONV unsafe "tlhelp32.h Process32FirstW"
     c_Process32First :: Th32SnapHandle -> Ptr ProcessEntry32 -> IO BOOL
 
-foreign import stdcall unsafe "tlhelp32.h Process32NextW"
+foreign import WINDOWS_CCONV unsafe "tlhelp32.h Process32NextW"
     c_Process32Next :: Th32SnapHandle -> Ptr ProcessEntry32 -> IO BOOL
 
 -- | Create a snapshot of specified resources.  Call closeHandle to close snapshot.

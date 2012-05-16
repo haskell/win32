@@ -67,6 +67,8 @@ import System.Win32.File
 import System.IO.Unsafe
 import Foreign hiding (unsafePerformIO)
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 
 #{enum HKEY, (unsafePerformIO . newForeignHANDLE . castUINTPtrToPtr)
@@ -83,7 +85,7 @@ regCloseKey :: HKEY -> IO ()
 regCloseKey key =
   withForeignPtr key $ \ p_key ->
   failUnlessSuccess "RegCloseKey" $ c_RegCloseKey p_key
-foreign import stdcall unsafe "windows.h RegCloseKey"
+foreign import WINDOWS_CCONV unsafe "windows.h RegCloseKey"
   c_RegCloseKey :: PKEY -> IO ErrCode
 
 -- Connects to a predefined registry handle on another computer.
@@ -97,7 +99,7 @@ regConnectRegistry mb_machine key =
     c_RegConnectRegistry c_machine p_key p_out_key
   p_new_key <- peek p_out_key
   newForeignHANDLE p_new_key
-foreign import stdcall unsafe "windows.h RegConnectRegistryW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegConnectRegistryW"
   c_RegConnectRegistry :: LPCTSTR -> PKEY -> Ptr PKEY -> IO ErrCode
 
 regCreateKey :: HKEY -> String -> IO HKEY
@@ -109,7 +111,7 @@ regCreateKey key subkey =
     c_RegCreateKey p_key c_subkey p_out_key
   p_new_key <- peek p_out_key
   newForeignHANDLE p_new_key
-foreign import stdcall unsafe "windows.h RegCreateKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegCreateKeyW"
   c_RegCreateKey :: PKEY -> LPCTSTR -> Ptr PKEY -> IO ErrCode
 
 type RegCreateOptions = DWORD
@@ -147,7 +149,7 @@ regCreateKeyEx key subkey cls opts sam mb_attr =
   out_key <- newForeignHANDLE p_out_key
   disp <- peek p_disp
   return (out_key, disp == #{const REG_CREATED_NEW_KEY})
-foreign import stdcall unsafe "windows.h RegCreateKeyExW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegCreateKeyExW"
   c_RegCreateKeyEx :: PKEY -> LPCTSTR -> DWORD -> LPCTSTR -> RegCreateOptions -> REGSAM -> LPSECURITY_ATTRIBUTES -> Ptr PKEY -> Ptr DWORD -> IO ErrCode
 
 regDeleteKey :: HKEY -> String -> IO ()
@@ -155,7 +157,7 @@ regDeleteKey key subkey =
   withForeignPtr key $ \ p_key ->
   withTString subkey $ \ c_subkey ->
   failUnlessSuccess "RegDeleteKey" $ c_RegDeleteKey p_key c_subkey
-foreign import stdcall unsafe "windows.h RegDeleteKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegDeleteKeyW"
   c_RegDeleteKey :: PKEY -> LPCTSTR -> IO ErrCode
 
 regDeleteValue :: HKEY -> String -> IO ()
@@ -163,7 +165,7 @@ regDeleteValue key name =
   withForeignPtr key $ \ p_key ->
   withTString name $ \ c_name ->
   failUnlessSuccess "RegDeleteValue" $ c_RegDeleteValue p_key c_name
-foreign import stdcall unsafe "windows.h RegDeleteValueW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegDeleteValueW"
   c_RegDeleteValue :: PKEY -> LPCTSTR -> IO ErrCode
 
 -- XXX Not 100% sure this is right, but I think it is.
@@ -225,7 +227,7 @@ regEnumKey key index c_name len =
     c_RegEnumKey p_key index c_name len
   str <- peekTString c_name
   return (str, fromEnum no_more)
-foreign import stdcall unsafe "windows.h RegEnumKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegEnumKeyW"
   c_RegEnumKey :: PKEY -> DWORD -> LPTSTR -> DWORD -> IO ErrCode
 
 regEnumValue :: HKEY -> DWORD -> LPTSTR -> DWORD -> LPBYTE -> DWORD -> IO (RegValueType, String, Int)
@@ -239,7 +241,7 @@ regEnumValue key index name name_len value value_len =
   reg_ty <- peek p_reg_ty
   str <- peekTString name
   return (reg_ty, str, fromEnum no_more)
-foreign import stdcall unsafe "windows.h RegEnumValueW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegEnumValueW"
   c_RegEnumValue :: PKEY -> DWORD -> LPTSTR -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> LPBYTE -> Ptr DWORD -> IO ErrCode
 
 eRROR_NO_MORE_ITEMS :: ErrCode
@@ -249,7 +251,7 @@ regFlushKey :: HKEY -> IO ()
 regFlushKey key =
   withForeignPtr key $ \ p_key ->
   failUnlessSuccess "RegFlushKey" $ c_RegFlushKey p_key
-foreign import stdcall unsafe "windows.h RegFlushKey"
+foreign import WINDOWS_CCONV unsafe "windows.h RegFlushKey"
   c_RegFlushKey :: PKEY -> IO ErrCode
 
 -- ifdef FOR_WINDOWS_NT
@@ -263,7 +265,7 @@ regLoadKey key subkey file =
   withTString subkey $ \ c_subkey ->
   withTString file $ \ c_file ->
   failUnlessSuccess "RegLoadKey" $ c_RegLoadKey p_key c_subkey c_file
-foreign import stdcall unsafe "windows.h RegLoadKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegLoadKeyW"
   c_RegLoadKey :: PKEY -> LPCTSTR -> LPCTSTR -> IO ErrCode
 
 -- ifdef FOR_WINDOWS_NT
@@ -282,7 +284,7 @@ regNotifyChangeKeyValue key watch notifyFilter event async =
   withForeignPtr key $ \ p_key ->
   failUnlessSuccess "RegNotifyChangeKeyValue" $
     c_RegNotifyChangeKeyValue p_key watch notifyFilter event async
-foreign import stdcall unsafe "windows.h RegNotifyChangeKeyValue"
+foreign import WINDOWS_CCONV unsafe "windows.h RegNotifyChangeKeyValue"
   c_RegNotifyChangeKeyValue :: PKEY -> Bool -> RegNotifyOptions -> HANDLE -> Bool -> IO ErrCode
 
 -- endif
@@ -297,7 +299,7 @@ regOpenKey key subkey =
   failUnlessSuccess "RegOpenKey" $ c_RegOpenKey p_key c_subkey p_res
   p_res_key <- peek p_res
   newForeignHANDLE p_res_key
-foreign import stdcall unsafe "windows.h RegOpenKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegOpenKeyW"
   c_RegOpenKey :: PKEY -> LPCTSTR -> Ptr PKEY -> IO ErrCode
 
 regOpenKeyEx :: HKEY -> String -> REGSAM -> IO HKEY
@@ -308,7 +310,7 @@ regOpenKeyEx key subkey sam =
   failUnlessSuccess "RegOpenKeyEx" $ c_RegOpenKeyEx p_key c_subkey 0 sam p_res
   p_res_key <- peek p_res
   newForeignHANDLE p_res_key
-foreign import stdcall unsafe "windows.h RegOpenKeyExW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegOpenKeyExW"
   c_RegOpenKeyEx :: PKEY -> LPCTSTR -> DWORD -> REGSAM -> Ptr PKEY -> IO ErrCode
 
 data RegInfoKey =
@@ -367,7 +369,7 @@ regQueryInfoKey key =
     , lastWrite_lo = lastWrite_lo
     , lastWrite_hi = lastWrite_hi
     }
-foreign import stdcall unsafe "windows.h RegQueryInfoKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegQueryInfoKeyW"
   c_RegQueryInfoKey :: PKEY -> LPTSTR -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr FILETIME -> IO ErrCode
 
 -- RegQueryMultipleValues :: HKEY -> IO ([VALENT],String)
@@ -389,7 +391,7 @@ regQueryValueKey key mb_subkey =
     failUnlessSuccess "RegQueryValue" $
       c_RegQueryValue p_key c_subkey c_value p_value_len
     peekTString c_value
-foreign import stdcall unsafe "windows.h RegQueryValueW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegQueryValueW"
   c_RegQueryValue :: PKEY -> LPCTSTR -> LPTSTR -> Ptr LONG -> IO ErrCode
 
 regQueryValue :: HKEY -> Maybe String -> IO String
@@ -417,7 +419,7 @@ regQueryValueEx key name value value_len =
   failUnlessSuccess "RegQueryValueEx" $
     c_RegQueryValueEx p_key c_name nullPtr p_ty value p_value_len
   peek p_ty
-foreign import stdcall unsafe "windows.h RegQueryValueExW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegQueryValueExW"
   c_RegQueryValueEx :: PKEY -> LPCTSTR -> Ptr DWORD -> Ptr DWORD -> LPBYTE -> Ptr DWORD -> IO ErrCode
 
 regReplaceKey :: HKEY -> String -> String -> String -> IO ()
@@ -428,7 +430,7 @@ regReplaceKey key subkey newfile oldfile =
   withTString oldfile $ \ c_oldfile ->
   failUnlessSuccess "RegReplaceKey" $
     c_RegReplaceKey p_key c_subkey c_newfile c_oldfile
-foreign import stdcall unsafe "windows.h RegReplaceKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegReplaceKeyW"
   c_RegReplaceKey :: PKEY -> LPCTSTR -> LPCTSTR -> LPCTSTR -> IO ErrCode
 
 type RegRestoreFlags = DWORD
@@ -444,7 +446,7 @@ regRestoreKey key file flags =
   withForeignPtr key $ \ p_key ->
   withTString file $ \ c_file ->
   failUnlessSuccess "RegRestoreKey" $ c_RegRestoreKey p_key c_file flags
-foreign import stdcall unsafe "windows.h RegRestoreKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegRestoreKeyW"
   c_RegRestoreKey :: PKEY -> LPCTSTR -> RegRestoreFlags -> IO ErrCode
 
 regSaveKey :: HKEY -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
@@ -452,7 +454,7 @@ regSaveKey key file mb_attr =
   withForeignPtr key $ \ p_key ->
   withTString file $ \ c_file ->
   failUnlessSuccess "RegSaveKey" $ c_RegSaveKey p_key c_file (maybePtr mb_attr)
-foreign import stdcall unsafe "windows.h RegSaveKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegSaveKeyW"
   c_RegSaveKey :: PKEY -> LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO ErrCode
 
 -- ifdef FOR_WINDOWS_NT
@@ -470,7 +472,7 @@ regSetValue key subkey value =
   withTStringLen value $ \ (c_value, value_len) ->
   failUnlessSuccess "RegSetValue" $
     c_RegSetValue p_key c_subkey rEG_SZ c_value value_len
-foreign import stdcall unsafe "windows.h RegSetValueW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegSetValueW"
   c_RegSetValue :: PKEY -> LPCTSTR -> DWORD -> LPCTSTR -> Int -> IO ErrCode
 
 
@@ -503,7 +505,7 @@ regSetValueEx key subkey ty value value_len =
   withTString subkey $ \ c_subkey ->
   failUnlessSuccess "RegSetValueEx" $
     c_RegSetValueEx p_key c_subkey 0 ty value value_len
-foreign import stdcall unsafe "windows.h RegSetValueExW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegSetValueExW"
   c_RegSetValueEx :: PKEY -> LPCTSTR -> DWORD -> RegValueType -> LPTSTR -> Int -> IO ErrCode
 
 regUnLoadKey :: HKEY -> String -> IO ()
@@ -511,5 +513,5 @@ regUnLoadKey key subkey =
   withForeignPtr key $ \ p_key ->
   withTString subkey $ \ c_subkey ->
   failUnlessSuccess "RegUnLoadKey" $ c_RegUnLoadKey p_key c_subkey
-foreign import stdcall unsafe "windows.h RegUnLoadKeyW"
+foreign import WINDOWS_CCONV unsafe "windows.h RegUnLoadKeyW"
   c_RegUnLoadKey :: PKEY -> LPCTSTR -> IO ErrCode

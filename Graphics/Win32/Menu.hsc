@@ -69,6 +69,8 @@ import System.Win32.Types
 import Foreign
 import Control.Monad (liftM)
 
+##include "windows_cconv.h"
+
 #include <windows.h>
 
 type MenuName = LPCTSTR
@@ -77,32 +79,32 @@ checkMenuItem :: HMENU -> MenuItem -> MenuFlag -> IO Bool
 checkMenuItem menu item check = do
   rv <- failIf (== -1) "CheckMenuItem" $ c_CheckMenuItem menu item check
   return (rv == mF_CHECKED)
-foreign import stdcall unsafe "windows.h CheckMenuItem"
+foreign import WINDOWS_CCONV unsafe "windows.h CheckMenuItem"
   c_CheckMenuItem :: HMENU -> UINT -> UINT -> IO DWORD
 
 checkMenuRadioItem :: HMENU -> MenuItem -> MenuItem -> MenuItem -> MenuFlag -> IO ()
 checkMenuRadioItem menu first_id last_id check flags =
   failIfFalse_ "CheckMenuRadioItem" $
     c_CheckMenuRadioItem menu first_id last_id check flags
-foreign import stdcall unsafe "windows.h CheckMenuRadioItem"
+foreign import WINDOWS_CCONV unsafe "windows.h CheckMenuRadioItem"
   c_CheckMenuRadioItem :: HMENU -> UINT -> UINT -> UINT -> UINT -> IO Bool
 
 createMenu :: IO HMENU
 createMenu =
   failIfNull "CreateMenu" $ c_CreateMenu
-foreign import stdcall unsafe "windows.h CreateMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h CreateMenu"
   c_CreateMenu :: IO HMENU
 
 createPopupMenu :: IO HMENU
 createPopupMenu =
   failIfNull "CreatePopupMenu" $ c_CreatePopupMenu
-foreign import stdcall unsafe "windows.h CreatePopupMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h CreatePopupMenu"
   c_CreatePopupMenu :: IO HMENU
 
 drawMenuBar :: HWND -> IO ()
 drawMenuBar wnd =
   failIfFalse_ "DrawMenuBar" $ c_DrawMenuBar wnd
-foreign import stdcall unsafe "windows.h DrawMenuBar"
+foreign import WINDOWS_CCONV unsafe "windows.h DrawMenuBar"
   c_DrawMenuBar :: HWND -> IO Bool
 
 type MenuState = MenuFlag
@@ -110,7 +112,7 @@ type MenuState = MenuFlag
 enableMenuItem :: HMENU -> MenuItem -> MenuFlag -> IO MenuState
 enableMenuItem menu item flag =
   failIf (== 0xffffffff) "EnableMenuItem" $ c_EnableMenuItem menu item flag
-foreign import stdcall unsafe "windows.h EnableMenuItem"
+foreign import WINDOWS_CCONV unsafe "windows.h EnableMenuItem"
   c_EnableMenuItem :: HMENU -> UINT -> UINT -> IO MenuState
 
 type GMDIFlag = UINT
@@ -210,48 +212,48 @@ type SystemMenuCommand = UINT
  , sC_SEPARATOR         = SC_SEPARATOR
  }
 
-foreign import stdcall unsafe "windows.h IsMenu" isMenu :: HMENU -> IO Bool
+foreign import WINDOWS_CCONV unsafe "windows.h IsMenu" isMenu :: HMENU -> IO Bool
 
 getSystemMenu :: HWND  -> Bool ->     IO (Maybe HMENU)
 getSystemMenu wnd revert =
   liftM ptrToMaybe $ c_GetSystemMenu wnd revert
-foreign import stdcall unsafe "windows.h GetSystemMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSystemMenu"
   c_GetSystemMenu :: HWND  -> Bool ->     IO HMENU
 
 getMenu :: HWND  ->             IO (Maybe HMENU)
 getMenu wnd =
   liftM ptrToMaybe $ c_GetMenu wnd
-foreign import stdcall unsafe "windows.h GetMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h GetMenu"
   c_GetMenu :: HWND  ->             IO HMENU
 
 getMenuDefaultItem :: HMENU -> Bool -> GMDIFlag -> IO MenuItem
 getMenuDefaultItem menu bypos flags =
   failIf (== -1) "GetMenuDefaultItem" $ c_GetMenuDefaultItem menu bypos flags
-foreign import stdcall unsafe "windows.h GetMenuDefaultItem"
+foreign import WINDOWS_CCONV unsafe "windows.h GetMenuDefaultItem"
   c_GetMenuDefaultItem :: HMENU -> Bool -> UINT -> IO UINT
 
 getMenuState :: HMENU -> MenuItem -> MenuFlag -> IO MenuState
 getMenuState menu item flags =
   failIf (== -1) "GetMenuState" $ c_GetMenuState menu item flags
-foreign import stdcall unsafe "windows.h GetMenuState"
+foreign import WINDOWS_CCONV unsafe "windows.h GetMenuState"
   c_GetMenuState :: HMENU -> UINT -> UINT -> IO MenuState
 
 getSubMenu :: HMENU -> MenuItem -> IO (Maybe HMENU)
 getSubMenu menu pos =
   liftM ptrToMaybe $ c_GetSubMenu menu pos
-foreign import stdcall unsafe "windows.h GetSubMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h GetSubMenu"
   c_GetSubMenu :: HMENU -> UINT -> IO HMENU
 
 setMenu :: HWND -> HMENU -> IO ()
 setMenu wnd menu =
   failIfFalse_ "SetMenu" $ c_SetMenu wnd menu
-foreign import stdcall unsafe "windows.h SetMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h SetMenu"
   c_SetMenu :: HWND -> HMENU -> IO Bool
 
 getMenuItemCount :: HMENU -> IO Int
 getMenuItemCount menu =
   failIf (== -1) "GetMenuItemCount" $ c_GetMenuItemCount menu
-foreign import stdcall unsafe "windows.h GetMenuItemCount"
+foreign import WINDOWS_CCONV unsafe "windows.h GetMenuItemCount"
   c_GetMenuItemCount :: HMENU -> IO Int
 
 type MenuID = UINT
@@ -259,7 +261,7 @@ type MenuID = UINT
 getMenuItemID :: HMENU -> MenuItem -> IO MenuID
 getMenuItemID menu item =
   failIf (== -1) "GetMenuItemID" $ c_GetMenuItemID menu item
-foreign import stdcall unsafe "windows.h GetMenuItemID"
+foreign import WINDOWS_CCONV unsafe "windows.h GetMenuItemID"
   c_GetMenuItemID :: HMENU -> UINT -> IO MenuID
 
 data MenuItemInfo
@@ -341,7 +343,7 @@ getMenuItemInfo menu item bypos mask =
   pokeFMask p_info mask
   failIfFalse_ "GetMenuItemInfo" $ c_GetMenuItemInfo menu item bypos p_info
   peekMenuItemInfo p_info
-foreign import stdcall unsafe "windows.h GetMenuItemInfoW"
+foreign import WINDOWS_CCONV unsafe "windows.h GetMenuItemInfoW"
   c_GetMenuItemInfo :: HMENU -> UINT -> Bool -> Ptr MenuItemInfo -> IO Bool
 
 getMenuItemRect :: HWND -> HMENU -> MenuItem -> IO RECT
@@ -349,17 +351,17 @@ getMenuItemRect wnd menu item =
   allocaRECT $ \ p_rect -> do
   failIfFalse_ "GetMenuItemRect" $ c_GetMenuItemRect wnd menu item p_rect
   peekRECT p_rect
-foreign import stdcall unsafe "windows.h GetMenuItemRect"
+foreign import WINDOWS_CCONV unsafe "windows.h GetMenuItemRect"
   c_GetMenuItemRect :: HWND -> HMENU -> UINT -> LPRECT -> IO Bool
 
-foreign import stdcall unsafe "windows.h HiliteMenuItem"
+foreign import WINDOWS_CCONV unsafe "windows.h HiliteMenuItem"
   hiliteMenuItem :: HWND  -> HMENU -> MenuItem -> MenuFlag -> IO Bool
 
 insertMenuItem :: HMENU -> MenuItem -> Bool -> MenuItemInfo -> IO ()
 insertMenuItem menu item bypos info =
   withMenuItemInfo info $ \ p_info ->
   failIfFalse_ "InsertMenuItem" $ c_InsertMenuItem menu item bypos p_info
-foreign import stdcall unsafe "windows.h InsertMenuItemW"
+foreign import WINDOWS_CCONV unsafe "windows.h InsertMenuItemW"
   c_InsertMenuItem :: HMENU -> UINT -> Bool -> Ptr MenuItemInfo -> IO Bool
 
 type Menu = LPCTSTR
@@ -369,7 +371,7 @@ type Menu = LPCTSTR
 loadMenu :: Maybe HINSTANCE -> Menu -> IO HMENU
 loadMenu mb_inst menu =
   failIfNull "LoadMenu" $ c_LoadMenu (maybePtr mb_inst) menu
-foreign import stdcall unsafe "windows.h LoadMenuW"
+foreign import WINDOWS_CCONV unsafe "windows.h LoadMenuW"
   c_LoadMenu :: HINSTANCE -> Menu -> IO HMENU
 
 -- Dealing with mappings to/from structs is a pain in GC,
@@ -385,26 +387,26 @@ menuItemFromPoint wnd menu pt =
 setMenuDefaultItem :: HMENU -> MenuItem -> Bool -> IO ()
 setMenuDefaultItem menu item bypos =
   failIfFalse_ "SetMenuDefaultItem" $ c_SetMenuDefaultItem menu item bypos
-foreign import stdcall unsafe "windows.h SetMenuDefaultItem"
+foreign import WINDOWS_CCONV unsafe "windows.h SetMenuDefaultItem"
   c_SetMenuDefaultItem :: HMENU -> MenuItem -> Bool -> IO Bool
 
 setMenuItemBitmaps :: HMENU -> MenuItem -> MenuFlag -> HBITMAP -> HBITMAP -> IO ()
 setMenuItemBitmaps menu pos flags bm_unchecked bm_checked =
   failIfFalse_ "SetMenuItemBitmaps" $
     c_SetMenuItemBitmaps menu pos flags bm_unchecked bm_checked
-foreign import stdcall unsafe "windows.h SetMenuItemBitmaps"
+foreign import WINDOWS_CCONV unsafe "windows.h SetMenuItemBitmaps"
   c_SetMenuItemBitmaps :: HMENU -> UINT -> UINT -> HBITMAP -> HBITMAP -> IO Bool
 
 destroyMenu :: HMENU -> IO ()
 destroyMenu menu =
   failIfFalse_ "DestroyMenu" $ c_DestroyMenu menu
-foreign import stdcall unsafe "windows.h DestroyMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h DestroyMenu"
   c_DestroyMenu :: HMENU -> IO Bool
 
 deleteMenu :: HMENU -> MenuItem -> MenuFlag -> IO ()
 deleteMenu menu item flag =
   failIfFalse_ "DeleteMenu" $ c_DeleteMenu menu item flag
-foreign import stdcall unsafe "windows.h DeleteMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h DeleteMenu"
   c_DeleteMenu :: HMENU -> UINT -> UINT -> IO Bool
 
 setMenuItemInfo :: HMENU -> MenuItem -> Bool -> MenuItemMask -> MenuItemInfo -> IO ()
@@ -412,14 +414,14 @@ setMenuItemInfo menu item bypos mask info =
   withMenuItemInfo info $ \ p_info -> do
   pokeFMask p_info mask
   failIfFalse_ "SetMenuItemInfo" $ c_SetMenuItemInfo menu item bypos p_info
-foreign import stdcall unsafe "windows.h SetMenuItemInfoW"
+foreign import WINDOWS_CCONV unsafe "windows.h SetMenuItemInfoW"
   c_SetMenuItemInfo :: HMENU -> UINT -> Bool -> Ptr MenuItemInfo -> IO Bool
 
 trackPopupMenu :: HMENU -> TrackMenuFlag -> Int -> Int -> HWND -> RECT -> IO ()
 trackPopupMenu menu flags x y wnd rect =
   withRECT rect $ \ p_rect ->
   failIfFalse_ "TrackPopupMenu" $ c_TrackPopupMenu menu flags x y 0 wnd p_rect
-foreign import stdcall unsafe "windows.h TrackPopupMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h TrackPopupMenu"
   c_TrackPopupMenu :: HMENU -> TrackMenuFlag -> Int -> Int -> Int -> HWND -> LPRECT -> IO Bool
 
 type TPMPARAMS = ()
@@ -436,7 +438,7 @@ trackPopupMenuEx :: HMENU -> TrackMenuFlag -> Int -> Int -> HWND -> Maybe (Ptr R
 trackPopupMenuEx menu flags x y wnd mb_p_rect =
   maybeWith withTPMPARAMS mb_p_rect $ \ p_ptmp ->
   failIfFalse_ "TrackPopupMenuEx" $ c_TrackPopupMenuEx menu flags x y wnd p_ptmp
-foreign import stdcall unsafe "windows.h TrackPopupMenuEx"
+foreign import WINDOWS_CCONV unsafe "windows.h TrackPopupMenuEx"
   c_TrackPopupMenuEx :: HMENU -> TrackMenuFlag -> Int -> Int -> HWND -> Ptr TPMPARAMS -> IO Bool
 
 -- Note: these 3 assume the flags don't include MF_BITMAP or MF_OWNERDRAW
@@ -446,27 +448,27 @@ appendMenu :: HMENU -> MenuFlag -> MenuID -> String -> IO ()
 appendMenu menu flags id_item name =
   withTString name $ \ c_name ->
   failIfFalse_ "AppendMenu" $ c_AppendMenu menu flags id_item c_name
-foreign import stdcall unsafe "windows.h AppendMenuW"
+foreign import WINDOWS_CCONV unsafe "windows.h AppendMenuW"
   c_AppendMenu :: HMENU -> UINT -> MenuID -> LPCTSTR -> IO Bool
 
 insertMenu :: HMENU -> MenuItem -> MenuFlag -> MenuID -> String -> IO ()
 insertMenu menu item flags id_item name =
   withTString name $ \ c_name ->
   failIfFalse_ "InsertMenu" $ c_InsertMenu menu item flags id_item c_name
-foreign import stdcall unsafe "windows.h InsertMenuW"
+foreign import WINDOWS_CCONV unsafe "windows.h InsertMenuW"
   c_InsertMenu :: HMENU -> UINT -> UINT -> MenuID -> LPCTSTR -> IO Bool
 
 modifyMenu :: HMENU -> MenuItem -> MenuFlag -> MenuID -> String -> IO ()
 modifyMenu menu item flags id_item name =
   withTString name $ \ c_name ->
   failIfFalse_ "ModifyMenu" $ c_ModifyMenu menu item flags id_item c_name
-foreign import stdcall unsafe "windows.h ModifyMenuW"
+foreign import WINDOWS_CCONV unsafe "windows.h ModifyMenuW"
   c_ModifyMenu :: HMENU -> UINT -> UINT -> MenuID -> LPCTSTR -> IO Bool
 
 removeMenu :: HMENU -> MenuItem -> MenuFlag -> IO ()
 removeMenu menu pos flags =
   failIfFalse_ "RemoveMenu" $ c_RemoveMenu menu pos flags
-foreign import stdcall unsafe "windows.h RemoveMenu"
+foreign import WINDOWS_CCONV unsafe "windows.h RemoveMenu"
   c_RemoveMenu :: HMENU -> UINT -> UINT -> IO Bool
 
 ----------------------------------------------------------------

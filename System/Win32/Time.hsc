@@ -29,6 +29,8 @@ import Foreign          ( Storable(sizeOf, alignment, peekByteOff, peek,
 import Foreign.C        ( CInt(..), CWchar(..)
                         , peekCWString, withCWStringLen, withCWString )
 
+##include "windows_cconv.h"
+
 #include "windows.h"
 
 ----------------------------------------------------------------
@@ -121,40 +123,40 @@ instance Storable TIME_ZONE_INFORMATION where
         dnam <- peekCWString (plusPtr buf (#offset TIME_ZONE_INFORMATION, DaylightName))
         return $ TIME_ZONE_INFORMATION bias snam sdat sbia dnam ddat dbia
 
-foreign import stdcall "windows.h GetSystemTime"
+foreign import WINDOWS_CCONV "windows.h GetSystemTime"
     c_GetSystemTime :: Ptr SYSTEMTIME -> IO ()
 getSystemTime :: IO SYSTEMTIME
 getSystemTime = alloca $ \res -> do
     c_GetSystemTime res
     peek res
 
-foreign import stdcall "windows.h SetSystemTime"
+foreign import WINDOWS_CCONV "windows.h SetSystemTime"
     c_SetSystemTime :: Ptr SYSTEMTIME -> IO BOOL
 setSystemTime :: SYSTEMTIME -> IO ()
 setSystemTime st = with st $ \st -> failIf_ not "setSystemTime: SetSystemTime" $
     c_SetSystemTime st
 
-foreign import stdcall "windows.h GetSystemTimeAsFileTime"
+foreign import WINDOWS_CCONV "windows.h GetSystemTimeAsFileTime"
     c_GetSystemTimeAsFileTime :: Ptr FILETIME -> IO ()
 getSystemTimeAsFileTime :: IO FILETIME
 getSystemTimeAsFileTime = alloca $ \ret -> do
     c_GetSystemTimeAsFileTime ret
     peek ret
 
-foreign import stdcall "windows.h GetLocalTime"
+foreign import WINDOWS_CCONV "windows.h GetLocalTime"
     c_GetLocalTime :: Ptr SYSTEMTIME -> IO ()
 getLocalTime :: IO SYSTEMTIME
 getLocalTime = alloca $ \res -> do
     c_GetLocalTime res
     peek res
 
-foreign import stdcall "windows.h SetLocalTime"
+foreign import WINDOWS_CCONV "windows.h SetLocalTime"
     c_SetLocalTime :: Ptr SYSTEMTIME -> IO BOOL
 setLocalTime :: SYSTEMTIME -> IO ()
 setLocalTime st = with st $ \st -> failIf_ not "setLocalTime: SetLocalTime" $
     c_SetLocalTime st
 
-foreign import stdcall "windows.h GetSystemTimeAdjustment"
+foreign import WINDOWS_CCONV "windows.h GetSystemTimeAdjustment"
     c_GetSystemTimeAdjustment :: Ptr DWORD -> Ptr DWORD -> Ptr BOOL -> IO BOOL
 getSystemTimeAdjustment :: IO (Maybe (Int, Int))
 getSystemTimeAdjustment = alloca $ \ta -> alloca $ \ti -> alloca $ \enabled -> do
@@ -168,9 +170,9 @@ getSystemTimeAdjustment = alloca $ \ta -> alloca $ \ti -> alloca $ \enabled -> d
             return $ Just (fromIntegral ta, fromIntegral ti)
         else return Nothing
 
-foreign import stdcall "windows.h GetTickCount" getTickCount :: IO DWORD
+foreign import WINDOWS_CCONV "windows.h GetTickCount" getTickCount :: IO DWORD
 
-foreign import stdcall "windows.h SetSystemTimeAdjustment"
+foreign import WINDOWS_CCONV "windows.h SetSystemTimeAdjustment"
     c_SetSystemTimeAdjustment :: DWORD -> BOOL -> IO BOOL
 setSystemTimeAdjustment :: Maybe Int -> IO ()
 setSystemTimeAdjustment ta =
@@ -181,7 +183,7 @@ setSystemTimeAdjustment ta =
             Nothing -> (0,True)
             Just x  -> (fromIntegral x,False)
 
-foreign import stdcall "windows.h GetTimeZoneInformation"
+foreign import WINDOWS_CCONV "windows.h GetTimeZoneInformation"
     c_GetTimeZoneInformation :: Ptr TIME_ZONE_INFORMATION -> IO DWORD
 getTimeZoneInformation :: IO (TimeZoneId, TIME_ZONE_INFORMATION)
 getTimeZoneInformation = alloca $ \tzi -> do
@@ -194,7 +196,7 @@ getTimeZoneInformation = alloca $ \tzi -> do
         (#const TIME_ZONE_ID_DAYLIGHT)  -> TzIdDaylight
         _                               -> TzIdUnknown   -- to remove warning
 
-foreign import stdcall "windows.h SystemTimeToFileTime"
+foreign import WINDOWS_CCONV "windows.h SystemTimeToFileTime"
     c_SystemTimeToFileTime :: Ptr SYSTEMTIME -> Ptr FILETIME -> IO BOOL
 systemTimeToFileTime :: SYSTEMTIME -> IO FILETIME
 systemTimeToFileTime s = with s $ \s -> alloca $ \ret -> do
@@ -202,7 +204,7 @@ systemTimeToFileTime s = with s $ \s -> alloca $ \ret -> do
         c_SystemTimeToFileTime s ret
     peek ret
 
-foreign import stdcall "windows.h FileTimeToSystemTime"
+foreign import WINDOWS_CCONV "windows.h FileTimeToSystemTime"
     c_FileTimeToSystemTime :: Ptr FILETIME -> Ptr SYSTEMTIME -> IO BOOL
 fileTimeToSystemTime :: FILETIME -> IO SYSTEMTIME
 fileTimeToSystemTime s = with s $ \s -> alloca $ \ret -> do
@@ -210,20 +212,20 @@ fileTimeToSystemTime s = with s $ \s -> alloca $ \ret -> do
         c_FileTimeToSystemTime s ret
     peek ret
 
-foreign import stdcall "windows.h GetFileTime"
+foreign import WINDOWS_CCONV "windows.h GetFileTime"
     c_GetFileTime :: HANDLE -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 getFileTime :: HANDLE -> IO (FILETIME,FILETIME,FILETIME)
 getFileTime h = alloca $ \crt -> alloca $ \acc -> alloca $ \wrt -> do
     failIf_ not "getFileTime: GetFileTime" $ c_GetFileTime h crt acc wrt
     liftM3 (,,) (peek crt) (peek acc) (peek wrt)
 
-foreign import stdcall "windows.h SetFileTime"
+foreign import WINDOWS_CCONV "windows.h SetFileTime"
     c_SetFileTime :: HANDLE -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 setFileTime :: HANDLE -> FILETIME -> FILETIME -> FILETIME -> IO ()
 setFileTime h crt acc wrt = with crt $ \crt -> with acc $ \acc -> with wrt $ \wrt -> do
     failIf_ not "setFileTime: SetFileTime" $ c_SetFileTime h crt acc wrt
 
-foreign import stdcall "windows.h FileTimeToLocalFileTime"
+foreign import WINDOWS_CCONV "windows.h FileTimeToLocalFileTime"
     c_FileTimeToLocalFileTime :: Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 fileTimeToLocalFileTime :: FILETIME -> IO FILETIME
 fileTimeToLocalFileTime ft = with ft $ \ft -> alloca $ \res -> do
@@ -231,7 +233,7 @@ fileTimeToLocalFileTime ft = with ft $ \ft -> alloca $ \res -> do
         $ c_FileTimeToLocalFileTime ft res
     peek res
 
-foreign import stdcall "windows.h LocalFileTimeToFileTime"
+foreign import WINDOWS_CCONV "windows.h LocalFileTimeToFileTime"
     c_LocalFileTimeToFileTime :: Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 localFileTimeToFileTime :: FILETIME -> IO FILETIME
 localFileTimeToFileTime ft = with ft $ \ft -> alloca $ \res -> do
@@ -241,7 +243,7 @@ localFileTimeToFileTime ft = with ft $ \ft -> alloca $ \res -> do
 
 {-
 -- Windows XP SP1
-foreign import stdcall "windows.h GetSystemTimes"
+foreign import WINDOWS_CCONV "windows.h GetSystemTimes"
     c_GetSystemTimes :: Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 getSystemTimes :: IO (FILETIME,FILETIME,FILETIME)
 getSystemTimes = alloca $ \idle -> alloca $ \kernel -> alloca $ \user -> do
@@ -251,7 +253,7 @@ getSystemTimes = alloca $ \idle -> alloca $ \kernel -> alloca $ \user -> do
 
 {-
 -- Windows XP
-foreign import stdcall "windows.h SystemTimeToTzSpecificLocalTime"
+foreign import WINDOWS_CCONV "windows.h SystemTimeToTzSpecificLocalTime"
     c_SystemTimeToTzSpecificLocalTime :: Ptr TIME_ZONE_INFORMATION -> Ptr SYSTEMTIME -> Ptr SYSTEMTIME -> IO BOOL
 systemTimeToTzSpecificLocalTime :: TIME_ZONE_INFORMATION -> SYSTEMTIME -> IO SYSTEMTIME
 systemTimeToTzSpecificLocalTime tzi st = with tzi $ \tzi -> with st $ \st -> alloca $ \res -> do
@@ -259,7 +261,7 @@ systemTimeToTzSpecificLocalTime tzi st = with tzi $ \tzi -> with st $ \st -> all
         c_SystemTimeToTzSpecificLocalTime tzi st res
     peek res
 
-foreign import stdcall "windows.h TzSpecificLocalTimeToSystemTime"
+foreign import WINDOWS_CCONV "windows.h TzSpecificLocalTimeToSystemTime"
     c_TzSpecificLocalTimeToSystemTime :: Ptr TIME_ZONE_INFORMATION -> Ptr SYSTEMTIME -> Ptr SYSTEMTIME -> IO BOOL
 tzSpecificLocalTimeToSystemTime :: TIME_ZONE_INFORMATION -> SYSTEMTIME -> IO SYSTEMTIME
 tzSpecificLocalTimeToSystemTime tzi st = with tzi $ \tzi -> with st $ \st -> alloca $ \res -> do
@@ -268,7 +270,7 @@ tzSpecificLocalTimeToSystemTime tzi st = with tzi $ \tzi -> with st $ \st -> all
     peek res
 -}
 
-foreign import stdcall "windows.h QueryPerformanceFrequency"
+foreign import WINDOWS_CCONV "windows.h QueryPerformanceFrequency"
     c_QueryPerformanceFrequency :: Ptr LARGE_INTEGER -> IO BOOL
 queryPerformanceFrequency :: IO Integer
 queryPerformanceFrequency = alloca $ \res -> do
@@ -276,7 +278,7 @@ queryPerformanceFrequency = alloca $ \res -> do
         c_QueryPerformanceFrequency res
     liftM fromIntegral $ peek res
 
-foreign import stdcall "windows.h QueryPerformanceCounter"
+foreign import WINDOWS_CCONV "windows.h QueryPerformanceCounter"
     c_QueryPerformanceCounter:: Ptr LARGE_INTEGER -> IO BOOL
 queryPerformanceCounter:: IO Integer
 queryPerformanceCounter= alloca $ \res -> do
@@ -294,7 +296,7 @@ type GetTimeFormatFlags = DWORD
     , tIME_FORCE24HOURFORMAT= TIME_FORCE24HOURFORMAT
     }
 
-foreign import stdcall "windows.h GetTimeFormatW"
+foreign import WINDOWS_CCONV "windows.h GetTimeFormatW"
     c_GetTimeFormat :: LCID -> GetTimeFormatFlags -> Ptr SYSTEMTIME -> LPCTSTR -> LPTSTR -> CInt -> IO CInt
 getTimeFormat :: LCID -> GetTimeFormatFlags -> SYSTEMTIME -> String -> IO String
 getTimeFormat locale flags st fmt =

@@ -29,6 +29,8 @@ import Data.ByteString.Internal ( fromForeignPtr )
 import Foreign                  ( Ptr, nullPtr, plusPtr, maybeWith, FunPtr
                                 , ForeignPtr, newForeignPtr )
 
+##include "windows_cconv.h"
+
 #include "windows.h"
 
 ---------------------------------------------------------------------------
@@ -155,16 +157,16 @@ unmapViewOfFile v = c_UnmapViewOfFile v >> return ()
 ---------------------------------------------------------------------------
 -- Imports
 ---------------------------------------------------------------------------
-foreign import stdcall "windows.h OpenFileMappingW"
+foreign import WINDOWS_CCONV "windows.h OpenFileMappingW"
     c_OpenFileMapping :: DWORD -> BOOL -> LPCTSTR -> IO HANDLE
 
-foreign import stdcall "windows.h CreateFileMappingW"
+foreign import WINDOWS_CCONV "windows.h CreateFileMappingW"
     c_CreateFileMapping :: HANDLE -> Ptr () -> DWORD -> DWORD -> DWORD -> LPCTSTR -> IO HANDLE 
 
-foreign import stdcall "windows.h MapViewOfFileEx"
+foreign import WINDOWS_CCONV "windows.h MapViewOfFileEx"
     c_MapViewOfFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> SIZE_T -> Ptr a -> IO (Ptr b)
 
-foreign import stdcall "windows.h UnmapViewOfFile"
+foreign import WINDOWS_CCONV "windows.h UnmapViewOfFile"
     c_UnmapViewOfFile :: Ptr a -> IO BOOL
 
 {-# CFILES cbits/HsWin32.c #-}
