@@ -19,9 +19,8 @@ module System.Win32.Info where
 
 import System.Win32.Types
 
-import Prelude hiding (catch)
 import Control.Exception (catch)
-import System.IO.Error hiding (catch, try)
+import System.IO.Error
 import Foreign      ( Storable(sizeOf, alignment, peekByteOff, pokeByteOff,
                                peek, poke)
                     , Ptr, alloca, allocaArray )
