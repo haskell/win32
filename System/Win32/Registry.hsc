@@ -497,7 +497,7 @@ type RegValueType = DWORD
 regSetStringValue :: HKEY -> String -> String -> IO ()
 regSetStringValue hk key val =
   withTString val $ \ v ->
-  regSetValueEx hk key rEG_SZ v (length val * sizeOf (undefined::TCHAR))
+  regSetValueEx hk key rEG_SZ v ((1+length val) * sizeOf (undefined::TCHAR))
 
 regSetValueEx :: HKEY -> String -> RegValueType -> LPTSTR -> Int -> IO ()
 regSetValueEx key subkey ty value value_len =
