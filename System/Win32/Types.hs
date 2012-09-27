@@ -238,11 +238,11 @@ foreign import ccall unsafe "maperrno" -- in base/cbits/Win32Utils.c
 
 ddwordToDwords :: DDWORD -> (DWORD,DWORD)
 ddwordToDwords n =
-        (fromIntegral (n `shiftR` bitSize (undefined::DWORD))
+        (fromIntegral (n `shiftR` finiteBitSize (undefined :: DWORD))
         ,fromIntegral (n .&. fromIntegral (maxBound :: DWORD)))
 
 dwordsToDdword:: (DWORD,DWORD) -> DDWORD
-dwordsToDdword (hi,low) = (fromIntegral low) .|. (fromIntegral hi `shiftL`bitSize hi)
+dwordsToDdword (hi,low) = (fromIntegral low) .|. (fromIntegral hi `shiftL` finiteBitSize hi)
 
 ----------------------------------------------------------------
 -- Primitives
