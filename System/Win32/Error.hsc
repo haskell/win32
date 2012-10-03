@@ -19,6 +19,7 @@ module System.Win32.Error
         ( module System.Win32.Error
         ) where
 
+import System.Win32.Internal (getCurrentCodePage)
 import System.Win32.Types
 
 import Foreign hiding ( unsafePerformIO, void )
@@ -120,13 +121,48 @@ failWith fn_name err_code = do
              -- XXX we should really do this directly.
   errno <- getErrno
   let msg' = reverse $ dropWhile isSpace $ reverse msg -- drop trailing \n
-      ioerror = errnoToIOError fn_name errno Nothing Nothing
-                  `ioeSetErrorString` msg'
+  -- Temporary fix to support multibyte error message. 
+  -- Because localeEncoding doesn't support multibyte encoding on Windows (except UTF-*). #3977
+  cp <- getCurrentCodePage
+  msg'' <- encodeMultiByteIO cp msg' -- convert to multibytes message
+  let ioerror = errnoToIOError fn_name errno Nothing Nothing
+                  `ioeSetErrorString` msg''
   throw ioerror
 
 
 foreign import ccall unsafe "maperrno" -- in base/cbits/Win32Utils.c
    c_maperrno :: IO ()
+
+-- ----------------------------------------------------------------------------
+
+-- | The `System.IO` output functions (e.g. `putStr`) don't
+-- automatically convert to multibyte string on Windows, so this
+-- function is provided to make the conversion from a Unicode string
+-- in the given code page to a proper multibyte string.  To get the
+-- code page for the console, use `getCurrentCodePage`.
+--
+encodeMultiByteIO :: CodePage -> String -> IO String
+encodeMultiByteIO _ "" = return ""
+  -- WideCharToMultiByte doesn't handle empty strings
+encodeMultiByteIO cp wstr =
+  withCWStringLen wstr $ \(cwstr,len) -> do
+    mbchars <- failIfZero "WideCharToMultiByte" $ wideCharToMultiByte 
+                cp
+                0
+                cwstr
+                (fromIntegral len)
+                nullPtr 0
+                nullPtr nullPtr
+    -- mbchars is the length of buffer required
+    allocaArray (fromIntegral mbchars) $ \mbstr -> do
+      mbchars <- failIfZero "WideCharToMultiByte" $ wideCharToMultiByte 
+                 cp
+                 0
+                 cwstr
+                 (fromIntegral len)
+                 mbstr mbchars
+                 nullPtr nullPtr
+      peekCAStringLen (mbstr,fromIntegral mbchars)  -- converts [Char] to UTF-16
 
 ----------------------------------------------------------------
 -- Primitives
@@ -142,6 +178,18 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetLastError"
 
 foreign import ccall unsafe "errors.h"
   getErrorMessage :: DWORD -> IO LPWSTR
+
+foreign import WINDOWS_CCONV "WideCharToMultiByte"
+  wideCharToMultiByte
+        :: CodePage
+        -> DWORD   -- dwFlags,
+        -> LPCWSTR -- lpWideCharStr
+        -> CInt    -- cchWideChar
+        -> LPSTR   -- lpMultiByteStr
+        -> CInt    -- cbMultiByte
+        -> LPCSTR  -- lpMultiByteStr
+        -> LPBOOL  -- lpbFlags
+        -> IO CInt
 
 ----------------------------------------------------------------
 -- End
