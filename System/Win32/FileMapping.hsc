@@ -16,9 +16,9 @@
 -----------------------------------------------------------------------------
 module System.Win32.FileMapping where
 
+import System.Win32.Error   ( failIf, failIfNull )
 import System.Win32.Types   ( HANDLE, DWORD, BOOL, SIZE_T, LPCTSTR, withTString
-                            , failIf, failIfNull, DDWORD, ddwordToDwords
-                            , iNVALID_HANDLE_VALUE )
+                            , DDWORD, ddwordToDwords, iNVALID_HANDLE_VALUE )
 import System.Win32.Mem
 import System.Win32.File
 import System.Win32.Info

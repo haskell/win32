@@ -21,6 +21,7 @@ import Graphics.Win32.GDI.Types
 import Graphics.Win32.Control
 import Graphics.Win32.Message
 import Graphics.Win32.Window
+import System.Win32.Error
 import System.Win32.Types
 
 import Foreign

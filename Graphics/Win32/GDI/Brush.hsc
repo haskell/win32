@@ -17,6 +17,7 @@
 
 module Graphics.Win32.GDI.Brush where
 
+import System.Win32.Error ( failIfFalse_, failIfNull )
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 

@@ -17,6 +17,7 @@
 
 module System.Win32.Mem where
 
+import System.Win32.Error
 import System.Win32.Types
 
 import Foreign

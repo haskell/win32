@@ -55,6 +55,7 @@ module System.Win32.Security (
 
 import Foreign
 -- import Foreign.C
+import System.Win32.Error ( failIfFalse_, failIfZero )
 import System.Win32.Types
 
 ##include "windows_cconv.h"

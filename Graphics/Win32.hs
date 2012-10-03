@@ -19,6 +19,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Win32 (
+        module System.Win32.Error,
 	module System.Win32.Types,
 	module Graphics.Win32.Control,
 	module Graphics.Win32.Dialogue,
@@ -32,6 +33,7 @@ module Graphics.Win32 (
 	module Graphics.Win32.Window
 	) where
 
+import System.Win32.Error
 import System.Win32.Types
 import Graphics.Win32.Control
 import Graphics.Win32.Dialogue

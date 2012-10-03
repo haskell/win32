@@ -16,9 +16,10 @@
 -----------------------------------------------------------------------------
 module System.Win32.Time where
 
-import System.Win32.Types   ( DWORD, WORD, LONG, BOOL, failIf, failIf_, HANDLE
-                            , peekTStringLen, LCID, LPTSTR, LPCTSTR, DDWORD
-                            , LARGE_INTEGER, ddwordToDwords, dwordsToDdword )
+import System.Win32.Error   ( failIf, failIf_ )
+import System.Win32.Types   ( DWORD, WORD, LONG, BOOL, HANDLE, peekTStringLen
+                            , LCID, LPTSTR, LPCTSTR, DDWORD, LARGE_INTEGER
+                            , ddwordToDwords, dwordsToDdword )
 
 import Control.Monad    ( when, liftM3, liftM )
 import Data.Word        ( Word8 )

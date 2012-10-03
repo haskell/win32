@@ -18,6 +18,7 @@
 
 module Graphics.Win32.Window where
 
+import System.Win32.Error
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 import Graphics.Win32.Message

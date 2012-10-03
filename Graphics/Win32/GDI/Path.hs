@@ -21,6 +21,7 @@ module Graphics.Win32.GDI.Path
 	) where
 
 import Graphics.Win32.GDI.Types
+import System.Win32.Error ( failIfFalse_, failIfNull )
 import System.Win32.Types
 
 #include "windows_cconv.h"

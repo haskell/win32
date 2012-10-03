@@ -29,27 +29,10 @@ module System.Win32.Console (
 
 ##include "windows_cconv.h"
 
-import System.Win32.NLS (getACP)
+import System.Win32.Error
+import System.Win32.Internal ( getConsoleCP, setConsoleCP, getConsoleOutputCP
+                             , setConsoleOutputCP, getCurrentCodePage )
 import System.Win32.Types
-
-getCurrentCodePage :: IO CodePage
-getCurrentCodePage = do
-    conCP <- getConsoleCP
-    if conCP > 0
-        then return conCP
-        else getACP
-
-foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleCP"
-	getConsoleCP :: IO UINT
-
-foreign import WINDOWS_CCONV unsafe "windows.h SetConsoleCP"
-	setConsoleCP :: UINT -> IO ()
-
-foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleOutputCP"
-	getConsoleOutputCP :: IO UINT
-
-foreign import WINDOWS_CCONV unsafe "windows.h SetConsoleOutputCP"
-	setConsoleOutputCP :: UINT -> IO ()
 
 type CtrlEvent = DWORD
 #{enum CtrlEvent,

@@ -81,6 +81,7 @@ module Graphics.Win32.GDI.Bitmap(
 
         ) where
 
+import System.Win32.Error ( failIfFalse_, failIfNull, failIfZero )
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 
