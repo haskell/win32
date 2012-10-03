@@ -21,6 +21,7 @@ module System.Win32.Console (
 	setConsoleCP,
 	getConsoleOutputCP,
 	setConsoleOutputCP,
+        getCurrentCodePage,
 	-- * Ctrl events
 	CtrlEvent, cTRL_C_EVENT, cTRL_BREAK_EVENT,
 	generateConsoleCtrlEvent
@@ -28,7 +29,15 @@ module System.Win32.Console (
 
 ##include "windows_cconv.h"
 
+import System.Win32.NLS (getACP)
 import System.Win32.Types
+
+getCurrentCodePage :: IO CodePage
+getCurrentCodePage = do
+    conCP <- getConsoleCP
+    if conCP > 0
+        then return conCP
+        else getACP
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleCP"
 	getConsoleCP :: IO UINT

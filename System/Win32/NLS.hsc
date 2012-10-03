@@ -46,8 +46,6 @@ foreign import WINDOWS_CCONV unsafe "windows.h ConvertDefaultLocale"
 
 -- ToDo: various enum functions.
 
-type CodePage = UINT
-
 #{enum CodePage,
  , cP_ACP       = CP_ACP
  , cP_MACCP     = CP_MACCP

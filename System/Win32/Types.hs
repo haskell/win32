@@ -66,6 +66,7 @@ type WPARAM        = UINT
 type LPARAM        = LONG
 type LRESULT       = LONG
 type SIZE_T        = DWORD
+type CodePage      = UINT
 
 type MbATOM        = Maybe ATOM
 
