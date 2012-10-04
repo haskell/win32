@@ -64,6 +64,7 @@ module Graphics.Win32.Menu
        ) -} where
 
 import Graphics.Win32.GDI.Types
+import System.Win32.Error ( failIf, failIfFalse_, failIfNull )
 import System.Win32.Types
 
 import Foreign

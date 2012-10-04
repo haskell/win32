@@ -22,8 +22,8 @@ import Foreign          ( Ptr, nullPtr, ForeignPtr, mallocForeignPtrBytes
                         , peekByteOff, plusPtr, allocaBytes, castPtr, poke
                         , withForeignPtr, Storable, sizeOf, peek, pokeByteOff )
 import System.IO        ( fixIO )
-import System.Win32.Types   ( HANDLE, BOOL, WORD, DWORD, failIf_, failWith
-                            , getLastError, failIf, LPTSTR, withTString )
+import System.Win32.Error   ( failIf_, failWith, getLastError, failIf )
+import System.Win32.Types   ( HANDLE, BOOL, WORD, DWORD, LPTSTR, withTString )
 
 ##include "windows_cconv.h"
 #include "windows.h"

@@ -18,7 +18,7 @@
 module Graphics.Win32.Icon where
 
 import Graphics.Win32.GDI.Types
-import System.Win32.Types
+import System.Win32.Error ( failIfFalse_, failIfNull )
 
 #include "windows_cconv.h"
 

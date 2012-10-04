@@ -19,6 +19,7 @@ module Graphics.Win32.GDI.HDC
 	( module Graphics.Win32.GDI.HDC
 	) where
 
+import System.Win32.Error ( failIf, failIfNull, failIfFalse_, failIfZero )
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 

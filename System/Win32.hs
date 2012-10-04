@@ -17,6 +17,7 @@
 
 module System.Win32
 	( module System.Win32.DLL
+        , module System.Win32.Error
 	, module System.Win32.File
 	, module System.Win32.FileMapping
 	, module System.Win32.Info
@@ -32,6 +33,7 @@ module System.Win32
 	) where
 
 import System.Win32.DLL
+import System.Win32.Error
 import System.Win32.File
 import System.Win32.FileMapping
 import System.Win32.Info

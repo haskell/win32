@@ -37,7 +37,8 @@ import Foreign.C            ( withCAString, withCAStringLen )
 import Graphics.Win32.GDI.Types     ( HWND)
 import System.Win32.DLL     ( loadLibrary, c_GetProcAddress, freeLibrary
                             , c_FreeLibraryFinaliser )
-import System.Win32.Types   ( DWORD, LPSTR, HMODULE, failIfNull )
+import System.Win32.Error   ( failIfNull )
+import System.Win32.Types   ( DWORD, LPSTR, HMODULE )
 
 ##include "windows_cconv.h"
 

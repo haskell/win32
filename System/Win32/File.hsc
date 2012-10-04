@@ -24,12 +24,11 @@ module System.Win32.File
 -}
 where
 
+import System.Win32.Error
 import System.Win32.Types
 import System.Win32.Time
 
 import Foreign hiding (void)
-import Control.Monad
-import Control.Concurrent
 
 ##include "windows_cconv.h"
 
@@ -258,36 +257,6 @@ instance Storable BY_HANDLE_FILE_INFORMATION where
 ----------------------------------------------------------------
 -- File operations
 ----------------------------------------------------------------
-
--- | like failIfFalse_, but retried on sharing violations.
--- This is necessary for many file operations; see
---   http://support.microsoft.com/kb/316609
---
-failIfWithRetry :: (a -> Bool) -> String -> IO a -> IO a
-failIfWithRetry cond msg action = retryOrFail retries
-  where
-    delay   = 100*1000 -- in ms, we use threadDelay
-    retries = 20 :: Int
-      -- KB article recommends 250/5
-
-    -- retryOrFail :: Int -> IO a
-    retryOrFail times
-      | times <= 0 = errorWin msg
-      | otherwise  = do
-         ret <- action
-         if not (cond ret)
-            then return ret
-            else do
-              err_code <- getLastError
-              if err_code == (# const ERROR_SHARING_VIOLATION)
-                then do threadDelay delay; retryOrFail (times - 1)
-                else errorWin msg
-
-failIfWithRetry_ :: (a -> Bool) -> String -> IO a -> IO ()
-failIfWithRetry_ cond msg action = void $ failIfWithRetry cond msg action
-
-failIfFalseWithRetry_ :: String -> IO Bool -> IO ()
-failIfFalseWithRetry_ = failIfWithRetry_ not
 
 deleteFile :: String -> IO ()
 deleteFile name =

@@ -20,6 +20,7 @@ import Control.Exception    ( bracket )
 import Control.Monad        ( liftM5 )
 import Foreign              ( Ptr, peekByteOff, allocaBytes, pokeByteOff
                             , plusPtr )
+import System.Win32.Error   ( getLastError, failWith, failIfNull, failIfZero )
 import System.Win32.File    ( closeHandle )
 import System.Win32.Types
 

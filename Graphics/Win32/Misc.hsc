@@ -18,6 +18,7 @@
 module Graphics.Win32.Misc where
 
 import Graphics.Win32.GDI.Types
+import System.Win32.Error ( failIf, failIfFalse_, failIfNull, failIfZero )
 import System.Win32.Types
 
 import Data.Maybe

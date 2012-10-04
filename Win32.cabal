@@ -46,6 +46,7 @@ Library
         System.Win32
         System.Win32.DebugApi
         System.Win32.DLL
+        System.Win32.Error
         System.Win32.File
         System.Win32.FileMapping
         System.Win32.Info
@@ -59,6 +60,8 @@ Library
         System.Win32.Security
         System.Win32.Types
         System.Win32.Shell
+    other-modules:
+        System.Win32.Internal
     extensions: ForeignFunctionInterface, CPP
     if impl(ghc >= 7.1)
         extensions: NondecreasingIndentation

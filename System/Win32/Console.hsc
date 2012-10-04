@@ -21,6 +21,7 @@ module System.Win32.Console (
 	setConsoleCP,
 	getConsoleOutputCP,
 	setConsoleOutputCP,
+        getCurrentCodePage,
 	-- * Ctrl events
 	CtrlEvent, cTRL_C_EVENT, cTRL_BREAK_EVENT,
 	generateConsoleCtrlEvent
@@ -28,19 +29,10 @@ module System.Win32.Console (
 
 ##include "windows_cconv.h"
 
+import System.Win32.Error
+import System.Win32.Internal ( getConsoleCP, setConsoleCP, getConsoleOutputCP
+                             , setConsoleOutputCP, getCurrentCodePage )
 import System.Win32.Types
-
-foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleCP"
-	getConsoleCP :: IO UINT
-
-foreign import WINDOWS_CCONV unsafe "windows.h SetConsoleCP"
-	setConsoleCP :: UINT -> IO ()
-
-foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleOutputCP"
-	getConsoleOutputCP :: IO UINT
-
-foreign import WINDOWS_CCONV unsafe "windows.h SetConsoleOutputCP"
-	setConsoleOutputCP :: UINT -> IO ()
 
 type CtrlEvent = DWORD
 #{enum CtrlEvent,

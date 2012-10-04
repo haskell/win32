@@ -17,6 +17,7 @@
 
 module Graphics.Win32.GDI.Region where
 
+import System.Win32.Error ( failIf, failIfNull, failIfFalse_ )
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 

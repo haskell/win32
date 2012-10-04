@@ -17,6 +17,7 @@
 
 module System.Win32.Info where
 
+import System.Win32.Error ( failIfZero )
 import System.Win32.Types
 
 import Control.Exception (catch)

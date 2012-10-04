@@ -33,6 +33,7 @@ module Graphics.Win32.GDI.Font
 -}
 	where
 
+import System.Win32.Error ( failIfNull )
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 

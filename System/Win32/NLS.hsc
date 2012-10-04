@@ -16,14 +16,19 @@
 -----------------------------------------------------------------------------
 
 module System.Win32.NLS  (
-	module System.Win32.NLS,
+        module System.Win32.NLS,
 
-	-- defined in System.Win32.Types
-	LCID, LANGID, SortID, SubLANGID, PrimaryLANGID,
-	mAKELCID, lANGIDFROMLCID, sORTIDFROMLCID,
-	mAKELANGID, pRIMARYLANGID, sUBLANGID
-	) where
+        -- defined in System.Win32.Internal
+        cP_ACP, cP_MACCP, cP_OEMCP, getACP,
 
+        -- defined in System.Win32.Types
+        LCID, LANGID, SortID, SubLANGID, PrimaryLANGID,
+        mAKELCID, lANGIDFROMLCID, sORTIDFROMLCID,
+        mAKELANGID, pRIMARYLANGID, sUBLANGID
+        ) where
+
+import System.Win32.Error    ( failIfFalse_, failIfZero )
+import System.Win32.Internal ( cP_ACP, cP_MACCP, cP_OEMCP, getACP )
 import System.Win32.Types
 
 import Foreign
@@ -43,19 +48,6 @@ import Foreign.C
 
 foreign import WINDOWS_CCONV unsafe "windows.h ConvertDefaultLocale"
   convertDefaultLocale :: LCID -> IO LCID
-
--- ToDo: various enum functions.
-
-type CodePage = UINT
-
-#{enum CodePage,
- , cP_ACP       = CP_ACP
- , cP_MACCP     = CP_MACCP
- , cP_OEMCP     = CP_OEMCP
- }
-
-foreign import WINDOWS_CCONV unsafe "windows.h GetACP"
-  getACP :: IO CodePage
 
 foreign import WINDOWS_CCONV unsafe "windows.h SetThreadLocale"
   setThreadLocale :: LCID -> IO ()

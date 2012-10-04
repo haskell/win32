@@ -18,6 +18,7 @@
 module Graphics.Win32.GDI.Graphics2D
 	where
 
+import System.Win32.Error ( failIfFalse_ )
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
 

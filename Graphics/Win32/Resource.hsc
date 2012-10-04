@@ -17,6 +17,7 @@
 
 module Graphics.Win32.Resource where
 
+import System.Win32.Error ( failIfFalse_, failIfNull, failIfZero )
 import System.Win32.Types
 
 import Foreign
