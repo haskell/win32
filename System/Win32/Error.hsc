@@ -168,9 +168,6 @@ encodeMultiByteIO cp wstr =
 -- Primitives
 ----------------------------------------------------------------
 
-foreign import WINDOWS_CCONV unsafe "windows.h LocalFree"
-  localFree :: Ptr a -> IO (Ptr a)
-
 foreign import WINDOWS_CCONV unsafe "windows.h GetLastError"
   getLastError :: IO ErrCode
 
