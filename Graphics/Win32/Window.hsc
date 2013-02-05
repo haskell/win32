@@ -290,6 +290,15 @@ foreign import WINDOWS_CCONV "windows.h SetWindowTextW"
   c_SetWindowText :: HWND -> LPCTSTR -> IO Bool
 
 ----------------------------------------------------------------
+-- Setting Window to Foreground
+--http://stackoverflow.com/questions/14297146/win32-setforegroundwindow-in-haskell
+----------------------------------------------------------------
+foreign import stdcall safe "windows.h SetForegroundWindow"
+    c_setForegroundWindow :: HWND -> IO Bool
+setForegroundWindow :: HWND -> IO Bool
+setForegroundWindow = c_setForegroundWindow
+
+----------------------------------------------------------------
 -- Paint struct
 ----------------------------------------------------------------
 
