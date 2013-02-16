@@ -22,7 +22,7 @@ import Graphics.Win32.Window
 import System.Win32.Types
 import Graphics.Win32.Message
 
-import Foreign hiding (unsafePerformIO)
+import Foreign
 import System.IO.Unsafe
 
 ##include "windows_cconv.h"

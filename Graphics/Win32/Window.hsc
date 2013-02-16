@@ -24,7 +24,7 @@ import Graphics.Win32.Message
 
 import Control.Monad
 import Data.Maybe
-import Foreign hiding (unsafePerformIO)
+import Foreign
 import System.IO.Unsafe
 
 ##include "windows_cconv.h"
