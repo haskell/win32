@@ -21,7 +21,7 @@ module System.Win32.Types
 	) where
 
 import Data.Maybe
-import Foreign hiding (unsafePerformIO)
+import Foreign
 import Foreign.C
 import Control.Exception
 import System.IO.Error

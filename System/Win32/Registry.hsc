@@ -65,7 +65,7 @@ import System.Win32.Types
 import System.Win32.File
 
 import System.IO.Unsafe
-import Foreign hiding (unsafePerformIO)
+import Foreign
 
 ##include "windows_cconv.h"
 
