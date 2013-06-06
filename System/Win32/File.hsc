@@ -207,6 +207,16 @@ type FileType = DWORD
 
 ----------------------------------------------------------------
 
+newtype GET_FILEEX_INFO_LEVELS = GET_FILEEX_INFO_LEVELS (#type GET_FILEEX_INFO_LEVELS)
+    deriving (Eq, Ord)
+
+#{enum GET_FILEEX_INFO_LEVELS, GET_FILEEX_INFO_LEVELS
+ , getFileExInfoStandard = GetFileExInfoStandard
+ , getFileExMaxInfoLevel = GetFileExMaxInfoLevel
+ }
+
+----------------------------------------------------------------
+
 type LPSECURITY_ATTRIBUTES = Ptr ()
 type MbLPSECURITY_ATTRIBUTES = Maybe LPSECURITY_ATTRIBUTES
 
@@ -254,6 +264,37 @@ instance Storable BY_HANDLE_FILE_INFORMATION where
         idlo <- (#peek BY_HANDLE_FILE_INFORMATION, nFileIndexLow)        buf
         return $ BY_HANDLE_FILE_INFORMATION attr ctim lati lwti vser
             (dwordsToDdword (fshi,fslo)) link (dwordsToDdword (idhi,idlo))
+
+----------------------------------------------------------------
+
+data WIN32_FILE_ATTRIBUTE_DATA = WIN32_FILE_ATTRIBUTE_DATA
+    { fadFileAttributes :: DWORD
+    , fadCreationTime , fadLastAccessTime , fadLastWriteTime :: FILETIME
+    , fadFileSize :: DDWORD
+    } deriving (Show)
+
+instance Storable WIN32_FILE_ATTRIBUTE_DATA where
+    sizeOf = const (#size WIN32_FILE_ATTRIBUTE_DATA)
+    alignment = sizeOf
+    poke buf ad = do
+        (#poke WIN32_FILE_ATTRIBUTE_DATA, dwFileAttributes) buf (fadFileAttributes ad)
+        (#poke WIN32_FILE_ATTRIBUTE_DATA, ftCreationTime)   buf (fadCreationTime ad)
+        (#poke WIN32_FILE_ATTRIBUTE_DATA, ftLastAccessTime) buf (fadLastAccessTime ad)
+        (#poke WIN32_FILE_ATTRIBUTE_DATA, ftLastWriteTime)  buf (fadLastWriteTime ad)
+        (#poke WIN32_FILE_ATTRIBUTE_DATA, nFileSizeHigh)    buf sizeHi
+        (#poke WIN32_FILE_ATTRIBUTE_DATA, nFileSizeLow)     buf sizeLo
+        where
+            (sizeHi,sizeLo) = ddwordToDwords $ fadFileSize ad
+
+    peek buf = do
+        attr <- (#peek WIN32_FILE_ATTRIBUTE_DATA, dwFileAttributes) buf
+        ctim <- (#peek WIN32_FILE_ATTRIBUTE_DATA, ftCreationTime)   buf
+        lati <- (#peek WIN32_FILE_ATTRIBUTE_DATA, ftLastAccessTime) buf
+        lwti <- (#peek WIN32_FILE_ATTRIBUTE_DATA, ftLastWriteTime)  buf
+        fshi <- (#peek WIN32_FILE_ATTRIBUTE_DATA, nFileSizeHigh)    buf
+        fslo <- (#peek WIN32_FILE_ATTRIBUTE_DATA, nFileSizeLow)     buf
+        return $ WIN32_FILE_ATTRIBUTE_DATA attr ctim lati lwti
+            (dwordsToDdword (fshi,fslo))
 
 ----------------------------------------------------------------
 -- File operations
@@ -420,6 +461,9 @@ getFileAttributes name =
     c_GetFileAttributes c_name
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesW"
   c_GetFileAttributes :: LPCTSTR -> IO FileAttributeOrFlag
+
+foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesExW"
+  c_GetFileAttributesEx :: LPCTSTR -> GET_FILEEX_INFO_LEVELS -> Ptr a -> IO BOOL
 
 getFileInformationByHandle :: HANDLE -> IO BY_HANDLE_FILE_INFORMATION
 getFileInformationByHandle h = alloca $ \res -> do
