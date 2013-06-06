@@ -462,6 +462,12 @@ getFileAttributes name =
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesW"
   c_GetFileAttributes :: LPCTSTR -> IO FileAttributeOrFlag
 
+getFileAttributesExStandard :: String -> IO WIN32_FILE_ATTRIBUTE_DATA
+getFileAttributesExStandard name =  alloca $ \res -> do
+  withTString name $ \ c_name ->
+    failIfFalseWithRetry_ "getFileAttributesExStandard" $
+      c_GetFileAttributesEx c_name getFileExInfoStandard res
+  peek res
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesExW"
   c_GetFileAttributesEx :: LPCTSTR -> GET_FILEEX_INFO_LEVELS -> Ptr a -> IO BOOL
 
