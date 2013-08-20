@@ -26,7 +26,20 @@ import Foreign
 
 #include "windows_cconv.h"
 
-----------------------------------------------------------------
+{- Note [Overflow checking and fromIntegral]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some windows APIs use the value 0x80000000 to represent failure return
+codes. However, when GHC builds libraries with -XNegativeLiterals
+enabled, it will fail in contexts where the type would suffer from
+signed overflow - such as Int32. (minBound :: Int32 == 0x80000000)
+
+Technically, the frontend is correct that the literal overflows in the
+context it is used in. So instead, we use fromIntegral to convert the
+literal from a Word32 to the necessary type. This isn't any less
+efficient (fromIntegral is optimized away,) and conveys the idea we
+simply want the same representational value.
+-}
 
 setArcDirection :: HDC -> ArcDirection -> IO ArcDirection
 setArcDirection dc dir =
@@ -142,14 +155,16 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetTextAlign"
 
 setTextCharacterExtra :: HDC -> Int -> IO Int
 setTextCharacterExtra dc extra =
-  failIf (== 0x80000000) "SetTextCharacterExtra" $
+  -- See Note [Overflow checking and fromIntegral]
+  failIf (== fromIntegral (0x80000000 :: Word32)) "SetTextCharacterExtra" $
     c_SetTextCharacterExtra dc extra
 foreign import WINDOWS_CCONV unsafe "windows.h SetTextCharacterExtra"
   c_SetTextCharacterExtra :: HDC ->  Int  -> IO  Int
 
 getTextCharacterExtra :: HDC -> IO Int
 getTextCharacterExtra dc =
-  failIf (== 0x80000000) "GetTextCharacterExtra" $ c_GetTextCharacterExtra dc
+  -- See Note [Overflow checking and fromIntegral]
+  failIf (== fromIntegral (0x80000000 :: Word32)) "GetTextCharacterExtra" $ c_GetTextCharacterExtra dc
 foreign import WINDOWS_CCONV unsafe "windows.h GetTextCharacterExtra"
   c_GetTextCharacterExtra :: HDC -> IO  Int
 

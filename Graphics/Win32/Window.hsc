@@ -171,8 +171,10 @@ type WindowStyleEx   = DWORD
  , wS_EX_PALETTEWINDOW  = WS_EX_PALETTEWINDOW
  }
 
+
 cW_USEDEFAULT :: Pos
-cW_USEDEFAULT = #{const CW_USEDEFAULT}
+-- See Note [Overflow checking and fromIntegral] in Graphics/Win32/GDI/HDC.hs
+cW_USEDEFAULT = fromIntegral (#{const CW_USEDEFAULT} :: Word32)
 
 type Pos = Int
 
