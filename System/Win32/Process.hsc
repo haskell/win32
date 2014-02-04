@@ -105,16 +105,16 @@ withTh32Snap f p = bracket (createToolhelp32Snapshot f p) (closeHandle)
 
 peekProcessEntry32 :: Ptr ProcessEntry32 -> IO ProcessEntry32
 peekProcessEntry32 buf = liftM5 (,,,,)
-    ((#peek PROCESSENTRY32, th32ProcessID) buf)
-    ((#peek PROCESSENTRY32, cntThreads) buf)
-    ((#peek PROCESSENTRY32, th32ParentProcessID) buf)
-    ((#peek PROCESSENTRY32, pcPriClassBase) buf)
-    (peekTString $ (#ptr PROCESSENTRY32, szExeFile) buf)
+    ((#peek PROCESSENTRY32W, th32ProcessID) buf)
+    ((#peek PROCESSENTRY32W, cntThreads) buf)
+    ((#peek PROCESSENTRY32W, th32ParentProcessID) buf)
+    ((#peek PROCESSENTRY32W, pcPriClassBase) buf)
+    (peekTString $ (#ptr PROCESSENTRY32W, szExeFile) buf)
 
 -- | Enumerate processes using Process32First and Process32Next
 th32SnapEnumProcesses :: Th32SnapHandle -> IO [ProcessEntry32]
-th32SnapEnumProcesses h = allocaBytes (#size PROCESSENTRY32) $ \pe -> do
-    (#poke PROCESSENTRY32, dwSize) pe ((#size PROCESSENTRY32)::DWORD)
+th32SnapEnumProcesses h = allocaBytes (#size PROCESSENTRY32W) $ \pe -> do
+    (#poke PROCESSENTRY32W, dwSize) pe ((#size PROCESSENTRY32W)::DWORD)
     ok <- c_Process32First h pe
     readAndNext ok pe []
     where
