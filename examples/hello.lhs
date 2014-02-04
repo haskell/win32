@@ -5,23 +5,16 @@
 Haskell version of "Hello, World" using the Win32 library.
 Demonstrates how the Win32 library can be put to use.
 
-Works with Hugs and GHC. To compile it up using the latter,
-do: "ghc -o main hello.lhs -syslib win32 -fglasgow-exts"
-
-For GHC 5.03:
-
-  ghc -package win32 hello.lhs -o hello.exe -optl "-Wl,--subsystem,windows"
-
 \begin{code}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main(main) where
 
+import Control.Exception (SomeException, bracket, catch)
+import Foreign.Ptr (nullPtr)
+import System.Exit (ExitCode(ExitSuccess), exitWith)
+import System.Win32.DLL (getModuleHandle)
 import qualified Graphics.Win32
-import qualified System.Win32.DLL
-import qualified System.Win32.Types
-import Control.Exception (bracket)
-import Foreign
-import System.Exit
-{-import Addr-}
+
 \end{code}
 
 Toplevel main just creates a window and pumps messages.
@@ -82,7 +75,7 @@ createWindow width height wndProc = do
   icon         <- Graphics.Win32.loadIcon   Nothing Graphics.Win32.iDI_APPLICATION
   cursor       <- Graphics.Win32.loadCursor Nothing Graphics.Win32.iDC_ARROW
   bgBrush      <- Graphics.Win32.createSolidBrush (Graphics.Win32.rgb 0 0 255)
-  mainInstance <- System.Win32.DLL.getModuleHandle Nothing
+  mainInstance <- getModuleHandle Nothing
   Graphics.Win32.registerClass
   	  ( Graphics.Win32.cS_VREDRAW + Graphics.Win32.cS_HREDRAW
 	  , mainInstance
@@ -112,7 +105,7 @@ messagePump :: Graphics.Win32.HWND -> IO ()
 messagePump hwnd = Graphics.Win32.allocaMessage $ \ msg ->
   let pump = do
         Graphics.Win32.getMessage msg (Just hwnd)
-		`catch` \ _ -> exitWith ExitSuccess
+		`catch` \ (_::SomeException) -> exitWith ExitSuccess
 	Graphics.Win32.translateMessage msg
 	Graphics.Win32.dispatchMessage msg
 	pump
