@@ -4,7 +4,7 @@ license:	BSD3
 license-file:	LICENSE
 author:		Alastair Reid
 copyright:	Alastair Reid, 1999-2003
-maintainer:	Bryan O'Sullivan <bos@serpentine.com>
+maintainer:	Haskell Libraries <libraries@haskell.org>
 bug-reports:    https://github.com/haskell/win32/issues
 homepage:       https://github.com/haskell/win32
 category:	System, Graphics
