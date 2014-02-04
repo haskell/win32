@@ -17,10 +17,9 @@
 
 module Graphics.Win32.Key where
 
-import Graphics.Win32.GDI.Types
-import System.Win32.Types
-
 import Control.Monad (liftM)
+import Graphics.Win32.GDI.Types (HWND)
+import System.Win32.Types (DWORD, UINT, WORD, ptrToMaybe)
 
 ##include "windows_cconv.h"
 

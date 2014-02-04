@@ -17,13 +17,18 @@
 
 module System.Win32.Info where
 
-import System.Win32.Types
-
 import Control.Exception (catch)
-import System.IO.Error
-import Foreign      ( Storable(sizeOf, alignment, peekByteOff, pokeByteOff,
-                               peek, poke)
-                    , Ptr, alloca, allocaArray )
+import Foreign.Marshal.Alloc (alloca)
+import Foreign.Marshal.Array (allocaArray)
+import Foreign.Ptr (Ptr, nullPtr)
+import Foreign.Storable (Storable(..))
+import System.IO.Error (isDoesNotExistError)
+import System.Win32.Types (DWORD, LPCTSTR, LPTSTR, LPVOID, UINT, WORD)
+import System.Win32.Types (failIfZero, peekTStringLen, withTString)
+
+#if !MIN_VERSION_base(4,6,0)
+import Prelude hiding (catch)
+#endif
 
 ##include "windows_cconv.h"
 
