@@ -18,14 +18,24 @@
 
 module Graphics.Win32.Window where
 
-import System.Win32.Types
-import Graphics.Win32.GDI.Types
-import Graphics.Win32.Message
-
-import Control.Monad
-import Data.Maybe
-import Foreign
-import System.IO.Unsafe
+import Control.Monad (liftM)
+import Data.Maybe (fromMaybe)
+import Data.Word (Word32)
+import Foreign.ForeignPtr (withForeignPtr)
+import Foreign.Marshal.Alloc (allocaBytes)
+import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, castPtr, nullPtr)
+import Foreign.Storable (pokeByteOff)
+import Graphics.Win32.GDI.Types (HBITMAP, HCURSOR, HDC, HDWP, HRGN, HWND, PRGN)
+import Graphics.Win32.GDI.Types (HBRUSH, HICON, HMENU, prim_ChildWindowFromPoint)
+import Graphics.Win32.GDI.Types (LPRECT, RECT, allocaRECT, peekRECT, withRECT)
+import Graphics.Win32.GDI.Types (POINT, allocaPOINT, peekPOINT, withPOINT)
+import Graphics.Win32.GDI.Types (prim_ChildWindowFromPointEx)
+import Graphics.Win32.Message (WindowMessage)
+import System.IO.Unsafe (unsafePerformIO)
+import System.Win32.Types (ATOM, maybePtr, newTString, ptrToMaybe, numToMaybe)
+import System.Win32.Types (Addr, BOOL, DWORD, INT, LONG, LRESULT, UINT, WPARAM)
+import System.Win32.Types (HINSTANCE, LPARAM, LPCTSTR, LPVOID, withTString)
+import System.Win32.Types (failIf, failIf_, failIfFalse_, failIfNull, maybeNum)
 
 ##include "windows_cconv.h"
 

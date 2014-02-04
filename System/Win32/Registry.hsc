@@ -60,12 +60,20 @@ module System.Win32.Registry
 
 -}
 
-import System.Win32.Time
-import System.Win32.Types
-import System.Win32.File
-
-import System.IO.Unsafe
-import Foreign
+import Data.Word (Word32)
+import Foreign.ForeignPtr (withForeignPtr)
+import Foreign.Marshal.Alloc (alloca, allocaBytes, free, mallocBytes)
+import Foreign.Marshal.Array (allocaArray0)
+import Foreign.Marshal.Utils (maybeWith, with)
+import Foreign.Ptr (Ptr, castPtr, nullPtr)
+import Foreign.Storable (peek, peekByteOff, peekElemOff, sizeOf)
+import System.IO.Unsafe (unsafePerformIO)
+import System.Win32.File (LPSECURITY_ATTRIBUTES)
+import System.Win32.Time (FILETIME)
+import System.Win32.Types (DWORD, ErrCode, HKEY, LPCTSTR, PKEY, withTString)
+import System.Win32.Types (HANDLE, LONG, LPBYTE, newForeignHANDLE, peekTString)
+import System.Win32.Types (LPTSTR, TCHAR, failUnlessSuccess, withTStringLen)
+import System.Win32.Types (castUINTPtrToPtr, failUnlessSuccessOr, maybePtr)
 
 ##include "windows_cconv.h"
 

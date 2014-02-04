@@ -17,13 +17,15 @@
 
 module Graphics.Win32.Control where
 
-import Graphics.Win32.GDI.Types
-import Graphics.Win32.Window
-import System.Win32.Types
-import Graphics.Win32.Message
-
-import Foreign
-import System.IO.Unsafe
+import Data.Bits ((.|.))
+import Graphics.Win32.GDI.Types (HMENU, HWND)
+import Graphics.Win32.Message (WindowMessage)
+import Graphics.Win32.Window (ClassName, Pos, WindowStyle, maybePos)
+import Graphics.Win32.Window (c_CreateWindowEx)
+import System.IO.Unsafe (unsafePerformIO)
+import System.Win32.Types (HANDLE, UINT, maybePtr, newTString, withTString)
+import System.Win32.Types (failIfFalse_, failIfNull, failIfZero)
+import Foreign.Ptr (nullPtr)
 
 ##include "windows_cconv.h"
 
