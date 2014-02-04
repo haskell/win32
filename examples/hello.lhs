@@ -18,7 +18,7 @@ module Main(main) where
 import qualified Graphics.Win32
 import qualified System.Win32.DLL
 import qualified System.Win32.Types
-import Control.Exception (bracket)
+import Control.Exception (bracket,catch,SomeException)
 import Foreign
 import System.Exit
 {-import Addr-}
@@ -111,8 +111,8 @@ createWindow width height wndProc = do
 messagePump :: Graphics.Win32.HWND -> IO ()
 messagePump hwnd = Graphics.Win32.allocaMessage $ \ msg ->
   let pump = do
-        Graphics.Win32.getMessage msg (Just hwnd)
-		`catch` \ _ -> exitWith ExitSuccess
+        Graphics.Win32.getMessage msg (Just hwnd) 
+		`catch` ((\ e -> exitWith ExitSuccess) ::  SomeException -> IO a)
 	Graphics.Win32.translateMessage msg
 	Graphics.Win32.dispatchMessage msg
 	pump
