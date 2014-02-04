@@ -17,7 +17,7 @@ extra-source-files:
 	include/Win32Aux.h include/win32debug.h include/windows_cconv.h
 
 Library
-    build-depends:	base >= 4.7 && < 5, bytestring
+    build-depends:	base >= 4.6 && < 5, bytestring
     ghc-options:    -Wall -fno-warn-name-shadowing
     cc-options:     -fno-strict-aliasing
     exposed-modules:
