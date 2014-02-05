@@ -20,7 +20,7 @@ module System.Win32.Types
 	, nullPtr
 	) where
 
-import Control.Exception (throw)
+import Control.Exception (throwIO)
 import Data.Bits (shiftL, shiftR, (.|.), (.&.))
 import Data.Char (isSpace)
 import Data.Int (Int32, Int64)
@@ -242,7 +242,7 @@ failWith fn_name err_code = do
   let msg' = reverse $ dropWhile isSpace $ reverse msg -- drop trailing \n
       ioerror = errnoToIOError fn_name errno Nothing Nothing
                   `ioeSetErrorString` msg'
-  throw ioerror
+  throwIO ioerror
 
 
 foreign import ccall unsafe "maperrno" -- in base/cbits/Win32Utils.c
