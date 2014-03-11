@@ -552,8 +552,8 @@ type WIN32_FIND_DATA = ()
 newtype FindData = FindData (ForeignPtr WIN32_FIND_DATA)
 
 getFindDataFileName :: FindData -> IO FilePath
-getFindDataFileName (FindData fp) = 
-  withForeignPtr fp $ \p -> 
+getFindDataFileName (FindData fp) =
+  withForeignPtr fp $ \p ->
     peekTString ((# ptr WIN32_FIND_DATAW, cFileName ) p)
 
 findFirstFile :: String -> IO (HANDLE, FindData)
@@ -561,7 +561,7 @@ findFirstFile str = do
   fp_finddata <- mallocForeignPtrBytes (# const sizeof(WIN32_FIND_DATAW) )
   withForeignPtr fp_finddata $ \p_finddata -> do
     handle <- withTString str $ \tstr -> do
-                failIf (== iNVALID_HANDLE_VALUE) "findFirstFile" $ 
+                failIf (== iNVALID_HANDLE_VALUE) "findFirstFile" $
                   c_FindFirstFile tstr p_finddata
     return (handle, FindData fp_finddata)
 foreign import WINDOWS_CCONV unsafe "windows.h FindFirstFileW"
