@@ -74,6 +74,7 @@ fILE_SHARE_NONE = 0
 #{enum ShareMode,
  , fILE_SHARE_READ      = FILE_SHARE_READ
  , fILE_SHARE_WRITE     = FILE_SHARE_WRITE
+ , fILE_SHARE_DELETE    = FILE_SHARE_DELETE
  }
 
 ----------------------------------------------------------------
