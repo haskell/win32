@@ -26,6 +26,47 @@ import Foreign.C.Types
 
 #include <windows.h>
 
+----------------------------------------------------------------
+-- Data types
+----------------------------------------------------------------
+
+data MEMORY_BASIC_INFORMATION = MEMORY_BASIC_INFORMATION
+    { mbiBaseAddress       :: Addr
+    , mbiAllocationBase    :: Addr
+    , mbiAllocationProtect :: DWORD
+    , mbiRegionSize        :: SIZE_T
+    , mbiState             :: DWORD
+    , mbiProtect           :: DWORD
+    , mbiType              :: DWORD
+    } deriving (Show)
+
+----------------------------------------------------------------
+-- Instances
+----------------------------------------------------------------
+
+instance Storable MEMORY_BASIC_INFORMATION where
+    sizeOf _ = #size MEMORY_BASIC_INFORMATION
+    alignment = sizeOf
+    poke buf mbi = do
+        (#poke MEMORY_BASIC_INFORMATION, BaseAddress)       buf (mbiBaseAddress mbi)
+        (#poke MEMORY_BASIC_INFORMATION, AllocationBase)    buf (mbiAllocationBase mbi)
+        (#poke MEMORY_BASIC_INFORMATION, AllocationProtect) buf (mbiAllocationProtect mbi)
+        (#poke MEMORY_BASIC_INFORMATION, RegionSize)        buf (mbiRegionSize mbi)
+        (#poke MEMORY_BASIC_INFORMATION, State)             buf (mbiState mbi)
+        (#poke MEMORY_BASIC_INFORMATION, Protect)           buf (mbiProtect mbi)
+        (#poke MEMORY_BASIC_INFORMATION, Type)              buf (mbiType mbi)
+    peek buf = do
+        baseAddress       <- (#peek MEMORY_BASIC_INFORMATION, BaseAddress)       buf
+        allocationBase    <- (#peek MEMORY_BASIC_INFORMATION, AllocationBase)    buf
+        allocationProtect <- (#peek MEMORY_BASIC_INFORMATION, AllocationProtect) buf
+        regionSize        <- (#peek MEMORY_BASIC_INFORMATION, RegionSize)        buf
+        state             <- (#peek MEMORY_BASIC_INFORMATION, State)             buf
+        protect           <- (#peek MEMORY_BASIC_INFORMATION, Protect)           buf
+        ty                <- (#peek MEMORY_BASIC_INFORMATION, Type)              buf
+        return $ MEMORY_BASIC_INFORMATION baseAddress allocationBase allocationProtect regionSize state protect ty
+
+----------------------------------------------------------------
+
 copyMemory :: Ptr a -> Ptr a -> DWORD -> IO ()
 copyMemory dest src nbytes = copyBytes dest src (fromIntegral nbytes)
 
@@ -263,7 +304,11 @@ virtualProtectEx proc addr size new_prot =
 foreign import WINDOWS_CCONV unsafe "windows.h VirtualProtectEx"
   c_VirtualProtectEx :: HANDLE -> Addr -> DWORD -> DWORD -> Ptr DWORD -> IO Bool
 
--- No VirtualQuery..()
+virtualQueryEx :: HANDLE -> LPVOID -> Ptr MEMORY_BASIC_INFORMATION -> SIZE_T -> IO DWORD
+virtualQueryEx hProcess lpAddress lpBuffer dwLength =
+  failIfZero "VirtualQueryEx" $ c_VirtualQueryEx hProcess lpAddress lpBuffer dwLength
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualQueryEx"
+  c_VirtualQueryEx :: HANDLE -> LPVOID -> Ptr MEMORY_BASIC_INFORMATION -> SIZE_T -> IO DWORD
 
 virtualUnlock :: Addr -> DWORD -> IO ()
 virtualUnlock addr size =
