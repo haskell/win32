@@ -456,7 +456,7 @@ findWindow :: String -> String -> IO (Maybe HWND)
 findWindow cname wname =
   withTString cname $ \ c_cname ->
   withTString wname $ \ c_wname ->
-  liftM ptrToMaybe $ c_FindWindow c_cname c_wname
+  liftM ptrToMaybe $ c_FindWindow (if c_cname == "" then nullPtr else c_name) (if c_wname == "" then nullPtr else c_wname)
 foreign import WINDOWS_CCONV unsafe "windows.h FindWindowW"
   c_FindWindow :: LPCTSTR -> LPCTSTR -> IO HWND
 
