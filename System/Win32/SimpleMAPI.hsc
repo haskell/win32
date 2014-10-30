@@ -21,8 +21,6 @@ where
 -- some of the values we use, e.g. MAPI_LOGOFF_SHARED.
 -- mapix.h does define MAPI_LOGOFF_SHARED, but the various flags
 -- clash with each other.
--- So for now we only define the module content on i386.
-#if __i386__
 
 import Control.Exception    ( bracket, handle, finally, onException
                             , IOException )
@@ -53,8 +51,12 @@ type MapiFlag = ULONG
     , mAPI_LOGON_UI         = MAPI_LOGON_UI
     , mAPI_NEW_SESSION      = MAPI_NEW_SESSION
     , mAPI_FORCE_DOWNLOAD   = MAPI_FORCE_DOWNLOAD
+#ifdef MAPI_LOGOFF_SHARED
     , mAPI_LOGOFF_SHARED    = MAPI_LOGOFF_SHARED
+#endif
+#ifdef MAPI_LOGOFF_UI
     , mAPI_LOGOFF_UI        = MAPI_LOGOFF_UI
+#endif
     , mAPI_DIALOG           = MAPI_DIALOG
     , mAPI_UNREAD_ONLY      = MAPI_UNREAD_ONLY
     , mAPI_LONG_MSGID       = MAPI_LONG_MSGID
@@ -81,7 +83,9 @@ mapiErrors =
     , ((#const MAPI_E_DISK_FULL)        , "Disk full")
     , ((#const MAPI_E_INSUFFICIENT_MEMORY)      , "Not enough memory")
     , ((#const MAPI_E_ACCESS_DENIED)    , "Access denied")
+#ifdef MAPI_E_BLK_TOO_SMALL
     , ((#const MAPI_E_BLK_TOO_SMALL)    , "BLK_TOO_SMALL")
+#endif
     , ((#const MAPI_E_TOO_MANY_SESSIONS), "Too many open sessions")
     , ((#const MAPI_E_TOO_MANY_FILES)   , "Too many open files")
     , ((#const MAPI_E_TOO_MANY_RECIPIENTS)      , "Too many recipients")
@@ -96,7 +100,9 @@ mapiErrors =
     , ((#const MAPI_E_INVALID_SESSION)          , "Invalid session")
     , ((#const MAPI_E_TYPE_NOT_SUPPORTED)       , "Type not supported")
     , ((#const MAPI_E_AMBIGUOUS_RECIPIENT)      , "Ambigious recipient")
+#ifdef MAPI_E_AMBIGUOUS_RECIP
     , ((#const MAPI_E_AMBIGUOUS_RECIP)          , "Ambigious recipient")
+#endif
     , ((#const MAPI_E_MESSAGE_IN_USE)           , "Message in use")
     , ((#const MAPI_E_NETWORK_FAILURE)          , "Network failure")
     , ((#const MAPI_E_INVALID_EDITFIELDS)       , "Invalid editfields")
@@ -407,5 +413,3 @@ mapiSendMail f ses hwnd msg flag = withMessage f ses msg $ \msg ->
 
 handleIOException :: (IOException -> IO a) -> IO a -> IO a
 handleIOException = handle
-
-#endif
