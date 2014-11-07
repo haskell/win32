@@ -22,6 +22,7 @@ module System.Win32.Shell (
   cSIDL_APPDATA,
   cSIDL_WINDOWS,
   cSIDL_PERSONAL,
+  cSIDL_LOCAL_APPDATA,
   cSIDL_PROGRAM_FILES,
   SHGetFolderPathFlags,
   sHGFP_TYPE_CURRENT,
