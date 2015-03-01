@@ -204,7 +204,7 @@ setWindowClosure wnd closure = do
   _ <- c_SetWindowLongPtr wnd (#{const GWLP_USERDATA})
                               (castPtr (castFunPtrToPtr fp))
   return ()
-foreign import capi unsafe "windows.h SetWindowLongPtrW"
+foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongPtrW"
   c_SetWindowLongPtr :: HWND -> INT -> Ptr LONG -> IO (Ptr LONG)
 
 createWindow
