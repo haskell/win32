@@ -204,7 +204,24 @@ setWindowClosure wnd closure = do
   _ <- c_SetWindowLongPtr wnd (#{const GWLP_USERDATA})
                               (castPtr (castFunPtrToPtr fp))
   return ()
+
+{- Note [SetWindowLongPtrW]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Windows.h defines SetWindowLongPtrW as SetWindowLongW for 32-bit platforms
+(i386_HOST_ARCH for our mingw32 environment). Unfortunately since the foreign
+import name is given inside of a string, the macro will not be expanded.
+
+Until a better solution is presented each version is provided explicitly here.
+
+-}
+#if defined(i386_HOST_ARCH)
+foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongW"
+#elif defined(x86_64_HOST_ARCH)
 foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongPtrW"
+#else
+# error Unknown mingw32 arch
+#endif
   c_SetWindowLongPtr :: HWND -> INT -> Ptr LONG -> IO (Ptr LONG)
 
 createWindow
