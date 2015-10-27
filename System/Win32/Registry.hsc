@@ -72,7 +72,7 @@ import System.Win32.File (LPSECURITY_ATTRIBUTES)
 import System.Win32.Time (FILETIME)
 import System.Win32.Types (DWORD, ErrCode, HKEY, LPCTSTR, PKEY, withTString)
 import System.Win32.Types (HANDLE, LONG, LPBYTE, newForeignHANDLE, peekTString)
-import System.Win32.Types (LPTSTR, TCHAR, failUnlessSuccess, withTStringLen)
+import System.Win32.Types (LPTSTR, TCHAR, failUnlessSuccess)
 import System.Win32.Types (castUINTPtrToPtr, failUnlessSuccessOr, maybePtr)
 
 ##include "windows_cconv.h"
@@ -477,9 +477,9 @@ regSetValue :: HKEY -> String -> String -> IO ()
 regSetValue key subkey value =
   withForeignPtr key $ \ p_key ->
   withTString subkey $ \ c_subkey ->
-  withTStringLen value $ \ (c_value, value_len) ->
+  withTString value $ \ c_value ->
   failUnlessSuccess "RegSetValue" $
-    c_RegSetValue p_key c_subkey rEG_SZ c_value value_len
+    c_RegSetValue p_key c_subkey rEG_SZ c_value 0 -- cbData is ignored, value needs to be null terminated.
 foreign import WINDOWS_CCONV unsafe "windows.h RegSetValueW"
   c_RegSetValue :: PKEY -> LPCTSTR -> DWORD -> LPCTSTR -> Int -> IO ErrCode
 
