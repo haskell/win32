@@ -18,7 +18,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Win32.GDI.Graphics2D
-	where
+        where
 
 import System.Win32.Types
 import Graphics.Win32.GDI.Types

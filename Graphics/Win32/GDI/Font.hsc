@@ -19,21 +19,21 @@
 
 module Graphics.Win32.GDI.Font
 {-
-	( CharSet
-	, PitchAndFamily
-	, OutPrecision
-	, ClipPrecision
-	, FontQuality
-	, FontWeight
+        ( CharSet
+        , PitchAndFamily
+        , OutPrecision
+        , ClipPrecision
+        , FontQuality
+        , FontWeight
 
-	, createFont, deleteFont
+        , createFont, deleteFont
 
-	, StockFont, getStockFont
-	, oEM_FIXED_FONT, aNSI_FIXED_FONT, aNSI_VAR_FONT, sYSTEM_FONT
-	, dEVICE_DEFAULT_FONT, sYSTEM_FIXED_FONT
-	) where
+        , StockFont, getStockFont
+        , oEM_FIXED_FONT, aNSI_FIXED_FONT, aNSI_VAR_FONT, sYSTEM_FONT
+        , dEVICE_DEFAULT_FONT, sYSTEM_FIXED_FONT
+        ) where
 -}
-	where
+        where
 
 import System.Win32.Types
 import Graphics.Win32.GDI.Types
@@ -168,19 +168,19 @@ foreign import WINDOWS_CCONV unsafe "windows.h CreateFontW"
 --
 -- createFont_adr (width, height) escapement bold italic family =
 --  createFont height width
--- 		     (round (escapement * 1800/pi))
--- 		     0                     -- orientation
--- 		     weight
--- 		     italic False False    -- italic, underline, strikeout
--- 		     aNSI_CHARSET
--- 		     oUT_DEFAULT_PRECIS
--- 		     cLIP_DEFAULT_PRECIS
--- 		     dEFAULT_QUALITY
--- 		     dEFAULT_PITCH
--- 		     family
+--                   (round (escapement * 1800/pi))
+--                   0                     -- orientation
+--                   weight
+--                   italic False False    -- italic, underline, strikeout
+--                   aNSI_CHARSET
+--                   oUT_DEFAULT_PRECIS
+--                   cLIP_DEFAULT_PRECIS
+--                   dEFAULT_QUALITY
+--                   dEFAULT_PITCH
+--                   family
 --  where
 --   weight | bold      = fW_BOLD
--- 	    | otherwise = fW_NORMAL
+--          | otherwise = fW_NORMAL
 
 
 -- missing CreateFontIndirect from WinFonts.ss; GSL ???

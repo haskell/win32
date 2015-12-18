@@ -25,18 +25,18 @@
 -- for details
 
 module Graphics.Win32.GDI (
-	module Graphics.Win32.GDI.Bitmap,
-	module Graphics.Win32.GDI.Brush,
-	module Graphics.Win32.GDI.Clip,
-	module Graphics.Win32.GDI.Font,
-	module Graphics.Win32.GDI.Graphics2D,
-	module Graphics.Win32.GDI.HDC,
-	module Graphics.Win32.GDI.Palette,
-	module Graphics.Win32.GDI.Path,
-	module Graphics.Win32.GDI.Pen,
-	module Graphics.Win32.GDI.Region,
-	module Graphics.Win32.GDI.Types
-	) where
+        module Graphics.Win32.GDI.Bitmap,
+        module Graphics.Win32.GDI.Brush,
+        module Graphics.Win32.GDI.Clip,
+        module Graphics.Win32.GDI.Font,
+        module Graphics.Win32.GDI.Graphics2D,
+        module Graphics.Win32.GDI.HDC,
+        module Graphics.Win32.GDI.Palette,
+        module Graphics.Win32.GDI.Path,
+        module Graphics.Win32.GDI.Pen,
+        module Graphics.Win32.GDI.Region,
+        module Graphics.Win32.GDI.Types
+        ) where
 
 import Graphics.Win32.GDI.Bitmap
 import Graphics.Win32.GDI.Brush

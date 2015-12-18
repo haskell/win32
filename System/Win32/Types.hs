@@ -16,9 +16,9 @@
 -----------------------------------------------------------------------------
 
 module System.Win32.Types
-	( module System.Win32.Types
-	, nullPtr
-	) where
+        ( module System.Win32.Types
+        , nullPtr
+        ) where
 
 import Control.Exception (throwIO)
 import Data.Bits (shiftL, shiftR, (.|.), (.&.))

@@ -16,13 +16,13 @@
 -----------------------------------------------------------------------------
 
 module System.Win32.NLS  (
-	module System.Win32.NLS,
+        module System.Win32.NLS,
 
-	-- defined in System.Win32.Types
-	LCID, LANGID, SortID, SubLANGID, PrimaryLANGID,
-	mAKELCID, lANGIDFROMLCID, sORTIDFROMLCID,
-	mAKELANGID, pRIMARYLANGID, sUBLANGID
-	) where
+        -- defined in System.Win32.Types
+        LCID, LANGID, SortID, SubLANGID, PrimaryLANGID,
+        mAKELCID, lANGIDFROMLCID, sORTIDFROMLCID,
+        mAKELANGID, pRIMARYLANGID, sUBLANGID
+        ) where
 
 import System.Win32.Types
 
@@ -347,7 +347,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetOEMCP"
 
 -- | The `System.IO` input functions (e.g. `getLine`) don't
 -- automatically convert to Unicode, so this function is provided to
--- make the conversion from a multibyte string in the given code page 
+-- make the conversion from a multibyte string in the given code page
 -- to a proper Unicode string.  To get the code page for the console,
 -- use `getConsoleCP`.
 
@@ -356,7 +356,7 @@ stringToUnicode _cp "" = return ""
      -- MultiByteToWideChar doesn't handle empty strings (#1929)
 stringToUnicode cp mbstr =
   withCAStringLen mbstr $ \(cstr,len) -> do
-    wchars <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar 
+    wchars <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar
                 cp
                 0
                 cstr
@@ -364,7 +364,7 @@ stringToUnicode cp mbstr =
                 nullPtr 0
     -- wchars is the length of buffer required
     allocaArray (fromIntegral wchars) $ \cwstr -> do
-      wchars <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar 
+      wchars <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar
                 cp
                 0
                 cstr

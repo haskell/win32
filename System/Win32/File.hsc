@@ -19,10 +19,10 @@
 
 module System.Win32.File
 {-
-	( AccessMode, ShareMode, CreateMode, FileAttributeOrFlag
-	, CreateFile, CloseHandle, DeleteFile, CopyFile
-	, MoveFileFlag, MoveFile, MoveFileEx,
-	)
+        ( AccessMode, ShareMode, CreateMode, FileAttributeOrFlag
+        , CreateFile, CloseHandle, DeleteFile, CopyFile
+        , MoveFileFlag, MoveFile, MoveFileEx,
+        )
 -}
 where
 
@@ -131,9 +131,9 @@ type FileAttributeOrFlag   = UINT
 type MoveFileFlag   = DWORD
 
 #{enum MoveFileFlag,
- , mOVEFILE_REPLACE_EXISTING	= MOVEFILE_REPLACE_EXISTING
- , mOVEFILE_COPY_ALLOWED	= MOVEFILE_COPY_ALLOWED
- , mOVEFILE_DELAY_UNTIL_REBOOT	= MOVEFILE_DELAY_UNTIL_REBOOT
+ , mOVEFILE_REPLACE_EXISTING    = MOVEFILE_REPLACE_EXISTING
+ , mOVEFILE_COPY_ALLOWED        = MOVEFILE_COPY_ALLOWED
+ , mOVEFILE_DELAY_UNTIL_REBOOT  = MOVEFILE_DELAY_UNTIL_REBOOT
  }
 
 ----------------------------------------------------------------
@@ -554,8 +554,8 @@ type WIN32_FIND_DATA = ()
 newtype FindData = FindData (ForeignPtr WIN32_FIND_DATA)
 
 getFindDataFileName :: FindData -> IO FilePath
-getFindDataFileName (FindData fp) = 
-  withForeignPtr fp $ \p -> 
+getFindDataFileName (FindData fp) =
+  withForeignPtr fp $ \p ->
     peekTString ((# ptr WIN32_FIND_DATAW, cFileName ) p)
 
 findFirstFile :: String -> IO (HANDLE, FindData)
@@ -563,7 +563,7 @@ findFirstFile str = do
   fp_finddata <- mallocForeignPtrBytes (# const sizeof(WIN32_FIND_DATAW) )
   withForeignPtr fp_finddata $ \p_finddata -> do
     handle <- withTString str $ \tstr -> do
-                failIf (== iNVALID_HANDLE_VALUE) "findFirstFile" $ 
+                failIf (== iNVALID_HANDLE_VALUE) "findFirstFile" $
                   c_FindFirstFile tstr p_finddata
     return (handle, FindData fp_finddata)
 foreign import WINDOWS_CCONV unsafe "windows.h FindFirstFileW"

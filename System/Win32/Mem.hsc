@@ -170,9 +170,9 @@ foreign import WINDOWS_CCONV unsafe "windows.h GlobalUnlock"
 type HeapAllocFlags = DWORD
 
 #{enum HeapAllocFlags,
- , hEAP_GENERATE_EXCEPTIONS	= HEAP_GENERATE_EXCEPTIONS
- , hEAP_NO_SERIALIZE		= HEAP_NO_SERIALIZE
- , hEAP_ZERO_MEMORY		= HEAP_ZERO_MEMORY
+ , hEAP_GENERATE_EXCEPTIONS     = HEAP_GENERATE_EXCEPTIONS
+ , hEAP_NO_SERIALIZE            = HEAP_NO_SERIALIZE
+ , hEAP_ZERO_MEMORY             = HEAP_ZERO_MEMORY
  }
 
 heapAlloc :: HANDLE -> HeapAllocFlags -> DWORD -> IO Addr

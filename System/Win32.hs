@@ -18,20 +18,20 @@
 -----------------------------------------------------------------------------
 
 module System.Win32
-	( module System.Win32.DLL
-	, module System.Win32.File
-	, module System.Win32.FileMapping
-	, module System.Win32.Info
-	, module System.Win32.Mem
-	, module System.Win32.NLS
-	, module System.Win32.Process
-	, module System.Win32.Registry
-	, module System.Win32.Time
-	, module System.Win32.Console
-	, module System.Win32.Security
-	, module System.Win32.Types
-	, module System.Win32.Shell
-	) where
+        ( module System.Win32.DLL
+        , module System.Win32.File
+        , module System.Win32.FileMapping
+        , module System.Win32.Info
+        , module System.Win32.Mem
+        , module System.Win32.NLS
+        , module System.Win32.Process
+        , module System.Win32.Registry
+        , module System.Win32.Time
+        , module System.Win32.Console
+        , module System.Win32.Security
+        , module System.Win32.Types
+        , module System.Win32.Shell
+        ) where
 
 import System.Win32.DLL
 import System.Win32.File

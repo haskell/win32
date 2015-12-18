@@ -16,40 +16,40 @@
 -----------------------------------------------------------------------------
 
 module System.Win32.Registry
-		( module System.Win32.Registry
-		) where
+                ( module System.Win32.Registry
+                ) where
 {- What's really on offer:
-	(
-	  regCloseKey        -- :: HKEY -> IO ()
-	, regConnectRegistry -- :: Maybe String -> HKEY -> IO HKEY
-	, regCreateKey       -- :: HKEY -> String -> IO HKEY
-	, regCreateKeyEx     -- :: HKEY -> String -> String
-	                     -- -> RegCreateOptions -> REGSAM
-			     -- -> Maybe LPSECURITY_ATTRIBUTES
-			     -- -> IO (HKEY, Bool)
+        (
+          regCloseKey        -- :: HKEY -> IO ()
+        , regConnectRegistry -- :: Maybe String -> HKEY -> IO HKEY
+        , regCreateKey       -- :: HKEY -> String -> IO HKEY
+        , regCreateKeyEx     -- :: HKEY -> String -> String
+                             -- -> RegCreateOptions -> REGSAM
+                             -- -> Maybe LPSECURITY_ATTRIBUTES
+                             -- -> IO (HKEY, Bool)
         , regDeleteKey       -- :: HKEY -> String -> IO ()
-	, regDeleteValue     -- :: HKEY -> String -> IO ()
-	, regEnumKeys	     -- :: HKEY -> IO [String]
-	, regEnumKey 	     -- :: HKEY -> DWORD -> Addr -> DWORD -> IO String
-	, regEnumKeyValue    -- :: HKEY -> DWORD -> Addr -> DWORD -> Addr -> DWORD -> IO String
-	, regFlushKey        -- :: HKEY -> IO ()
-	, regLoadKey         -- :: HKEY -> String -> String -> IO ()
-	, regNotifyChangeKeyValue -- :: HKEY -> Bool -> RegNotifyOptions
-				  -- -> HANDLE -> Bool -> IO ()
-	, regOpenKey         -- :: HKEY -> String -> IO HKEY
-	, regOpenKeyEx 	     -- :: HKEY -> String -> REGSAM -> IO HKEY
-	, regQueryInfoKey    -- :: HKEY -> IO RegInfoKey
-	, regQueryValue      -- :: HKEY -> Maybe String -> IO String
-	, regQueryValueKey   -- :: HKEY -> Maybe String -> IO String
-	, regQueryValueEx    -- :: HKEY -> String -> Addr -> Int -> IO RegValueType
-	, regReplaceKey      -- :: HKEY -> String -> String -> String -> IO ()
-	, regRestoreKey      -- :: HKEY -> String -> RegRestoreFlags -> IO ()
-	, regSaveKey         -- :: HKEY -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
-	, regSetValue        -- :: HKEY -> String -> String -> IO ()
-	, regSetValueEx      -- :: HKEY -> String -> RegValueType -> LPTSTR -> Int -> IO ()
-	, regSetStringValue  -- :: HKEY -> String -> String -> IO ()
-	, regUnloadKey       -- :: HKEY -> String -> IO ()
-	) where
+        , regDeleteValue     -- :: HKEY -> String -> IO ()
+        , regEnumKeys        -- :: HKEY -> IO [String]
+        , regEnumKey         -- :: HKEY -> DWORD -> Addr -> DWORD -> IO String
+        , regEnumKeyValue    -- :: HKEY -> DWORD -> Addr -> DWORD -> Addr -> DWORD -> IO String
+        , regFlushKey        -- :: HKEY -> IO ()
+        , regLoadKey         -- :: HKEY -> String -> String -> IO ()
+        , regNotifyChangeKeyValue -- :: HKEY -> Bool -> RegNotifyOptions
+                                  -- -> HANDLE -> Bool -> IO ()
+        , regOpenKey         -- :: HKEY -> String -> IO HKEY
+        , regOpenKeyEx       -- :: HKEY -> String -> REGSAM -> IO HKEY
+        , regQueryInfoKey    -- :: HKEY -> IO RegInfoKey
+        , regQueryValue      -- :: HKEY -> Maybe String -> IO String
+        , regQueryValueKey   -- :: HKEY -> Maybe String -> IO String
+        , regQueryValueEx    -- :: HKEY -> String -> Addr -> Int -> IO RegValueType
+        , regReplaceKey      -- :: HKEY -> String -> String -> String -> IO ()
+        , regRestoreKey      -- :: HKEY -> String -> RegRestoreFlags -> IO ()
+        , regSaveKey         -- :: HKEY -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
+        , regSetValue        -- :: HKEY -> String -> String -> IO ()
+        , regSetValueEx      -- :: HKEY -> String -> RegValueType -> LPTSTR -> Int -> IO ()
+        , regSetStringValue  -- :: HKEY -> String -> String -> IO ()
+        , regUnloadKey       -- :: HKEY -> String -> IO ()
+        ) where
 -}
 
 {-
@@ -217,10 +217,10 @@ regEnumKeyVals hkey = do
        else do
 
         val <-
-	   case ty of
-	     x | x == rEG_SZ    -> peekTString (castPtr valbuf)
-	       | x == rEG_DWORD -> peekElemOff (castPtr valbuf) 0 >>= \ v -> return (show (v :: DWORD))
-	       | otherwise      -> return "<<unknown>>"
+           case ty of
+             x | x == rEG_SZ    -> peekTString (castPtr valbuf)
+               | x == rEG_DWORD -> peekElemOff (castPtr valbuf) 0 >>= \ v -> return (show (v :: DWORD))
+               | otherwise      -> return "<<unknown>>"
 
         vs <- go (n+1) nmbuf nmlen valbuf vallen
         return ((nm,val,ty):vs)

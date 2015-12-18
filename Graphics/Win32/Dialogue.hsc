@@ -96,7 +96,7 @@ data DialogTemplate
       (Either ResourceID String)  -- class
       (Either ResourceID String)  -- caption
       (Either ResourceID String)  -- fontname
-      Int	 		  -- font height
+      Int                         -- font height
       [DialogControl]
 
 data DialogControl
@@ -106,72 +106,72 @@ data DialogControl
       (Either ResourceID String) -- classname
       WindowStyle
       DWORD
-      Int			 -- dia_id
+      Int                        -- dia_id
 
 mkDialogFromTemplate :: DialogTemplate -> IO DTemplateMem
 mkDialogFromTemplate (DialogTemplate x y cx cy
-				     wstyle extstyle
-				     mb_menu mb_class caption
-				     font font_height
-				     controls) = do
+                                     wstyle extstyle
+                                     mb_menu mb_class caption
+                                     font font_height
+                                     controls) = do
   prim_hmenu    <- marshall_res mb_menu
   prim_class    <- marshall_res mb_class
   prim_caption  <- marshall_res caption
   prim_font     <- marshall_res font
   dtemp <- mkDiaTemplate 0 x y cx cy wstyle extstyle
-  			 prim_hmenu prim_class
-			 prim_caption prim_font
-			 font_height
+                         prim_hmenu prim_class
+                         prim_caption prim_font
+                         font_height
   mapM_ (addControl dtemp) controls
   getFinalDialog dtemp
 
 pushButtonControl :: Int -> Int -> Int -> Int
-		  -> DWORD -> DWORD -> Int
-		  -> String
-		  -> DialogControl
+                  -> DWORD -> DWORD -> Int
+                  -> String
+                  -> DialogControl
 pushButtonControl x y cx cy style estyle dia_id lab =
   DialogControl x y cx cy (Left 0x0080) (Right lab)
-  		(style + bS_DEFPUSHBUTTON) estyle dia_id
+                (style + bS_DEFPUSHBUTTON) estyle dia_id
 
 labelControl :: Int -> Int -> Int -> Int
-	     -> DWORD -> DWORD -> Int
-	     -> String
+             -> DWORD -> DWORD -> Int
+             -> String
              -> DialogControl
 labelControl x y cx cy style estyle dia_id lab =
   DialogControl x y cx cy (Left 0x0082) (Right lab)
-  		(style + sS_LEFT) estyle dia_id
+                (style + sS_LEFT) estyle dia_id
 
 listBoxControl :: Int -> Int -> Int -> Int
-	       -> DWORD -> DWORD -> Int
-	       -> String
+               -> DWORD -> DWORD -> Int
+               -> String
                -> DialogControl
 listBoxControl x y cx cy style estyle dia_id lab =
   DialogControl x y cx cy (Left 0x0083) (Right lab)
-  		(style) estyle dia_id
+                (style) estyle dia_id
 
 comboBoxControl :: Int -> Int -> Int -> Int
-	       -> DWORD -> DWORD -> Int
-	       -> String
+               -> DWORD -> DWORD -> Int
+               -> String
                -> DialogControl
 comboBoxControl x y cx cy style estyle dia_id lab =
   DialogControl x y cx cy (Left 0x0085) (Right lab)
-  		(style) estyle dia_id
+                (style) estyle dia_id
 
 editControl :: Int -> Int -> Int -> Int
-	       -> DWORD -> DWORD -> Int
-	       -> String
+               -> DWORD -> DWORD -> Int
+               -> String
                -> DialogControl
 editControl x y cx cy style estyle dia_id lab =
   DialogControl x y cx cy (Left 0x0081) (Right lab)
-  		(style + eS_LEFT) estyle dia_id
+                (style + eS_LEFT) estyle dia_id
 
 scrollBarControl :: Int -> Int -> Int -> Int
-	       -> DWORD -> DWORD -> Int
-	       -> String
+               -> DWORD -> DWORD -> Int
+               -> String
                -> DialogControl
 scrollBarControl x y cx cy style estyle dia_id lab =
   DialogControl x y cx cy (Left 0x0084) (Right lab)
-  		(style) estyle dia_id
+                (style) estyle dia_id
 
 foreign import ccall unsafe "diatemp.h getFinalDialog"
   getFinalDialog :: Ptr DIA_TEMPLATE -> IO DTemplateMem
@@ -182,12 +182,12 @@ foreign import ccall unsafe "diatemp.h mkDiaTemplate"
 
 addControl :: Ptr DIA_TEMPLATE -> DialogControl -> IO ()
 addControl dtemp (DialogControl x y cx cy mb_text mb_class
-				style exstyle
-				dia_id) = do
+                                style exstyle
+                                dia_id) = do
    prim_text  <- marshall_res mb_text
    prim_class <- marshall_res mb_class
    _ <- addDiaControl dtemp prim_text dia_id prim_class style
-  		 x y cx cy exstyle
+                 x y cx cy exstyle
    return ()
 
 foreign import ccall unsafe "diatemp.h addDiaControl"

@@ -137,13 +137,13 @@ searchPath path filename ext =
 try :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String
 try loc f n = do
    e <- allocaArray (fromIntegral n) $ \lptstr -> do
-	  r <- failIfZero loc $ f lptstr n
-	  if (r > n) then return (Left r) else do
-	    str <- peekTStringLen (lptstr, fromIntegral r)
-	    return (Right str)
+          r <- failIfZero loc $ f lptstr n
+          if (r > n) then return (Left r) else do
+            str <- peekTStringLen (lptstr, fromIntegral r)
+            return (Right str)
    case e of
-	Left n    -> try loc f n   
-	Right str -> return str
+        Left n    -> try loc f n
+        Right str -> return str
 
 foreign import WINDOWS_CCONV unsafe "GetWindowsDirectoryW"
   c_getWindowsDirectory :: LPTSTR -> UINT -> IO UINT

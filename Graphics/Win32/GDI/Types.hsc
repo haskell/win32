@@ -17,42 +17,42 @@
 
 module Graphics.Win32.GDI.Types
 {-  -- still incomplete
-	( POINT,        marshall_point, unmarshall_point
-	, ListPOINT,    marshall_ListPOINT_
-	, ListLenPOINT, marshall_ListLenPOINT_
-	, RECT,         marshall_rect, unmarshall_rect
-	, SIZE,         marshall_size, unmarshall_size
-	, nullPtr
-	, HBITMAP	, MbHBITMAP
-	, HFONT		, MbHFONT
-	, HCURSOR	, MbHCURSOR
-	, HICON		, MbHICON
-	, HRGN		, MbHRGN
-	, PRGN
-	, HPALETTE	, MbHPALETTE
-	, HBRUSH	, MbHBRUSH
-	, HPEN		, MbHPEN
-	, HACCEL	--, MbHACCEL
-	, HDC		, MbHDC
-	, HDWP          , MbHDWP
-	, HWND		, MbHWND
-	, HMENU		, MbHMENU
-	, PolyFillMode
-	, ArcDirection
-	, MbArcDirection
-	, GraphicsMode
-	, MbGraphicsMode
-	, BackgroundMode
-	, HatchStyle
-	, StretchBltMode
-	, COLORREF
-	, TextAlignment
-	, ClippingMode
-	, RegionType
-	, gDI_ERROR
-	)
+        ( POINT,        marshall_point, unmarshall_point
+        , ListPOINT,    marshall_ListPOINT_
+        , ListLenPOINT, marshall_ListLenPOINT_
+        , RECT,         marshall_rect, unmarshall_rect
+        , SIZE,         marshall_size, unmarshall_size
+        , nullPtr
+        , HBITMAP       , MbHBITMAP
+        , HFONT         , MbHFONT
+        , HCURSOR       , MbHCURSOR
+        , HICON         , MbHICON
+        , HRGN          , MbHRGN
+        , PRGN
+        , HPALETTE      , MbHPALETTE
+        , HBRUSH        , MbHBRUSH
+        , HPEN          , MbHPEN
+        , HACCEL        --, MbHACCEL
+        , HDC           , MbHDC
+        , HDWP          , MbHDWP
+        , HWND          , MbHWND
+        , HMENU         , MbHMENU
+        , PolyFillMode
+        , ArcDirection
+        , MbArcDirection
+        , GraphicsMode
+        , MbGraphicsMode
+        , BackgroundMode
+        , HatchStyle
+        , StretchBltMode
+        , COLORREF
+        , TextAlignment
+        , ClippingMode
+        , RegionType
+        , gDI_ERROR
+        )
 -}
-	where
+        where
 
 import System.Win32.Types
 

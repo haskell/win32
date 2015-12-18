@@ -18,9 +18,9 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Win32.GDI.Path
-	( beginPath, closeFigure, endPath, fillPath, flattenPath
-	, pathToRegion, strokeAndFillPath, strokePath, widenPath
-	) where
+        ( beginPath, closeFigure, endPath, fillPath, flattenPath
+        , pathToRegion, strokeAndFillPath, strokePath, widenPath
+        ) where
 
 import Graphics.Win32.GDI.Types
 import System.Win32.Types

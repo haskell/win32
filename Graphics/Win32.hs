@@ -21,18 +21,18 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Win32 (
-	module System.Win32.Types,
-	module Graphics.Win32.Control,
-	module Graphics.Win32.Dialogue,
-	module Graphics.Win32.GDI,
-	module Graphics.Win32.Icon,
-	module Graphics.Win32.Key,
-	module Graphics.Win32.Menu,
-	module Graphics.Win32.Message,
-	module Graphics.Win32.Misc,
-	module Graphics.Win32.Resource,
-	module Graphics.Win32.Window
-	) where
+        module System.Win32.Types,
+        module Graphics.Win32.Control,
+        module Graphics.Win32.Dialogue,
+        module Graphics.Win32.GDI,
+        module Graphics.Win32.Icon,
+        module Graphics.Win32.Key,
+        module Graphics.Win32.Menu,
+        module Graphics.Win32.Message,
+        module Graphics.Win32.Misc,
+        module Graphics.Win32.Resource,
+        module Graphics.Win32.Window
+        ) where
 
 import System.Win32.Types
 import Graphics.Win32.Control
