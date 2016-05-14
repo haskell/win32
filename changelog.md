@@ -7,3 +7,4 @@
 ## GIT HEAD (Unknown version)
 
 * Added function `getUserName`
+* Added file attribute `fILE_ATTRIBUTE_REPARSE_POINT`
