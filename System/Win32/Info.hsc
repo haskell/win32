@@ -21,12 +21,13 @@ module System.Win32.Info where
 
 import Control.Exception (catch)
 import Foreign.Marshal.Alloc (alloca)
+import Foreign.Marshal.Utils (with)
 import Foreign.Marshal.Array (allocaArray)
 import Foreign.Ptr (Ptr, nullPtr)
 import Foreign.Storable (Storable(..))
 import System.IO.Error (isDoesNotExistError)
-import System.Win32.Types (DWORD, LPCTSTR, LPTSTR, LPVOID, UINT, WORD)
-import System.Win32.Types (failIfZero, peekTStringLen, withTString)
+import System.Win32.Types (DWORD, LPDWORD, LPCTSTR, LPTSTR, LPVOID, UINT, WORD)
+import System.Win32.Types (failIfZero, failIfFalse_, peekTStringLen, withTString)
 
 #if !MIN_VERSION_base(4,6,0)
 import Prelude hiding (catch)
@@ -351,6 +352,17 @@ type SMSetting = UINT
 ----------------------------------------------------------------
 
 -- %fun GetUserName :: IO String
+
+foreign import WINDOWS_CCONV unsafe "windows.h GetUserNameW"
+  c_GetUserName :: LPTSTR -> LPDWORD -> IO Bool
+  
+getUserName :: IO String
+getUserName =     
+  allocaArray 512 $ \ c_str -> 
+    with 512 $ \ c_len -> do
+        failIfFalse_ "GetUserName" $ c_GetUserName c_str c_len
+        len <- peek c_len
+        peekTStringLen (c_str, fromIntegral len - 1)
 
 ----------------------------------------------------------------
 -- Version Info
