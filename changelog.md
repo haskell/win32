@@ -3,3 +3,7 @@
 ## 2.3.1.1 *May 2016*
 
 * Release for GHC 8.0.1
+
+## GIT HEAD (Unknown version)
+
+* Added function `getUserName`
