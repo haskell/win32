@@ -125,6 +125,12 @@ getLongPathName name = do
     try "getLongPathName"
       (c_GetLongPathName c_name) 512
 
+getShortPathName :: FilePath -> IO FilePath
+getShortPathName name = do
+  withTString name $ \ c_name ->
+    try "getShortPathName"
+      (c_GetShortPathName c_name) 512
+
 searchPath :: Maybe String -> FilePath -> String -> IO (Maybe FilePath)
 searchPath path filename ext =
   maybe ($ nullPtr) withTString path $ \p_path ->
@@ -169,6 +175,9 @@ foreign import WINDOWS_CCONV unsafe "GetFullPathNameW"
 
 foreign import WINDOWS_CCONV unsafe "GetLongPathNameW"
   c_GetLongPathName :: LPCTSTR -> LPTSTR -> DWORD -> IO DWORD
+
+foreign import WINDOWS_CCONV unsafe "GetShortPathNameW"
+  c_GetShortPathName :: LPCTSTR -> LPTSTR -> DWORD -> IO DWORD
 
 foreign import WINDOWS_CCONV unsafe "SearchPathW"
   c_SearchPath :: LPCTSTR -> LPCTSTR -> LPCTSTR -> DWORD -> LPTSTR -> Ptr LPTSTR
