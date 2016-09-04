@@ -54,4 +54,4 @@ pathRelativePathTo from from_attr to to_attr =
     return path
 
 foreign import WINDOWS_CCONV unsafe "Shlwapi.h PathRelativePathToW" 
-         c_pathRelativePathTo :: LPTSTR -> LPCTSTR -> DWORD -> LPCTSTR -> DWORD -> IO UINT 
+         c_pathRelativePathTo :: LPTSTR -> LPCTSTR -> DWORD -> LPCTSTR -> DWORD -> IO UINT
