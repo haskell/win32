@@ -26,7 +26,6 @@ import System.Win32.Types
 import System.Win32.File
 
 import Foreign
-import Foreign.C
 
 ##include "windows_cconv.h"
 
@@ -36,23 +35,23 @@ filepathRelativePathTo :: FilePath -> FilePath -> IO FilePath
 filepathRelativePathTo from to =
   withTString from $ \p_from ->
   withTString to   $ \p_to   ->
-  e <- allocaArray MAX_PATH $ \p_AbsPath -> do
-    failIfZero "PathRelativePathTo" (c_pathRelativePathTo p_AbsPath p_from fILE_ATTRIBUTE_DIRECTORY
-                                                                    p_to   fILE_ATTRIBUTE_NORMAL)
+  allocaArray ((#const MAX_PATH) * (#size TCHAR)) $ \p_AbsPath -> do
+    _ <- failIfZero "PathRelativePathTo" (c_pathRelativePathTo p_AbsPath p_from fILE_ATTRIBUTE_DIRECTORY
+                                                                         p_to   fILE_ATTRIBUTE_NORMAL)
     path <- peekTString p_AbsPath
-    localFree p_AbsPath
+    _ <- localFree p_AbsPath
     return path
 
 pathRelativePathTo :: FilePath -> FileAttributeOrFlag -> FilePath -> FileAttributeOrFlag -> IO FilePath
 pathRelativePathTo from from_attr to to_attr =
   withTString from $ \p_from ->
   withTString to   $ \p_to   ->
-  e <- allocaArray MAX_PATH $ \p_AbsPath -> do
-    failIfZero "PathRelativePathTo" (c_pathRelativePathTo p_AbsPath p_from from_attr
-                                                                    p_to   to_attr)
+  allocaArray ((#const MAX_PATH) * (#size TCHAR)) $ \p_AbsPath -> do
+    _ <- failIfZero "PathRelativePathTo" (c_pathRelativePathTo p_AbsPath p_from from_attr
+                                                                         p_to   to_attr)
     path <- peekTString p_AbsPath
-    localFree p_AbsPath
+    _ <- localFree p_AbsPath
     return path
 
 foreign import WINDOWS_CCONV unsafe "Shlwapi.h PathRelativePathToW" 
-         c_pathRelativePathTo :: LPTSTR -> LPCTSTR -> DWORD -> LPCTSTR -> IO UINT 
+         c_pathRelativePathTo :: LPTSTR -> LPCTSTR -> DWORD -> LPCTSTR -> DWORD -> IO UINT 
