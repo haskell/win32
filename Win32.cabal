@@ -14,7 +14,7 @@ build-type:     Simple
 cabal-version:  >=1.6
 extra-source-files:
 	include/diatemp.h include/dumpBMP.h include/ellipse.h include/errors.h
-	include/Win32Aux.h include/win32debug.h include/windows_cconv.h
+	include/Win32Aux.h include/win32debug.h
 
 Library
     build-depends:	base >= 4.5 && < 5, bytestring
@@ -66,7 +66,7 @@ Library
         "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder"
     include-dirs: 	include
     includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
-    install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
+    install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h"
     c-sources:
         cbits/HsGDI.c
         cbits/HsWin32.c

@@ -6,6 +6,10 @@
 
 ## GIT HEAD (Unknown version)
 
+* Add `windows_cconv.h` to the `install-includes` field of `Win32.cabal`,
+  allowing packages that transitively depend on `Win32` to use the
+  `WINDOWS_CCONV` CPP macro (which expands to `stdcall` or `ccall`
+  appropriately depending on the system architecture)
 * Added function `getLongPathName`
 * Added function `getShortPathName`
 * Added function `getUserName`
