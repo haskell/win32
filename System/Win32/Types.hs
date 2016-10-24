@@ -29,7 +29,7 @@ import Data.Word (Word8, Word16, Word32, Word64)
 import Foreign.C.Error (getErrno, errnoToIOError)
 import Foreign.C.String (newCWString, withCWStringLen)
 import Foreign.C.String (peekCWString, peekCWStringLen, withCWString)
-import Foreign.C.Types (CChar, CUChar, CWchar)
+import Foreign.C.Types (CChar, CUChar, CWchar, CIntPtr, CUIntPtr)
 import Foreign.ForeignPtr (ForeignPtr, newForeignPtr, newForeignPtr_)
 import Foreign.Ptr (FunPtr, Ptr, nullPtr)
 import Foreign (allocaArray)
@@ -73,6 +73,8 @@ type FLOAT         = Float
 type LARGE_INTEGER = Int64
 
 type UINT_PTR      = Word
+type LONG_PTR      = CIntPtr
+type ULONG_PTR     = CUIntPtr
 
 -- Not really a basic type, but used in many places
 type DDWORD        = Word64
@@ -82,11 +84,11 @@ type DDWORD        = Word64
 type MbString      = Maybe String
 type MbINT         = Maybe INT
 
-type ATOM          = UINT
-type WPARAM        = UINT
-type LPARAM        = LONG
-type LRESULT       = LONG
-type SIZE_T        = DWORD
+type ATOM          = WORD
+type WPARAM        = UINT_PTR
+type LPARAM        = LONG_PTR
+type LRESULT       = LONG_PTR
+type SIZE_T        = ULONG_PTR
 
 type MbATOM        = Maybe ATOM
 
