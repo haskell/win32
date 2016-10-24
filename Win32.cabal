@@ -49,6 +49,7 @@ Library
         System.Win32.File
         System.Win32.FileMapping
         System.Win32.Info
+        System.Win32.Path
         System.Win32.Mem
         System.Win32.NLS
         System.Win32.Process
@@ -63,7 +64,7 @@ Library
     if impl(ghc >= 7.1)
         extensions: NondecreasingIndentation
     extra-libraries:
-        "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder"
+        "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi"
     include-dirs: 	include
     includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
     install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h"

@@ -32,6 +32,7 @@ import Foreign.C.String (peekCWString, peekCWStringLen, withCWString)
 import Foreign.C.Types (CChar, CUChar, CWchar)
 import Foreign.ForeignPtr (ForeignPtr, newForeignPtr, newForeignPtr_)
 import Foreign.Ptr (FunPtr, Ptr, nullPtr)
+import Foreign (allocaArray)
 import Numeric (showHex)
 import System.IO.Error (ioeSetErrorString)
 import System.IO.Unsafe (unsafePerformIO)
@@ -264,6 +265,20 @@ ddwordToDwords n =
 dwordsToDdword:: (DWORD,DWORD) -> DDWORD
 dwordsToDdword (hi,low) = (fromIntegral low) .|. (fromIntegral hi `shiftL` finiteBitSize hi)
 
+-- Support for API calls that are passed a fixed-size buffer and tell
+-- you via the return value if the buffer was too small.  In that
+-- case, we double the buffer size and try again.
+try :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String
+try loc f n = do
+   e <- allocaArray (fromIntegral n) $ \lptstr -> do
+          r <- failIfZero loc $ f lptstr n
+          if (r > n) then return (Left r) else do
+            str <- peekTStringLen (lptstr, fromIntegral r)
+            return (Right str)
+   case e of
+        Left n    -> try loc f n
+        Right str -> return str
+  
 ----------------------------------------------------------------
 -- Primitives
 ----------------------------------------------------------------
