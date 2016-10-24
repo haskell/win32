@@ -18,3 +18,4 @@
 * Added function `getCurrentProcessId`
 * Added function `filepathRelativePathTo`
 * Added function `pathRelativePathTo`
+* Corrected 64 bit types (See #53)

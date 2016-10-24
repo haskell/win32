@@ -28,6 +28,7 @@ import Data.ByteString          ( ByteString )
 import Data.ByteString.Internal ( fromForeignPtr )
 import Foreign                  ( Ptr, nullPtr, plusPtr, maybeWith, FunPtr
                                 , ForeignPtr, newForeignPtr )
+import Foreign.C.Types (CUIntPtr(..))
 
 ##include "windows_cconv.h"
 
