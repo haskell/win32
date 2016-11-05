@@ -4,7 +4,7 @@
 
 * Release for GHC 8.0.1
 
-## GIT HEAD (Unknown version)
+## 2.4.0.0 *Nov 2016*
 
 * Add `windows_cconv.h` to the `install-includes` field of `Win32.cabal`,
   allowing packages that transitively depend on `Win32` to use the
