@@ -1,9 +1,5 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.3.1.1 *May 2016*
-
-* Release for GHC 8.0.1
-
 ## 2.4.0.0 *Nov 2016*
 
 * Add `windows_cconv.h` to the `install-includes` field of `Win32.cabal`,
@@ -19,3 +15,7 @@
 * Added function `filepathRelativePathTo`
 * Added function `pathRelativePathTo`
 * Corrected 64 bit types (See #53)
+
+## 2.3.1.1 *May 2016*
+
+* Release for GHC 8.0.1
