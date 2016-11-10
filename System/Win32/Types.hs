@@ -242,6 +242,7 @@ failWith fn_name err_code = do
                    -- We ignore failure of freeing c_msg, given we're already failing
                    _ <- localFree c_msg
                    return msg
+  setLastError err_code
   c_maperrno -- turn GetLastError() into errno, which errnoToIOError knows
              -- how to convert to an IOException we can throw.
              -- XXX we should really do this directly.
@@ -294,6 +295,9 @@ foreign import WINDOWS_CCONV unsafe "windows.h LocalFree"
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetLastError"
   getLastError :: IO ErrCode
+
+foreign import WINDOWS_CCONV unsafe "windows.h SetLastError"
+  setLastError :: ErrCode -> IO ()
 
 {-# CFILES cbits/errors.c #-}
 
