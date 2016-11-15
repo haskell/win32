@@ -1,5 +1,7 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## Unreleased GIT version
+
 ## 2.4.0.0 *Nov 2016*
 
 * Add `windows_cconv.h` to the `install-includes` field of `Win32.cabal`,
