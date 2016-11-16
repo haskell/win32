@@ -26,10 +26,10 @@ import Data.Char (isSpace)
 import Data.Int (Int32, Int64)
 import Data.Maybe (fromMaybe)
 import Data.Word (Word8, Word16, Word32, Word64)
-import Foreign.C.Error (getErrno, errnoToIOError)
+import Foreign.C.Error (Errno(..), errnoToIOError)
 import Foreign.C.String (newCWString, withCWStringLen)
 import Foreign.C.String (peekCWString, peekCWStringLen, withCWString)
-import Foreign.C.Types (CChar, CUChar, CWchar, CIntPtr, CUIntPtr)
+import Foreign.C.Types (CChar, CUChar, CWchar, CInt(..), CIntPtr, CUIntPtr)
 import Foreign.ForeignPtr (ForeignPtr, newForeignPtr, newForeignPtr_)
 import Foreign.Ptr (FunPtr, Ptr, nullPtr)
 import Foreign (allocaArray)
@@ -242,18 +242,17 @@ failWith fn_name err_code = do
                    -- We ignore failure of freeing c_msg, given we're already failing
                    _ <- localFree c_msg
                    return msg
-  c_maperrno -- turn GetLastError() into errno, which errnoToIOError knows
-             -- how to convert to an IOException we can throw.
-             -- XXX we should really do this directly.
-  errno <- getErrno
+  -- turn GetLastError() into errno, which errnoToIOError knows how to convert
+  -- to an IOException we can throw.
+  errno <- c_maperrno_func err_code
   let msg' = reverse $ dropWhile isSpace $ reverse msg -- drop trailing \n
       ioerror = errnoToIOError fn_name errno Nothing Nothing
                   `ioeSetErrorString` msg'
   throwIO ioerror
 
 
-foreign import ccall unsafe "maperrno" -- in base/cbits/Win32Utils.c
-   c_maperrno :: IO ()
+foreign import ccall unsafe "maperrno_func" -- in base/cbits/Win32Utils.c
+   c_maperrno_func :: ErrCode -> IO Errno
 
 ----------------------------------------------------------------
 -- Misc helpers
@@ -294,6 +293,9 @@ foreign import WINDOWS_CCONV unsafe "windows.h LocalFree"
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetLastError"
   getLastError :: IO ErrCode
+
+foreign import WINDOWS_CCONV unsafe "windows.h SetLastError"
+  setLastError :: ErrCode -> IO ()
 
 {-# CFILES cbits/errors.c #-}
 

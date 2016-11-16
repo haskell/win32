@@ -2,6 +2,9 @@
 
 ## Unreleased GIT version
 
+* `failWith` (and the API calls that use it) now throw `IOError`s with proper
+  `IOErrorType`s.
+
 ## 2.4.0.0 *Nov 2016*
 
 * Add `windows_cconv.h` to the `install-includes` field of `Win32.cabal`,
