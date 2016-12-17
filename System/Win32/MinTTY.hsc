@@ -33,6 +33,7 @@ import Control.Exception (catch)
 #endif
 import Control.Monad (void)
 import Data.List (isInfixOf, isSuffixOf)
+import Data.Word (Word8)
 import Foreign hiding (void)
 import Foreign.C.String
 import Foreign.C.Types
@@ -41,6 +42,11 @@ import Foreign.C.Types
 #let alignment t = "%lu", (unsigned long)offsetof(struct {char x__; t (y__); }, y__)
 #endif
 
+-- The headers that are shipped with GHC's copy of MinGW-w64 assume Windows XP.
+-- Since we need some structs that are only available with Vista or later,
+-- we must manually set WINVER/_WIN32_WINNT accordingly.
+#define WINVER 0x0600
+#define _WIN32_WINNT 0x0600
 ##include "windows_cconv.h"
 #include <windows.h>
 
@@ -106,9 +112,8 @@ getFileNameByHandle h = do
   let bufSize = sizeOfDWORD + mAX_PATH * sizeOfWchar
   allocaBytes bufSize $ \buf -> do
     getFileInformationByHandleEx h fILE_NAME_INFO buf (fromIntegral bufSize)
-    len :: DWORD <- peek buf
-    let len' = fromIntegral len `div` sizeOfWchar
-    peekCWStringLen (buf `plusPtr` sizeOfDWORD, min len' mAX_PATH)
+    fni <- peek buf
+    return $ fniFileName fni
 
 getFileInformationByHandleEx
   :: HANDLE -> CInt -> Ptr a -> DWORD -> IO ()
@@ -155,6 +160,29 @@ foreign import WINDOWS_CCONV "dynamic"
   mk_GetFileInformationByHandleEx
   :: FunPtr (F_GetFileInformationByHandleEx a)
   -> F_GetFileInformationByHandleEx a
+
+data FILE_NAME_INFO = FILE_NAME_INFO
+  { fniFileNameLength :: DWORD
+  , fniFileName       :: String
+  } deriving Show
+
+instance Storable FILE_NAME_INFO where
+    sizeOf    _ = #size      FILE_NAME_INFO
+    alignment _ = #alignment FILE_NAME_INFO
+    poke buf fni = do
+        withCWStringLen (fniFileName fni) $ \(str, len) -> do
+            let len'  = (min mAX_PATH len) * sizeOf (undefined :: CWchar)
+                start = advancePtr (castPtr buf) (#offset FILE_NAME_INFO, FileName)
+            (#poke FILE_NAME_INFO, FileNameLength) buf len'
+            copyArray start (castPtr str :: Ptr Word8) len'
+    peek buf = do
+        vfniFileNameLength <- (#peek FILE_NAME_INFO, FileNameLength) buf
+        let len = fromIntegral vfniFileNameLength `div` sizeOf (undefined :: CWchar)
+        vfniFileName <- peekCWStringLen (plusPtr buf (#offset FILE_NAME_INFO, FileName), len)
+        return $ FILE_NAME_INFO
+          { fniFileNameLength = vfniFileNameLength
+          , fniFileName       = vfniFileName
+          }
 
 type F_NtQueryObject a =
   HANDLE -> CInt -> Ptr a -> ULONG -> Ptr ULONG -> IO NTSTATUS
