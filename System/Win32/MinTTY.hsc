@@ -33,7 +33,7 @@ import Control.Exception (catch)
 #endif
 import Data.List (isInfixOf, isSuffixOf)
 import Data.Word (Word8)
-import Foreign hiding (void)
+import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
