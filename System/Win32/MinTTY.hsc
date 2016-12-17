@@ -31,7 +31,6 @@ import System.Win32.Types
 #if MIN_VERSION_base(4,6,0)
 import Control.Exception (catch)
 #endif
-import Control.Monad (void)
 import Data.List (isInfixOf, isSuffixOf)
 import Data.Word (Word8)
 import Foreign hiding (void)
@@ -49,6 +48,7 @@ import Foreign.C.Types
 #define _WIN32_WINNT 0x0600
 ##include "windows_cconv.h"
 #include <windows.h>
+#include <winternl.h>
 
 -- | Returns 'True' if the current process's standard error is attached to a
 -- MinTTY console (e.g., Cygwin or MSYS). Returns 'False' otherwise.
@@ -107,16 +107,15 @@ cygwinMSYSCheck fn = ("\\cygwin-" `isInfixOf` fn || "\\msys-" `isInfixOf` fn) &&
 getFileNameByHandle :: HANDLE -> IO String
 getFileNameByHandle h = do
   let sizeOfDWORD = sizeOf (undefined :: DWORD)
-  let sizeOfWchar = sizeOf (undefined :: CWchar)
   -- note: implicitly assuming that DWORD has stronger alignment than wchar_t
   let bufSize = sizeOfDWORD + mAX_PATH * sizeOfWchar
   allocaBytes bufSize $ \buf -> do
-    getFileInformationByHandleEx h fILE_NAME_INFO buf (fromIntegral bufSize)
+    getFileInformationByHandleEx h fileNameInfo buf (fromIntegral bufSize)
     fni <- peek buf
     return $ fniFileName fni
 
 getFileInformationByHandleEx
-  :: HANDLE -> CInt -> Ptr a -> DWORD -> IO ()
+  :: HANDLE -> CInt -> Ptr FILE_NAME_INFO -> DWORD -> IO ()
 getFileInformationByHandleEx h cls buf bufSize = do
   lib <- getModuleHandle (Just "kernel32.dll")
   ptr <- getProcAddress lib "GetFileInformationByHandleEx"
@@ -128,38 +127,29 @@ getFileInformationByHandleEx h cls buf bufSize = do
 ntQueryObjectNameInformation :: HANDLE -> IO String
 ntQueryObjectNameInformation h = do
   let sizeOfUSHORT = sizeOf (undefined :: USHORT)
-  let sizeOfWchar  = sizeOf (undefined :: CWchar)
   let bufSize = 8 * sizeOfUSHORT + mAX_PATH * sizeOfWchar
   allocaBytes bufSize $ \buf ->
     alloca $ \p_len -> do
-      ntQueryObject h oBJECT_NAME_INFORMATION buf (fromIntegral bufSize) p_len
-      len :: USHORT <- peek buf
-      let len' = fromIntegral len `div` sizeOfWchar
-      peekCWStringLen (buf `plusPtr` (8 * sizeOfUSHORT), min len' mAX_PATH)
+      _ <- failIfNeg "NtQueryObject" $ c_NtQueryObject
+             h objectNameInformation buf (fromIntegral bufSize) p_len
+      oni <- peek buf
+      return $ usBuffer $ oniName oni
 
-ntQueryObject :: HANDLE -> CInt -> Ptr a -> ULONG -> Ptr ULONG -> IO ()
-ntQueryObject h cls buf bufSize p_len = do
-  lib <- getModuleHandle (Just "ntdll.dll")
-  ptr <- getProcAddress lib "NtQueryObject"
-  let c_NtQueryObject = mk_NtQueryObject (castPtrToFunPtr ptr)
-  void $ failIfNeg "NtQueryObject" $ c_NtQueryObject h cls buf bufSize p_len
-
-fILE_NAME_INFO :: CInt
-fILE_NAME_INFO = 2
+fileNameInfo :: CInt
+fileNameInfo = #const FileNameInfo
 
 mAX_PATH :: Num a => a
 mAX_PATH = #const MAX_PATH
 
-oBJECT_NAME_INFORMATION :: CInt
-oBJECT_NAME_INFORMATION = 1
+objectNameInformation :: CInt
+objectNameInformation = #const ObjectNameInformation
 
-type F_GetFileInformationByHandleEx a =
-  HANDLE -> CInt -> Ptr a -> DWORD -> IO BOOL
+type F_GetFileInformationByHandleEx =
+  HANDLE -> CInt -> Ptr FILE_NAME_INFO -> DWORD -> IO BOOL
 
 foreign import WINDOWS_CCONV "dynamic"
   mk_GetFileInformationByHandleEx
-  :: FunPtr (F_GetFileInformationByHandleEx a)
-  -> F_GetFileInformationByHandleEx a
+    :: FunPtr F_GetFileInformationByHandleEx -> F_GetFileInformationByHandleEx
 
 data FILE_NAME_INFO = FILE_NAME_INFO
   { fniFileNameLength :: DWORD
@@ -169,25 +159,67 @@ data FILE_NAME_INFO = FILE_NAME_INFO
 instance Storable FILE_NAME_INFO where
     sizeOf    _ = #size      FILE_NAME_INFO
     alignment _ = #alignment FILE_NAME_INFO
-    poke buf fni = do
-        withCWStringLen (fniFileName fni) $ \(str, len) -> do
-            let len'  = (min mAX_PATH len) * sizeOf (undefined :: CWchar)
-                start = advancePtr (castPtr buf) (#offset FILE_NAME_INFO, FileName)
-            (#poke FILE_NAME_INFO, FileNameLength) buf len'
-            copyArray start (castPtr str :: Ptr Word8) len'
+    poke buf fni = withCWStringLen (fniFileName fni) $ \(str, len) -> do
+        let len'  = (min mAX_PATH len) * sizeOfWchar
+            start = advancePtr (castPtr buf) (#offset FILE_NAME_INFO, FileName)
+            end   = advancePtr start len'
+        (#poke FILE_NAME_INFO, FileNameLength) buf len'
+        copyArray start (castPtr str :: Ptr Word8) len'
+        poke end 0
     peek buf = do
         vfniFileNameLength <- (#peek FILE_NAME_INFO, FileNameLength) buf
-        let len = fromIntegral vfniFileNameLength `div` sizeOf (undefined :: CWchar)
+        let len = fromIntegral vfniFileNameLength `div` sizeOfWchar
         vfniFileName <- peekCWStringLen (plusPtr buf (#offset FILE_NAME_INFO, FileName), len)
         return $ FILE_NAME_INFO
           { fniFileNameLength = vfniFileNameLength
           , fniFileName       = vfniFileName
           }
 
-type F_NtQueryObject a =
-  HANDLE -> CInt -> Ptr a -> ULONG -> Ptr ULONG -> IO NTSTATUS
-
-foreign import WINDOWS_CCONV "dynamic"
-  mk_NtQueryObject :: FunPtr (F_NtQueryObject a) -> F_NtQueryObject a
+foreign import WINDOWS_CCONV "winternl.h NtQueryObject"
+  c_NtQueryObject :: HANDLE -> CInt -> Ptr OBJECT_NAME_INFORMATION
+                  -> ULONG -> Ptr ULONG -> IO NTSTATUS
 
 type NTSTATUS = #type NTSTATUS
+
+newtype OBJECT_NAME_INFORMATION = OBJECT_NAME_INFORMATION
+  { oniName :: UNICODE_STRING
+  } deriving Show
+
+instance Storable OBJECT_NAME_INFORMATION where
+    sizeOf    _ = #size      OBJECT_NAME_INFORMATION
+    alignment _ = #alignment OBJECT_NAME_INFORMATION
+    poke buf oni = (#poke OBJECT_NAME_INFORMATION, Name) buf (oniName oni)
+    peek buf = fmap OBJECT_NAME_INFORMATION $ (#peek OBJECT_NAME_INFORMATION, Name) buf
+
+data UNICODE_STRING = UNICODE_STRING
+  { usLength        :: USHORT
+  , usMaximumLength :: USHORT
+  , usBuffer        :: String
+  } deriving Show
+
+instance Storable UNICODE_STRING where
+    sizeOf    _ = #size      UNICODE_STRING
+    alignment _ = #alignment UNICODE_STRING
+    poke buf us = withCWStringLen (usBuffer us) $ \(str, len) -> do
+        let len'  = (min mAX_PATH len) * sizeOfWchar
+            start = advancePtr (castPtr buf) (#size UNICODE_STRING)
+            end   = advancePtr start len'
+        (#poke UNICODE_STRING, Length)        buf len'
+        (#poke UNICODE_STRING, MaximumLength) buf (len' + sizeOfWchar)
+        (#poke UNICODE_STRING, Buffer)        buf start
+        copyArray start (castPtr str :: Ptr Word8) len'
+        poke end 0
+    peek buf = do
+        vusLength        <- (#peek UNICODE_STRING, Length)        buf
+        vusMaximumLength <- (#peek UNICODE_STRING, MaximumLength) buf
+        vusBufferPtr     <- (#peek UNICODE_STRING, Buffer)        buf
+        let len          =  fromIntegral vusLength `div` sizeOfWchar
+        vusBuffer        <- peekCWStringLen (vusBufferPtr, len)
+        return $ UNICODE_STRING
+          { usLength        = vusLength
+          , usMaximumLength = vusMaximumLength
+          , usBuffer        = vusBuffer
+          }
+
+sizeOfWchar :: Int
+sizeOfWchar = sizeOf (undefined :: CWchar)
