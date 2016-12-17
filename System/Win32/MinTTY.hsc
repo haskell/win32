@@ -16,11 +16,12 @@
 -- Portability :  portable
 --
 -- A function to check if the current terminal uses MinTTY.
--- Much of this code was originally authored by Phil Ruffwind.
+-- Much of this code was originally authored by Phil Ruffwind and the
+-- git-for-windows project.
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.MinTTY (isMinTTY) where
+module System.Win32.MinTTY (isMinTTY, isMinTTYHandle) where
 
 import Graphics.Win32.Misc
 import System.Win32.DLL
@@ -43,35 +44,43 @@ import Foreign.C.Types
 ##include "windows_cconv.h"
 #include <windows.h>
 
--- | Returns 'True' is running on a MinTTY console (e.g., Cygwin or MSYS).
--- Returns 'False' otherwise.
+-- | Returns 'True' if the current process's standard error is attached to a
+-- MinTTY console (e.g., Cygwin or MSYS). Returns 'False' otherwise.
 isMinTTY :: IO Bool
 isMinTTY = do
     h <- getStdHandle sTD_ERROR_HANDLE
+           `catch` \(_ :: IOError) ->
+             pure nullHANDLE
+    if h == nullHANDLE
+       then pure False
+       else isMinTTYHandle h
+
+-- | Returns 'True' is the given handle is attached to a MinTTY console
+-- (e.g., Cygwin or MSYS). Returns 'False' otherwise.
+isMinTTYHandle :: HANDLE -> IO Bool
+isMinTTYHandle h = do
     fileType <- getFileType h
     if fileType /= fILE_TYPE_PIPE
       then pure False
-      else do
-        -- GetFileNameByHandleEx is only available on Vista and later, so if
-        -- we're on an older version of Windows, we must default to using
-        -- NtQueryObject.
-        vistaPlus <- isVistaOrLater
-        if vistaPlus
-           then isMinTTYVista h
-           else isMinTTYCompat h
+      else isMinTTYVista h `catch` \(_ :: IOError) -> isMinTTYCompat h
+      -- GetFileNameByHandleEx is only available on Vista and later (hence
+      -- the name isMinTTYVista). If we're on an older version of Windows,
+      -- getProcAddress will throw an IOException when it fails to find
+      -- GetFileNameByHandleEx, and thus we will default to using
+      -- NtQueryObject (isMinTTYCompat).
 
 isMinTTYVista :: HANDLE -> IO Bool
 isMinTTYVista h = do
     fn <- getFileNameByHandle h
     pure $ cygwinMSYSCheck fn
-  `catch` \ (_ :: IOError) ->
+  `catch` \(_ :: IOError) ->
     pure False
 
 isMinTTYCompat :: HANDLE -> IO Bool
 isMinTTYCompat h = do
     fn <- ntQueryObjectNameInformation h
     pure $ cygwinMSYSCheck fn
-  `catch` \ (_ :: IOError) ->
+  `catch` \(_ :: IOError) ->
     pure False
 
 cygwinMSYSCheck :: String -> Bool
@@ -130,16 +139,6 @@ ntQueryObject h cls buf bufSize p_len = do
   let c_NtQueryObject = mk_NtQueryObject (castPtrToFunPtr ptr)
   void $ failIfNeg "NtQueryObject" $ c_NtQueryObject h cls buf bufSize p_len
 
-isVistaOrLater :: IO Bool
-isVistaOrLater = do
-  lib <- getModuleHandle (Just "ntdll.dll")
-  ptr <- getProcAddress lib "RtlGetVersion"
-  let c_RtlGetVersion = mk_RtlGetVersion (castPtrToFunPtr ptr)
-  osVersionInfo <- alloca $ \p -> do
-    _ <- failIfNeg "RtlGetVersion" $ c_RtlGetVersion p
-    peek p
-  return $ dwMajorVersion osVersionInfo >= 6
-
 fILE_NAME_INFO :: CInt
 fILE_NAME_INFO = 2
 
@@ -163,45 +162,4 @@ type F_NtQueryObject a =
 foreign import WINDOWS_CCONV "dynamic"
   mk_NtQueryObject :: FunPtr (F_NtQueryObject a) -> F_NtQueryObject a
 
-type F_RtlGetVersion = Ptr RTL_OSVERSIONINFOW -> IO NTSTATUS
-
-foreign import WINDOWS_CCONV "dynamic"
-  mk_RtlGetVersion :: FunPtr F_RtlGetVersion -> F_RtlGetVersion
-
-type ULONG    = #type ULONG
 type NTSTATUS = #type NTSTATUS
-
-data RTL_OSVERSIONINFOW = RTL_OSVERSIONINFOW
-  { dwOSVersionInfoSize :: ULONG
-  , dwMajorVersion      :: ULONG
-  , dwMinorVersion      :: ULONG
-  , dwBuildNumber       :: ULONG
-  , dwPlatformId        :: ULONG
-  , szCSDVersion        :: CWString
-  } deriving Show
-
-instance Storable RTL_OSVERSIONINFOW where
-  sizeOf    _ = #size      RTL_OSVERSIONINFOW
-  alignment _ = #alignment RTL_OSVERSIONINFOW
-  poke buf ovi = do
-      (#poke RTL_OSVERSIONINFOW, dwOSVersionInfoSize) buf (dwOSVersionInfoSize ovi)
-      (#poke RTL_OSVERSIONINFOW, dwMajorVersion)      buf (dwMajorVersion      ovi)
-      (#poke RTL_OSVERSIONINFOW, dwMinorVersion)      buf (dwMinorVersion      ovi)
-      (#poke RTL_OSVERSIONINFOW, dwBuildNumber)       buf (dwBuildNumber       ovi)
-      (#poke RTL_OSVERSIONINFOW, dwPlatformId)        buf (dwPlatformId        ovi)
-      (#poke RTL_OSVERSIONINFOW, szCSDVersion)        buf (dwPlatformId        ovi)
-  peek buf = do
-      osVersionInfoSize <- (#peek RTL_OSVERSIONINFOW, dwOSVersionInfoSize) buf
-      majorVersion      <- (#peek RTL_OSVERSIONINFOW, dwMajorVersion)      buf
-      minorVersion      <- (#peek RTL_OSVERSIONINFOW, dwMinorVersion)      buf
-      buildNumber       <- (#peek RTL_OSVERSIONINFOW, dwBuildNumber)       buf
-      platformId        <- (#peek RTL_OSVERSIONINFOW, dwPlatformId)        buf
-      csdVersion        <- (#peek RTL_OSVERSIONINFOW, szCSDVersion)        buf
-      return $ RTL_OSVERSIONINFOW
-        { dwOSVersionInfoSize = osVersionInfoSize
-        , dwMajorVersion      = majorVersion
-        , dwMinorVersion      = minorVersion
-        , dwBuildNumber       = buildNumber
-        , dwPlatformId        = platformId
-        , szCSDVersion        = csdVersion
-        }

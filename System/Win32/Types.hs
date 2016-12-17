@@ -71,6 +71,7 @@ type DWORD         = Word32
 type LONG          = Int32
 type FLOAT         = Float
 type LARGE_INTEGER = Int64
+type ULONG         = Word32
 
 type UINT_PTR      = Word
 type LONG_PTR      = CIntPtr
