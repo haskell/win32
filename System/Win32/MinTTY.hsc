@@ -165,7 +165,7 @@ instance Storable FILE_NAME_INFO where
             end   = advancePtr start len'
         (#poke FILE_NAME_INFO, FileNameLength) buf len'
         copyArray start (castPtr str :: Ptr Word8) len'
-        poke end 0
+        poke (castPtr end) (0 :: CWchar)
     peek buf = do
         vfniFileNameLength <- (#peek FILE_NAME_INFO, FileNameLength) buf
         let len = fromIntegral vfniFileNameLength `div` sizeOfWchar
@@ -208,7 +208,7 @@ instance Storable UNICODE_STRING where
         (#poke UNICODE_STRING, MaximumLength) buf (len' + sizeOfWchar)
         (#poke UNICODE_STRING, Buffer)        buf start
         copyArray start (castPtr str :: Ptr Word8) len'
-        poke end 0
+        poke (castPtr end) (0 :: CWchar)
     peek buf = do
         vusLength        <- (#peek UNICODE_STRING, Length)        buf
         vusMaximumLength <- (#peek UNICODE_STRING, MaximumLength) buf
