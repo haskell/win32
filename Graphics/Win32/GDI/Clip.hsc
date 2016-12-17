@@ -55,7 +55,13 @@ type ClipboardFormat = UINT
  , cF_TEXT              = CF_TEXT
  , cF_WAVE              = CF_WAVE
  , cF_TIFF              = CF_TIFF
+ , cF_DIBV5             = CF_DIBV5
+ , cF_GDIOBJLAST        = CF_GDIOBJLAST
+ , cF_UNICODETEXT       = CF_UNICODETEXT
  }
+
+wM_CLIPBOARDUPDATE :: WindowMessage
+wM_CLIPBOARDUPDATE = #const WM_CLIPBOARDUPDATE
 
 -- % , CF_UNICODETEXT  -- WinNT only
 

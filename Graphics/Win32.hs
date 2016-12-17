@@ -31,7 +31,14 @@ module Graphics.Win32 (
         module Graphics.Win32.Message,
         module Graphics.Win32.Misc,
         module Graphics.Win32.Resource,
-        module Graphics.Win32.Window
+        module Graphics.Win32.Window,
+        module Graphics.Win32.LayeredWindow,
+        module Graphics.Win32.AlphaBlend,
+        module Graphics.Win32.AnimateWindow,
+        module Graphics.Win32.ForegroundWindow,
+        module Graphics.Win32.HotKey,
+        module Graphics.Win32.IMM,
+        module Graphics.Win32.PostMessage
         ) where
 
 import System.Win32.Types
@@ -45,3 +52,10 @@ import Graphics.Win32.Message
 import Graphics.Win32.Misc
 import Graphics.Win32.Resource
 import Graphics.Win32.Window
+import Graphics.Win32.LayeredWindow
+import Graphics.Win32.AlphaBlend
+import Graphics.Win32.AnimateWindow
+import Graphics.Win32.ForegroundWindow
+import Graphics.Win32.HotKey
+import Graphics.Win32.IMM
+import Graphics.Win32.PostMessage

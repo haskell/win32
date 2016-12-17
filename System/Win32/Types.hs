@@ -1,6 +1,7 @@
 #if __GLASGOW_HASKELL__ >= 701
 {-# LANGUAGE Trustworthy #-}
 #endif
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  System.Win32.Types
@@ -71,10 +72,28 @@ type DWORD         = Word32
 type LONG          = Int32
 type FLOAT         = Float
 type LARGE_INTEGER = Int64
+type DWORD32       = Word32
+type DWORD64       = Word64
+type INT32         = Int32
+type INT64         = Int64
+type LONG32        = Int32
+type LONG64        = Int64
+type UINT32        = Word32
+type UINT64        = Word64
+type ULONG32       = Word32
+type ULONG64       = Word64
+type SHORT         = Int16
 
+type DWORD_PTR     = Ptr DWORD32
+type INT_PTR       = Ptr CInt
 type UINT_PTR      = Word
 type LONG_PTR      = CIntPtr
 type ULONG_PTR     = CUIntPtr
+#ifdef _WIN64
+type HALF_PTR      = Ptr INT32
+#else
+type HALF_PTR      = Ptr SHORT
+#endif
 
 -- Not really a basic type, but used in many places
 type DDWORD        = Word64
@@ -227,6 +246,16 @@ failUnlessSuccessOr val fn_name act = do
   if r == 0 then return False
     else if r == val then return True
     else failWith fn_name r
+
+eRROR_INSUFFICIENT_BUFFER :: ErrCode
+eRROR_INSUFFICIENT_BUFFER = #const ERROR_INSUFFICIENT_BUFFER
+
+eRROR_MOD_NOT_FOUND :: ErrCode
+eRROR_MOD_NOT_FOUND = #const ERROR_MOD_NOT_FOUND
+
+eRROR_PROC_NOT_FOUND :: ErrCode
+eRROR_PROC_NOT_FOUND = #const ERROR_PROC_NOT_FOUND
+
 
 errorWin :: String -> IO a
 errorWin fn_name = do

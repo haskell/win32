@@ -4,6 +4,8 @@
 
 * `failWith` (and the API calls that use it) now throw `IOError`s with proper
   `IOErrorType`s.
+* Merged package Win32-extras (See #16)
+* `Graphics.Win32.Misc.messageBox` safely imported now https://github.com/haskell/win32/pull/5
 
 ## 2.4.0.0 *Nov 2016*
 
