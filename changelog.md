@@ -4,6 +4,8 @@
 
 * `failWith` (and the API calls that use it) now throw `IOError`s with proper
   `IOErrorType`s.
+* Fix a bug in the implementation of `poke` for `TIME_ZONE_INFORMATION` which
+  would cause it to be marshalled incorrectly.
 
 ## 2.4.0.0 *Nov 2016*
 
