@@ -24,7 +24,7 @@ module System.Win32.Types
 import Control.Exception (throwIO)
 import Data.Bits (shiftL, shiftR, (.|.), (.&.))
 import Data.Char (isSpace)
-import Data.Int (Int32, Int64)
+import Data.Int (Int32, Int64, Int16)
 import Data.Maybe (fromMaybe)
 import Data.Word (Word8, Word16, Word32, Word64)
 import Foreign.C.Error (Errno(..), errnoToIOError)
@@ -51,7 +51,8 @@ finiteBitSize :: (Bits a) => a -> Int
 finiteBitSize = bitSize
 #endif
 
-#include "windows_cconv.h"
+#include <windows.h>
+##include "windows_cconv.h"
 
 ----------------------------------------------------------------
 -- Platform specific definitions
@@ -306,7 +307,7 @@ try loc f n = do
             str <- peekTStringLen (lptstr, fromIntegral r)
             return (Right str)
    case e of
-        Left n    -> try loc f n
+        Left n'   -> try loc f n'
         Right str -> return str
   
 ----------------------------------------------------------------
