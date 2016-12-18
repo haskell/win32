@@ -43,6 +43,7 @@ import System.FilePath (takeFileName)
 -- The headers that are shipped with GHC's copy of MinGW-w64 assume Windows XP.
 -- Since we need some structs that are only available with Vista or later,
 -- we must manually set WINVER/_WIN32_WINNT accordingly.
+#undef WINVER
 #define WINVER 0x0600
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600
@@ -56,9 +57,9 @@ isMinTTY :: IO Bool
 isMinTTY = do
     h <- getStdHandle sTD_ERROR_HANDLE
            `catch` \(_ :: IOError) ->
-             pure nullHANDLE
+             return nullHANDLE
     if h == nullHANDLE
-       then pure False
+       then return False
        else isMinTTYHandle h
 
 -- | Returns 'True' is the given handle is attached to a MinTTY console
@@ -67,7 +68,7 @@ isMinTTYHandle :: HANDLE -> IO Bool
 isMinTTYHandle h = do
     fileType <- getFileType h
     if fileType /= fILE_TYPE_PIPE
-      then pure False
+      then return False
       else isMinTTYVista h `catch` \(_ :: IOError) -> isMinTTYCompat h
       -- GetFileNameByHandleEx is only available on Vista and later (hence
       -- the name isMinTTYVista). If we're on an older version of Windows,
@@ -78,16 +79,16 @@ isMinTTYHandle h = do
 isMinTTYVista :: HANDLE -> IO Bool
 isMinTTYVista h = do
     fn <- getFileNameByHandle h
-    pure $ cygwinMSYSCheck fn
+    return $ cygwinMSYSCheck fn
   `catch` \(_ :: IOError) ->
-    pure False
+    return False
 
 isMinTTYCompat :: HANDLE -> IO Bool
 isMinTTYCompat h = do
     fn <- ntQueryObjectNameInformation h
-    pure $ cygwinMSYSCheck fn
+    return $ cygwinMSYSCheck fn
   `catch` \(_ :: IOError) ->
-    pure False
+    return False
 
 cygwinMSYSCheck :: String -> Bool
 cygwinMSYSCheck fn = ("cygwin-" `isPrefixOf` fn' || "msys-" `isPrefixOf` fn') &&
