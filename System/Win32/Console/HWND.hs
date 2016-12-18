@@ -16,7 +16,7 @@ import Foreign.Ptr                  ( nullPtr )
 import Graphics.Win32.Window        ( c_FindWindow )
 import Graphics.Win32.GDI.Types     ( HWND )
 import System.Win32.Console.Title   ( getConsoleTitle, setConsoleTitle )
-import System.Win32.Process.Current ( getCurrentProcessId )
+import System.Win32.Process ( getCurrentProcessId )
 import System.Win32.String          ( withTString )
 import System.Win32.Time            ( getTickCount )
 

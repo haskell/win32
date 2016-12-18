@@ -130,17 +130,17 @@ type FileMapAccess = DWORD
 ---------------------------------------------------------------------------
 createFileMapping :: Maybe HANDLE -> ProtectFlags -> DDWORD -> Maybe String -> IO HANDLE
 createFileMapping mh flags mosize name =
-    maybeWith withTString name $ \name ->
-        failIf (==nullPtr) "createFileMapping: CreateFileMapping" $ c_CreateFileMapping handle nullPtr flags moshi moslow name
+    maybeWith withTString name $ \c_name ->
+        failIf (==nullPtr) "createFileMapping: CreateFileMapping" $ c_CreateFileMapping handle nullPtr flags moshi moslow c_name
     where
         (moshi,moslow) = ddwordToDwords mosize
         handle = maybe iNVALID_HANDLE_VALUE id mh
 
 openFileMapping :: FileMapAccess -> BOOL -> Maybe String -> IO HANDLE
 openFileMapping access inherit name =
-    maybeWith withTString name $ \name ->
+    maybeWith withTString name $ \c_name ->
         failIf (==nullPtr) "openFileMapping: OpenFileMapping" $
-            c_OpenFileMapping access inherit name
+            c_OpenFileMapping access inherit c_name
 
 mapViewOfFileEx :: HANDLE -> FileMapAccess -> DDWORD -> SIZE_T -> Ptr a -> IO (Ptr b)
 mapViewOfFileEx h access offset size base = 

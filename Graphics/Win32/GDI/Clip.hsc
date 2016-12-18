@@ -22,6 +22,7 @@ module Graphics.Win32.GDI.Clip where
 import Control.Monad
 import Graphics.Win32.GDI.Types
 import System.Win32.Types
+import Graphics.Win32.Message    ( WindowMessage )
 
 import Foreign
 

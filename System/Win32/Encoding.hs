@@ -29,6 +29,8 @@ import System.Win32.Console
 import System.Win32.NLS
 import System.Win32.Types
 
+#include "windows_cconv.h"
+
 -- note CodePage = UInt which might not work on Win64.  But the Win32 package
 -- also has this issue.
 getCurrentCodePage :: IO DWORD

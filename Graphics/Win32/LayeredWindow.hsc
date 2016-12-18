@@ -15,13 +15,16 @@ import Control.Monad    ( void )
 import Data.Bits        ( (.|.) )
 import Foreign.Ptr      ( Ptr )
 import Graphics.Win32.GDI.AlphaBlend ( BLENDFUNCTION )
-import Graphics.Win32 hiding ( c_SetWindowLongPtr )
-import Graphics.Win32.Compat ( c_SetWindowLongPtr, c_GetWindowLongPtr )
+import Graphics.Win32.GDI.Types ( COLORREF )
+import System.Win32.Types ( DWORD, HANDLE, BYTE, BOOL,
+                            LONG_PTR, INT, HDC )
 
-#define _WIN32_WINNT 0x0500
 #include <windows.h>
+##include "windows_cconv.h"
 
-toLayeredWindow :: HWND -> IO ()
+type WindowStyleEx = INT
+
+toLayeredWindow :: HANDLE -> IO ()
 toLayeredWindow w = do
   flg <- c_GetWindowLongPtr w gWL_EXSTYLE
   void $ c_SetWindowLongPtr w gWL_EXSTYLE (flg .|. (fromIntegral wS_EX_LAYERED))
@@ -39,13 +42,21 @@ lWA_COLORKEY = #const LWA_COLORKEY
 lWA_ALPHA    = #const LWA_ALPHA
 
 foreign import WINDOWS_CCONV unsafe "windows.h SetLayeredWindowAttributes"
-  c_SetLayeredWindowAttributes :: HWND -> COLORREF -> BYTE -> DWORD -> IO BOOL
+  c_SetLayeredWindowAttributes :: HANDLE -> COLORREF -> BYTE -> DWORD -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetLayeredWindowAttributes"
-  c_GetLayeredWindowAttributes :: HWND -> COLORREF -> Ptr BYTE -> Ptr DWORD -> IO BOOL
+  c_GetLayeredWindowAttributes :: HANDLE -> COLORREF -> Ptr BYTE -> Ptr DWORD -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h UpdateLayeredWindow"
-  c_UpdateLayeredWindow :: HWND -> HDC -> Ptr POINT -> Ptr SIZE ->  HDC -> Ptr POINT -> COLORREF -> Ptr BLENDFUNCTION -> DWORD -> IO BOOL
+  c_UpdateLayeredWindow :: HANDLE -> HDC -> Ptr POINT -> Ptr SIZE ->  HDC -> Ptr POINT -> COLORREF -> Ptr BLENDFUNCTION -> DWORD -> IO BOOL
+
+-- | We should use this instead of "Graphics.Win32.Window" module's one.
+-- "Graphics.Win32.Window" module's function type is wrong.
+foreign import WINDOWS_CCONV "windows.h SetWindowLongPtrW"
+  c_SetWindowLongPtr :: HANDLE -> INT -> LONG_PTR -> IO LONG_PTR
+
+foreign import WINDOWS_CCONV "windows.h GetWindowLongPtrW"
+  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
 
 #{enum DWORD,
  , uLW_ALPHA    = ULW_ALPHA

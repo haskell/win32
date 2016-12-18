@@ -353,29 +353,29 @@ regQueryInfoKey key =
     c_RegQueryInfoKey p_key c_class_string p_class_id nullPtr p_subkeys
         p_max_subkey_len p_max_class_len p_values p_max_value_name_len
         p_max_value_len p_sec_len p_lastWrite
-  class_string <- peekTString c_class_string
-  class_id <- peek p_class_id
-  subkeys <- peek p_subkeys
-  max_subkey_len <- peek p_max_subkey_len
-  max_class_len <- peek p_max_class_len
-  values <- peek p_values
-  max_value_name_len <- peek p_max_value_name_len
-  max_value_len <- peek p_max_value_len
-  sec_len <- peek p_sec_len
-  lastWrite_lo <- #{peek FILETIME,dwLowDateTime} p_lastWrite
-  lastWrite_hi <- #{peek FILETIME,dwHighDateTime} p_lastWrite
+  class_string' <- peekTString c_class_string
+  class_id' <- peek p_class_id
+  subkeys' <- peek p_subkeys
+  max_subkey_len' <- peek p_max_subkey_len
+  max_class_len' <- peek p_max_class_len
+  values' <- peek p_values
+  max_value_name_len' <- peek p_max_value_name_len
+  max_value_len' <- peek p_max_value_len
+  sec_len' <- peek p_sec_len
+  lastWrite_lo' <- #{peek FILETIME,dwLowDateTime} p_lastWrite
+  lastWrite_hi' <- #{peek FILETIME,dwHighDateTime} p_lastWrite
   return $ RegInfoKey
-    { class_string = class_string
-    , class_id = fromIntegral class_id
-    , subkeys = subkeys
-    , max_subkey_len = max_subkey_len
-    , max_class_len = max_class_len
-    , values = values
-    , max_value_name_len = max_value_name_len
-    , max_value_len = max_value_len
-    , sec_len = fromIntegral sec_len
-    , lastWrite_lo = lastWrite_lo
-    , lastWrite_hi = lastWrite_hi
+    { class_string = class_string'
+    , class_id = fromIntegral class_id'
+    , subkeys = subkeys'
+    , max_subkey_len = max_subkey_len'
+    , max_class_len = max_class_len'
+    , values = values'
+    , max_value_name_len = max_value_name_len'
+    , max_value_len = max_value_len'
+    , sec_len = fromIntegral sec_len'
+    , lastWrite_lo = lastWrite_lo'
+    , lastWrite_hi = lastWrite_hi'
     }
 foreign import WINDOWS_CCONV unsafe "windows.h RegQueryInfoKeyW"
   c_RegQueryInfoKey :: PKEY -> LPTSTR -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr FILETIME -> IO ErrCode

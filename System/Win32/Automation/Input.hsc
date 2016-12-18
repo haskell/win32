@@ -15,22 +15,22 @@ module System.Win32.Automation.Input
   , module System.Win32.Automation.Input.Key
   , module System.Win32.Automation.Input.Mouse
   ) where
+
 import Data.Bits                 ( (.|.) )
-import Data.Functor              ( (<$>) )
 import Foreign.Ptr               ( Ptr )
 import Foreign.Storable          ( Storable(..) )
 import Foreign.Marshal.Array     ( withArrayLen )
-import Graphics.Win32.Key        ( VKey )
-import Graphics.Win32.Key.Values ( c_MapVirtualKey )
+import Foreign.C.Types           ( CIntPtr(..) )
+import Graphics.Win32.Key        ( VKey, c_MapVirtualKey )
 import System.Win32.Automation.Input.Key
 import System.Win32.Automation.Input.Mouse ( MOUSEINPUT )
 import System.Win32.Automation.Input.Mouse hiding ( MOUSEINPUT(..) )
 import qualified System.Win32.Automation.Input.Mouse
-import System.Win32.Error        ( failIfZero )
-import System.Win32.Types        ( UINT, LPARAM )
+import System.Win32.Types        ( UINT, LPARAM, failIfZero )
 import System.Win32.Word         ( DWORD, WORD )
 
 #include <windows.h>
+##include "windows_cconv.h"
 
 sendInput :: [INPUT] -> IO UINT
 sendInput input

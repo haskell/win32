@@ -17,10 +17,10 @@ import Foreign.Ptr              ( Ptr )
 import Foreign.Storable         ( peek )
 import Graphics.Win32.GDI.Types ( HWND )
 import Graphics.Win32.Key       ( VKey )
-import System.Win32.Types       ( UINT, DWORD, LPDWORD, BOOL )
-import System.Win32.Error       ( failIfFalse_ )
+import System.Win32.Types       ( UINT, DWORD, LPDWORD, BOOL, failIfFalse_ )
 
 #include <windows.h>
+##include "windows_cconv.h"
 
 type HIMC = Ptr ()
 

@@ -11,16 +11,17 @@
    An FFI binding to the hot key part of the Win32 API.
 -}
 module Graphics.Win32.Window.HotKey where
+
 import Data.Bits                 ( (.|.) )
 import Graphics.Win32.GDI.Types  ( HWND, MbHWND )
 import Graphics.Win32.Key        ( VKey )
 import Graphics.Win32.Message    ( WindowMessage )
-import System.Win32.Types        ( UINT, BOOL, maybePtr )
-import System.Win32.Error        ( failIfFalse_ )
+import System.Win32.Types        ( UINT, BOOL, maybePtr, failIfFalse_ )
 import System.Win32.Exception.Unsupported ( unsupportedVal, upgradeWindowsOS )
 import System.Win32.Info.Version ( is7OrLater )
 
 #include <windows.h>
+##include "windows_cconv.h"
 
 type FsModifiers = [FsModifier]
 type FsModifier  = UINT

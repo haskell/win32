@@ -32,7 +32,6 @@ import Foreign.C        ( CInt(..), CWchar(..)
                         , peekCWString, withCWStringLen, withCWString )
 
 ##include "windows_cconv.h"
-
 #include "windows.h"
 
 ----------------------------------------------------------------
@@ -92,10 +91,10 @@ instance Storable SYSTEMTIME where
         dow     <- (#peek SYSTEMTIME, wDayOfWeek)   buf
         day     <- (#peek SYSTEMTIME, wDay)         buf
         hour    <- (#peek SYSTEMTIME, wHour)        buf
-        min     <- (#peek SYSTEMTIME, wMinute)      buf
+        mins    <- (#peek SYSTEMTIME, wMinute)      buf
         sec     <- (#peek SYSTEMTIME, wSecond)      buf
         ms      <- (#peek SYSTEMTIME, wMilliseconds) buf
-        return $ SYSTEMTIME year month dow day hour min sec ms
+        return $ SYSTEMTIME year month dow day hour mins sec ms
 
 instance Storable TIME_ZONE_INFORMATION where
     sizeOf _ = (#size TIME_ZONE_INFORMATION)
@@ -109,11 +108,11 @@ instance Storable TIME_ZONE_INFORMATION where
         write buf (#offset TIME_ZONE_INFORMATION, StandardName) (tziStandardName tzi)
         write buf (#offset TIME_ZONE_INFORMATION, DaylightName) (tziDaylightName tzi)
         where
-            write buf offset str = withCWStringLen str $ \(str,len) -> do
+            write buf_ offset str = withCWStringLen str $ \(c_str,len) -> do
                 when (len>31) $ fail "Storable TIME_ZONE_INFORMATION.poke: Too long string."
-                let start = (advancePtr (castPtr buf) offset)
+                let start = (advancePtr (castPtr buf_) offset)
                     end = advancePtr start len
-                copyArray (castPtr str :: Ptr Word8) start len
+                copyArray (castPtr c_str :: Ptr Word8) start len
                 poke end 0
     peek buf = do
         bias <- (#peek TIME_ZONE_INFORMATION, Bias)         buf
@@ -135,8 +134,8 @@ getSystemTime = alloca $ \res -> do
 foreign import WINDOWS_CCONV "windows.h SetSystemTime"
     c_SetSystemTime :: Ptr SYSTEMTIME -> IO BOOL
 setSystemTime :: SYSTEMTIME -> IO ()
-setSystemTime st = with st $ \st -> failIf_ not "setSystemTime: SetSystemTime" $
-    c_SetSystemTime st
+setSystemTime st = with st $ \c_st -> failIf_ not "setSystemTime: SetSystemTime" $
+    c_SetSystemTime c_st
 
 foreign import WINDOWS_CCONV "windows.h GetSystemTimeAsFileTime"
     c_GetSystemTimeAsFileTime :: Ptr FILETIME -> IO ()
@@ -155,8 +154,8 @@ getLocalTime = alloca $ \res -> do
 foreign import WINDOWS_CCONV "windows.h SetLocalTime"
     c_SetLocalTime :: Ptr SYSTEMTIME -> IO BOOL
 setLocalTime :: SYSTEMTIME -> IO ()
-setLocalTime st = with st $ \st -> failIf_ not "setLocalTime: SetLocalTime" $
-    c_SetLocalTime st
+setLocalTime st = with st $ \c_st -> failIf_ not "setLocalTime: SetLocalTime" $
+    c_SetLocalTime c_st
 
 foreign import WINDOWS_CCONV "windows.h GetSystemTimeAdjustment"
     c_GetSystemTimeAdjustment :: Ptr DWORD -> Ptr DWORD -> Ptr BOOL -> IO BOOL
@@ -164,12 +163,12 @@ getSystemTimeAdjustment :: IO (Maybe (Int, Int))
 getSystemTimeAdjustment = alloca $ \ta -> alloca $ \ti -> alloca $ \enabled -> do
     failIf_ not "getSystemTimeAdjustment: GetSystemTimeAdjustment" $
         c_GetSystemTimeAdjustment ta ti enabled
-    enabled <- peek enabled
-    if enabled
+    enabled' <- peek enabled
+    if enabled'
         then do
-            ta <- peek ta
-            ti <- peek ti
-            return $ Just (fromIntegral ta, fromIntegral ti)
+            ta' <- peek ta
+            ti' <- peek ti
+            return $ Just (fromIntegral ta', fromIntegral ti')
         else return Nothing
 
 foreign import WINDOWS_CCONV "windows.h GetTickCount" getTickCount :: IO DWORD
@@ -191,8 +190,8 @@ getTimeZoneInformation :: IO (TimeZoneId, TIME_ZONE_INFORMATION)
 getTimeZoneInformation = alloca $ \tzi -> do
     tz <- failIf (==(#const TIME_ZONE_ID_INVALID)) "getTimeZoneInformation: GetTimeZoneInformation" $
         c_GetTimeZoneInformation tzi
-    tzi <- peek tzi
-    return . flip (,) tzi $ case tz of
+    tzi' <- peek tzi
+    return . flip (,) tzi' $ case tz of
         (#const TIME_ZONE_ID_UNKNOWN)   -> TzIdUnknown
         (#const TIME_ZONE_ID_STANDARD)  -> TzIdStandard
         (#const TIME_ZONE_ID_DAYLIGHT)  -> TzIdDaylight
@@ -201,17 +200,17 @@ getTimeZoneInformation = alloca $ \tzi -> do
 foreign import WINDOWS_CCONV "windows.h SystemTimeToFileTime"
     c_SystemTimeToFileTime :: Ptr SYSTEMTIME -> Ptr FILETIME -> IO BOOL
 systemTimeToFileTime :: SYSTEMTIME -> IO FILETIME
-systemTimeToFileTime s = with s $ \s -> alloca $ \ret -> do
+systemTimeToFileTime s = with s $ \c_s -> alloca $ \ret -> do
     failIf_ not "systemTimeToFileTime: SystemTimeToFileTime" $
-        c_SystemTimeToFileTime s ret
+        c_SystemTimeToFileTime c_s ret
     peek ret
 
 foreign import WINDOWS_CCONV "windows.h FileTimeToSystemTime"
     c_FileTimeToSystemTime :: Ptr FILETIME -> Ptr SYSTEMTIME -> IO BOOL
 fileTimeToSystemTime :: FILETIME -> IO SYSTEMTIME
-fileTimeToSystemTime s = with s $ \s -> alloca $ \ret -> do
+fileTimeToSystemTime s = with s $ \c_s -> alloca $ \ret -> do
     failIf_ not "fileTimeToSystemTime: FileTimeToSystemTime" $
-        c_FileTimeToSystemTime s ret
+        c_FileTimeToSystemTime c_s ret
     peek ret
 
 foreign import WINDOWS_CCONV "windows.h GetFileTime"
@@ -224,23 +223,26 @@ getFileTime h = alloca $ \crt -> alloca $ \acc -> alloca $ \wrt -> do
 foreign import WINDOWS_CCONV "windows.h SetFileTime"
     c_SetFileTime :: HANDLE -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 setFileTime :: HANDLE -> FILETIME -> FILETIME -> FILETIME -> IO ()
-setFileTime h crt acc wrt = with crt $ \crt -> with acc $ \acc -> with wrt $ \wrt -> do
-    failIf_ not "setFileTime: SetFileTime" $ c_SetFileTime h crt acc wrt
+setFileTime h crt acc wrt = with crt $
+    \c_crt -> with acc $
+    \c_acc -> with wrt $
+    \c_wrt -> do
+      failIf_ not "setFileTime: SetFileTime" $ c_SetFileTime h c_crt c_acc c_wrt
 
 foreign import WINDOWS_CCONV "windows.h FileTimeToLocalFileTime"
     c_FileTimeToLocalFileTime :: Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 fileTimeToLocalFileTime :: FILETIME -> IO FILETIME
-fileTimeToLocalFileTime ft = with ft $ \ft -> alloca $ \res -> do
+fileTimeToLocalFileTime ft = with ft $ \c_ft -> alloca $ \res -> do
     failIf_ not "fileTimeToLocalFileTime: FileTimeToLocalFileTime"
-        $ c_FileTimeToLocalFileTime ft res
+        $ c_FileTimeToLocalFileTime c_ft res
     peek res
 
 foreign import WINDOWS_CCONV "windows.h LocalFileTimeToFileTime"
     c_LocalFileTimeToFileTime :: Ptr FILETIME -> Ptr FILETIME -> IO BOOL
 localFileTimeToFileTime :: FILETIME -> IO FILETIME
-localFileTimeToFileTime ft = with ft $ \ft -> alloca $ \res -> do
+localFileTimeToFileTime ft = with ft $ \c_ft -> alloca $ \res -> do
     failIf_ not "localFileTimeToFileTime: LocalFileTimeToFileTime"
-        $ c_LocalFileTimeToFileTime ft res
+        $ c_LocalFileTimeToFileTime c_ft res
     peek res
 
 {-
@@ -302,10 +304,10 @@ foreign import WINDOWS_CCONV "windows.h GetTimeFormatW"
     c_GetTimeFormat :: LCID -> GetTimeFormatFlags -> Ptr SYSTEMTIME -> LPCTSTR -> LPTSTR -> CInt -> IO CInt
 getTimeFormat :: LCID -> GetTimeFormatFlags -> SYSTEMTIME -> String -> IO String
 getTimeFormat locale flags st fmt =
-    with st $ \st ->
-    withCWString fmt $ \fmt -> do
-        size <- c_GetTimeFormat locale flags st fmt nullPtr 0
+    with st $ \c_st ->
+    withCWString fmt $ \c_fmt -> do
+        size <- c_GetTimeFormat locale flags c_st c_fmt nullPtr 0
         allocaBytes ((fromIntegral size) * (sizeOf (undefined::CWchar))) $ \out -> do
-            size <- failIf (==0) "getTimeFormat: GetTimeFormat" $
-                c_GetTimeFormat locale flags st fmt (castPtr out) size
-            peekTStringLen (out,fromIntegral size)
+            size' <- failIf (==0) "getTimeFormat: GetTimeFormat" $
+                c_GetTimeFormat locale flags c_st c_fmt (castPtr out) size
+            peekTStringLen (out,fromIntegral size')

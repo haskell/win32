@@ -24,8 +24,11 @@ module System.Win32.Thread
   , getCurrentThreadId
   , c_GetCurrentThreadId
   ) where
+
 import System.Win32.DebugApi
-import System.Win32.File ( failIfZero )
+import System.Win32.Types ( failIfZero )
+
+#include "windows_cconv.h"
 
 getThreadId :: THANDLE -> IO TID
 getThreadId = failIfZero "GetThreadId" . c_GetThreadId

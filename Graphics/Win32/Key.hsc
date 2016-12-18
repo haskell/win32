@@ -21,12 +21,13 @@ module Graphics.Win32.Key where
 
 import Control.Monad (liftM)
 import Graphics.Win32.GDI.Types (HWND)
-import System.Win32.Types (DWORD, UINT, WORD, ptrToMaybe, BOOL, SHORT)
+import System.Win32.Types    ( DWORD, UINT, WORD, ptrToMaybe, BOOL, SHORT,
+                               failIfFalse_, failIfZero )
 import Control.Exception     ( bracket )
 import Data.Int              ( #type SHORT )
 import Foreign.Ptr           ( Ptr, nullPtr )
+import Foreign.C.Types       ( CWchar(..) )
 import Foreign.Marshal.Array ( allocaArray, peekArray )
-import System.Win32.Error    ( failIfFalse_, failIfZero, failIfZero_ )
 import System.Win32.String   ( LPTSTR, LPCTSTR
                              , withTString, withTStringBuffer, peekTString )
 import System.Win32.Thread   ( TID, getCurrentThreadId )
@@ -216,7 +217,7 @@ getKeyboardLayoutList = do
     len' <- failIfZero "GetKeyboardLayoutList" $ c_GetKeyboardLayoutList 0 nullPtr
     let len = fromIntegral len'
     allocaArray len $ \buf -> do
-        failIfZero_ "GetKeyboardLayoutList" $ c_GetKeyboardLayoutList len  buf
+        failIfZero "GetKeyboardLayoutList" $ c_GetKeyboardLayoutList len  buf
         peekArray len buf
 
 getKeyboardLayoutName :: IO String

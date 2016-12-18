@@ -22,12 +22,12 @@ module System.Win32.Info.Version
 import Foreign.Ptr           ( Ptr, plusPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Storable      ( Storable(..) )
-import System.Win32.Error    ( failIfFalse_ )
 import System.Win32.String   ( withTString, peekTString )
-import System.Win32.Types    ( BOOL, BYTE )
+import System.Win32.Types    ( BOOL, BYTE, failIfFalse_ )
 import System.Win32.Word     ( WORD, DWORD )
 
 #include <windows.h>
+##include "windows_cconv.h"
 
 ----------------------------------------------------------------
 -- Version Info

@@ -18,10 +18,13 @@ module Graphics.Win32.Window.ForegroundWindow
   , allowSetForegroundWindow
   , c_AllowSetForegroundWindow
   ) where
+
 import Control.Monad            ( void )
 import Graphics.Win32.GDI.Types ( HWND )
 import Graphics.Win32.Window    ( getForegroundWindow )
 import System.Win32.Process     ( ProcessId )
+
+#include "windows_cconv.h"
 
 ----------------------------------------------------------------
 -- | Setting Window to Foreground.

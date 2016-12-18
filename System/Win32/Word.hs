@@ -14,10 +14,10 @@ module System.Win32.Word
   , DWORDLONG, DDWORD
   , DWORD32, DWORD64, DWORD_PTR
   ) where
-import Data.Word                 ( Word64 )
-import Foreign.Ptr               ( Ptr )
-import System.Win32.Types        ( WORD, DWORD, LPDWORD, DDWORD )
-import System.Win32.Types.Compat ( DWORD32, DWORD64, DWORD_PTR )
+import Data.Word          ( Word64 )
+import Foreign.Ptr        ( Ptr )
+import System.Win32.Types ( WORD, DWORD, LPDWORD, DDWORD,
+                            DWORD32, DWORD64, DWORD_PTR )
 
 type PDWORD = Ptr DWORD
 type DWORDLONG = Word64

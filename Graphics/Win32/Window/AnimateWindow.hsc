@@ -12,10 +12,10 @@
 -}
 module Graphics.Win32.Window.AnimateWindow where
 import Graphics.Win32.GDI.Types ( HWND )
-import System.Win32.Types       ( DWORD, BOOL )
-import System.Win32.Error       ( failIfFalse_ )
+import System.Win32.Types       ( DWORD, BOOL, failIfFalse_ )
 
 #include <windows.h>
+##include "windows_cconv.h"
 
 type AnimateWindowType = DWORD
 

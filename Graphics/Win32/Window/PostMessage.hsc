@@ -11,13 +11,15 @@
    Provide PostMessage function and friends.
 -}
 module Graphics.Win32.Window.PostMessage where
+
+import Foreign.C.Types ( CIntPtr(..) )
 import Graphics.Win32.GDI.Types ( HWND, MbHWND )
 import Graphics.Win32.Message   ( WindowMessage )
 import System.Win32.Types       ( DWORD, WPARAM, LPARAM, BOOL
-                                , maybePtr, castUINTPtrToPtr )
-import System.Win32.Error       ( failIfFalse_ )
+                                , maybePtr, castUINTPtrToPtr, failIfFalse_ )
 
 #include <windows.h>
+##include "windows_cconv.h"
 
 postMessage :: MbHWND -> WindowMessage -> WPARAM -> LPARAM -> IO ()
 postMessage mb_wnd msg w l =

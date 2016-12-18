@@ -11,13 +11,14 @@
    Get/Set the title for the current console window.
 -}
 module System.Win32.Console.Title where
-import System.Win32.Error  ( failIfFalse_, failIfZero )
+
 import System.Win32.String ( LPTSTR, LPCTSTR
                            , withTStringBufferLen, withTString, peekTStringLen )
-import System.Win32.Types  ( BOOL )
+import System.Win32.Types  ( BOOL, failIfFalse_, failIfZero )
 import System.Win32.Word   ( DWORD )
 
 #include <windows.h>
+##include "windows_cconv.h"
 
 getConsoleTitle :: IO String
 getConsoleTitle =

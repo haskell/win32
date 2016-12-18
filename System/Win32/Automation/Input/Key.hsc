@@ -11,10 +11,10 @@
    Keyboard input events
 -}
 module System.Win32.Automation.Input.Key where
-import Foreign.Ptr               ( Ptr )
-import Foreign.Storable          ( Storable(..) )
-import System.Win32.Types.Compat ( ULONG_PTR )
-import System.Win32.Word         ( DWORD, WORD )
+import Foreign.Ptr        ( Ptr )
+import Foreign.Storable   ( Storable(..) )
+import System.Win32.Types ( ULONG_PTR )
+import System.Win32.Word  ( DWORD, WORD )
 
 #include <windows.h>
 

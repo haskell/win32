@@ -13,8 +13,7 @@
 module System.Win32.Automation.Input.Mouse where
 import Foreign.Ptr               ( Ptr )
 import Foreign.Storable          ( Storable(..) )
-import System.Win32.Types.Compat ( ULONG_PTR )
-import System.Win32.Types        ( LONG )
+import System.Win32.Types        ( LONG, ULONG_PTR )
 import System.Win32.Word         ( DWORD )
 
 #include <windows.h>

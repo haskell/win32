@@ -32,7 +32,6 @@ module System.Win32
         , module System.Win32.Types
         , module System.Win32.Shell
         , module System.Win32.Automation
-        , module System.Win32.Encoding
         , module System.Win32.HardLink
         , module System.Win32.SymbolicLink
         , module System.Win32.Thread
@@ -57,11 +56,10 @@ import System.Win32.Security
 import System.Win32.Shell
 
 import System.Win32.Automation
-import System.Win32.Encoding
 import System.Win32.HardLink
 import System.Win32.SymbolicLink
 import System.Win32.Thread
-import System.Win32.Utils
+import System.Win32.Utils hiding ( try )
 
 ----------------------------------------------------------------
 -- End

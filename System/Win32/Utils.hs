@@ -16,14 +16,13 @@ module System.Win32.Utils
   , peekMaybe, withMaybe
   ) where
 import Control.Monad               ( unless )
-import Data.Functor                ( (<$>) )
 import Foreign.Marshal.Array       ( allocaArray, peekArray )
 import Foreign.Marshal.Utils       ( with )
 import Foreign.Ptr                 ( Ptr, nullPtr )
 import Foreign.Storable            ( Storable(..) )
-import System.Win32.Error          ( failIfZero
+import System.Win32.Types          ( failIfZero
                                    , failWith, getLastError, eRROR_INSUFFICIENT_BUFFER )
-import qualified System.Win32.Info ( try )
+import qualified System.Win32.Types ( try )
 import System.Win32.String         ( LPTSTR, peekTString )
 import System.Win32.Types          ( BOOL, UINT, maybePtr, ptrToMaybe, maybeNum, numToMaybe )
 import System.Win32.Word           ( DWORD, PDWORD )
@@ -33,7 +32,7 @@ import System.Win32.Word           ( DWORD, PDWORD )
 -- you via the return value if the buffer was too small.  In that
 -- case, we extend the buffer size and try again.
 try :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String
-try = System.Win32.Info.try
+try = System.Win32.Types.try
 {-# INLINE try #-}
 
 tryWithoutNull :: String -> (LPTSTR -> UINT -> IO UINT) -> UINT -> IO String

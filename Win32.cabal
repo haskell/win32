@@ -46,7 +46,6 @@ Library
         Graphics.Win32.Window
         Graphics.Win32.LayeredWindow
         Graphics.Win32.GDI.AlphaBlend
-        Graphics.Win32.Key.Values
         Graphics.Win32.Window.AnimateWindow
         Graphics.Win32.Window.HotKey
         Graphics.Win32.Window.IMM
@@ -79,21 +78,17 @@ Library
         System.Win32.Console.CtrlHandler
         System.Win32.Console.HWND
         System.Win32.Console.Title
-        System.Win32.DLL.LoadFunction
         System.Win32.Encoding
-        System.Win32.Error
         System.Win32.Exception.Unsupported
         System.Win32.HardLink
         System.Win32.Info.Computer
         System.Win32.Info.Version
-        System.Win32.Process.Current
         System.Win32.String
         System.Win32.SymbolicLink
         System.Win32.Thread
         System.Win32.Utils
         System.Win32.Word
 
-    other-modules: System.Win32.Error.MultiByte
     extensions:    ForeignFunctionInterface, CPP
     if impl(ghc >= 7.1)
         extensions: NondecreasingIndentation

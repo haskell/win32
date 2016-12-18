@@ -53,19 +53,20 @@ module System.Win32.Info.Computer
   , pF_XMMI_INSTRUCTIONS_AVAILABLE
   , pF_XMMI64_INSTRUCTIONS_AVAILABLE
   ) where
+
 import Foreign.Marshal.Utils ( with )
 import Foreign.Storable      ( Storable(..) )
-import System.Win32.Error    ( failIfFalse_ )
 import System.Win32.Info     ( SMSetting )
 import System.Win32.Info.Version
 import System.Win32.String   ( LPCTSTR, LPTSTR, withTString, withTStringBuffer
                              , peekTString, peekTStringLen )
-import System.Win32.Types    ( BOOL )
+import System.Win32.Types    ( BOOL, failIfFalse_ )
 import System.Win32.Utils    ( tryWithoutNull )
 import System.Win32.Word     ( DWORD, LPDWORD )
 
 #include <windows.h>
 #include <Lmcons.h>
+##include "windows_cconv.h"
 
 ----------------------------------------------------------------
 -- Environment Strings

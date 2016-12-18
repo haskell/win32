@@ -17,12 +17,14 @@ module System.Win32.Console.CtrlHandler
   , mkHandler
   , cTRL_C_EVENT, cTRL_BREAK_EVENT
   ) where
+
 import Control.Exception    ( bracket )
 import Control.Monad        ( void )
 import Foreign.Ptr          ( FunPtr )
 import System.Win32.Console ( CtrlEvent, cTRL_C_EVENT, cTRL_BREAK_EVENT )
-import System.Win32.Error   ( failIfFalse_ )
-import System.Win32.Types   ( BOOL )
+import System.Win32.Types   ( BOOL, failIfFalse_ )
+
+#include "windows_cconv.h"
 
 type Handler = CtrlEvent -> IO BOOL
 -- type HandlerRoutine = Handler

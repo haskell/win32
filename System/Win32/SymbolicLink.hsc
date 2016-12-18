@@ -20,12 +20,18 @@
 module System.Win32.SymbolicLink
   ( module System.Win32.SymbolicLink
   ) where
-import Foreign.Ptr                  ( FunPtr )
-import System.Win32.DLL.LoadFunction
-import System.Win32.File ( failIfFalseWithRetry_ )
-import System.Win32.Exception.Unsupported ( upgradeVista )
-import System.Win32.Types
 
+import System.Win32.Types
+import System.Win32.File ( failIfFalseWithRetry_ )
+
+##include "windows_cconv.h"
+
+type SymbolicLinkFlags = DWORD
+
+#{enum SymbolicLinkFlags,
+ , sYMBOLIC_LINK_FLAG_FILE      = 0x0
+ , sYMBOLIC_LINK_FLAG_DIRECTORY = 0x1
+}
 
 -- | createSymbolicLink* functions don't check that file is exist or not.
 --
@@ -52,11 +58,6 @@ createSymbolicLink' link target flag = do
       withTString target $ \c_target ->
         failIfFalseWithRetry_ (unwords ["CreateSymbolicLink",show link,show target]) $
           c_CreateSymbolicLink c_link c_target flag
-
-{enum SymbolicLinkFlags,
- , sYMBOLIC_LINK_FLAG_FILE      = SYMBOLIC_LINK_FLAG_FILE
- , sYMBOLIC_LINK_FLAG_DIRECTORY = SYMBOLIC_LINK_FLAG_DIRECTORY
- }
 
 foreign import WINDOWS_CCONV unsafe "windows.h CreateSymbolicLinkW"
   c_CreateSymbolicLink :: LPTSTR -> LPTSTR -> SymbolicLinkFlags -> IO BOOL

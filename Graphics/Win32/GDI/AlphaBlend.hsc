@@ -17,6 +17,7 @@ import Graphics.Win32.GDI.Types ( HDC )
 import System.Win32.Types       ( BOOL, BYTE, UINT )
 
 #include <windows.h>
+##include "windows_cconv.h"
 
 foreign import ccall unsafe "alphablend.h"
   c_AlphaBlend :: HDC -> Int -> Int -> Int -> Int -> HDC -> Int -> Int -> Int -> Int -> PBLENDFUNCTION -> IO BOOL
