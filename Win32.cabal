@@ -97,7 +97,7 @@ Library
         "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi", "msimg32", "imm32", "ntdll"
     ghc-options:      -Wall
     include-dirs:     include
-    includes:         "alphablend.h", "diatemp.h", "dumpBMP.h", "ellipse.h", "errors.h", "HsGDI.h", "HsWin32.h", "Win32Aux.h", "win32debug.h", "windows_cconv.h", "WndProc.h"
+    includes:         "alphablend.h", "diatemp.h", "dumpBMP.h", "ellipse.h", "errors.h", "HsGDI.h", "HsWin32.h", "Win32Aux.h", "win32debug.h", "windows_cconv.h", "WndProc.h", "alignment.h"
     install-includes: "HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h", "alphablend.h", "winternl_compat.h", "winuser_compat.h"
     c-sources:
         cbits/HsGDI.c

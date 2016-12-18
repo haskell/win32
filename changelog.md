@@ -13,6 +13,8 @@
   number is returned. This simulates the behavior of the `NT_SUCCESS` macro.
 * Merged package Win32-extras (See #16)
 * `Graphics.Win32.Misc.messageBox` safely imported now https://github.com/haskell/win32/pull/5
+* Fixed various alignment calls that were incorrect. These would result in an incorrect alignment
+  being returned on certain platforms. (See #66)
 
 ## 2.4.0.0 *Nov 2016*
 

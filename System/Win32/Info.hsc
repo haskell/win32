@@ -36,6 +36,7 @@ import Prelude hiding (catch)
 ##include "windows_cconv.h"
 
 #include <windows.h>
+#include "alignment.h"
 
 ----------------------------------------------------------------
 -- Environment Strings
@@ -218,7 +219,7 @@ data SYSTEM_INFO = SYSTEM_INFO
 
 instance Storable SYSTEM_INFO where
     sizeOf = const #size SYSTEM_INFO
-    alignment = sizeOf
+    alignment = #alignment SYSTEM_INFO
     poke buf si = do
         (#poke SYSTEM_INFO, wProcessorArchitecture) buf (siProcessorArchitecture si)
         (#poke SYSTEM_INFO, dwPageSize)             buf (siPageSize si)

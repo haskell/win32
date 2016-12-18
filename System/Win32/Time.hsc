@@ -32,7 +32,8 @@ import Foreign.C        ( CInt(..), CWchar(..)
                         , peekCWString, withCWStringLen, withCWString )
 
 ##include "windows_cconv.h"
-#include "windows.h"
+#include <windows.h>
+#include "alignment.h"
 
 ----------------------------------------------------------------
 -- data types
@@ -63,7 +64,7 @@ data TimeZoneId = TzIdUnknown | TzIdStandard | TzIdDaylight
 
 instance Storable FILETIME where
     sizeOf = const (#size FILETIME)
-    alignment = sizeOf
+    alignment = #alignment FILETIME
     poke buf (FILETIME n) = do
         (#poke FILETIME, dwLowDateTime) buf low
         (#poke FILETIME, dwHighDateTime) buf hi
@@ -75,7 +76,7 @@ instance Storable FILETIME where
 
 instance Storable SYSTEMTIME where
     sizeOf _ = #size SYSTEMTIME
-    alignment = sizeOf
+    alignment = #alignment SYSTEMTIME
     poke buf st = do
          (#poke SYSTEMTIME, wYear)          buf (wYear st)
          (#poke SYSTEMTIME, wMonth)         buf (wMonth st)
@@ -98,7 +99,7 @@ instance Storable SYSTEMTIME where
 
 instance Storable TIME_ZONE_INFORMATION where
     sizeOf _ = (#size TIME_ZONE_INFORMATION)
-    alignment = sizeOf
+    alignment = #alignment TIME_ZONE_INFORMATION
     poke buf tzi = do
         (#poke TIME_ZONE_INFORMATION, Bias) buf (tziBias tzi)
         (#poke TIME_ZONE_INFORMATION, StandardDate) buf (tziStandardDate tzi)

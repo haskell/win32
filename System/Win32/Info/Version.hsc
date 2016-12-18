@@ -27,6 +27,7 @@ import System.Win32.Types    ( BOOL, BYTE, failIfFalse_ )
 import System.Win32.Word     ( WORD, DWORD )
 
 #include <windows.h>
+#include "alignment.h"
 ##include "windows_cconv.h"
 
 ----------------------------------------------------------------
@@ -77,7 +78,7 @@ data OSVERSIONINFOEX = OSVERSIONINFOEX
 
 instance Storable OSVERSIONINFOEX where
     sizeOf = const #{size struct _OSVERSIONINFOEXW}
-    alignment = sizeOf
+    alignment = #alignment OSVERSIONINFOEX
     poke buf info = do
         (#poke OSVERSIONINFOEXW, dwOSVersionInfoSize) buf (sizeOf info)
         (#poke OSVERSIONINFOEXW, dwMajorVersion) buf (dwMajorVersion info)
