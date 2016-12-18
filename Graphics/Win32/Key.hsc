@@ -24,7 +24,6 @@ import Graphics.Win32.GDI.Types (HWND)
 import System.Win32.Types    ( DWORD, UINT, WORD, ptrToMaybe, BOOL, SHORT,
                                failIfFalse_, failIfZero )
 import Control.Exception     ( bracket )
-import Data.Int              ( #type SHORT )
 import Foreign.Ptr           ( Ptr, nullPtr )
 import Foreign.C.Types       ( CWchar(..) )
 import Foreign.Marshal.Array ( allocaArray, peekArray )
@@ -217,7 +216,7 @@ getKeyboardLayoutList = do
     len' <- failIfZero "GetKeyboardLayoutList" $ c_GetKeyboardLayoutList 0 nullPtr
     let len = fromIntegral len'
     allocaArray len $ \buf -> do
-        failIfZero "GetKeyboardLayoutList" $ c_GetKeyboardLayoutList len  buf
+        _ <- failIfZero "GetKeyboardLayoutList" $ c_GetKeyboardLayoutList len  buf
         peekArray len buf
 
 getKeyboardLayoutName :: IO String

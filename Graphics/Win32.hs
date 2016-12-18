@@ -35,7 +35,6 @@ module Graphics.Win32 (
         module Graphics.Win32.LayeredWindow,
         module Graphics.Win32.Window.AnimateWindow,
         module Graphics.Win32.Window.ForegroundWindow,
-        module Graphics.Win32.Window.HotKey,
         module Graphics.Win32.Window.IMM,
         module Graphics.Win32.Window.PostMessage
         ) where
@@ -54,6 +53,5 @@ import Graphics.Win32.Window
 import Graphics.Win32.LayeredWindow
 import Graphics.Win32.Window.AnimateWindow
 import Graphics.Win32.Window.ForegroundWindow
-import Graphics.Win32.Window.HotKey
 import Graphics.Win32.Window.IMM
 import Graphics.Win32.Window.PostMessage

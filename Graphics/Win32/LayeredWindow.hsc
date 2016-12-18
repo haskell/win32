@@ -11,23 +11,24 @@
    Provides LayeredWindow functionality.
 -}
 module Graphics.Win32.LayeredWindow where
-import Control.Monad    ( void )
-import Data.Bits        ( (.|.) )
-import Foreign.Ptr      ( Ptr )
+import Control.Monad   ( void )
+import Data.Bits       ( (.|.) )
+import Foreign.Ptr     ( Ptr )
+import Foreign.C.Types ( CIntPtr(..) )
+import Foreign.Marshal.Utils ( with )
 import Graphics.Win32.GDI.AlphaBlend ( BLENDFUNCTION )
-import Graphics.Win32.GDI.Types ( COLORREF )
+import Graphics.Win32.GDI.Types      ( COLORREF, HDC, SIZE, SIZE, POINT )
+import Graphics.Win32.Window         ( WindowStyleEx, c_SetWindowLongPtr,  )
 import System.Win32.Types ( DWORD, HANDLE, BYTE, BOOL,
-                            LONG_PTR, INT, HDC )
+                            LONG_PTR, INT )
 
 #include <windows.h>
 ##include "windows_cconv.h"
 
-type WindowStyleEx = INT
-
 toLayeredWindow :: HANDLE -> IO ()
 toLayeredWindow w = do
   flg <- c_GetWindowLongPtr w gWL_EXSTYLE
-  void $ c_SetWindowLongPtr w gWL_EXSTYLE (flg .|. (fromIntegral wS_EX_LAYERED))
+  void $ with (fromIntegral $ flg .|. (fromIntegral wS_EX_LAYERED)) $ c_SetWindowLongPtr w gWL_EXSTYLE
 
 -- test w =  c_SetLayeredWindowAttributes w 0 128 lWA_ALPHA
 
@@ -49,11 +50,6 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetLayeredWindowAttributes"
 
 foreign import WINDOWS_CCONV unsafe "windows.h UpdateLayeredWindow"
   c_UpdateLayeredWindow :: HANDLE -> HDC -> Ptr POINT -> Ptr SIZE ->  HDC -> Ptr POINT -> COLORREF -> Ptr BLENDFUNCTION -> DWORD -> IO BOOL
-
--- | We should use this instead of "Graphics.Win32.Window" module's one.
--- "Graphics.Win32.Window" module's function type is wrong.
-foreign import WINDOWS_CCONV "windows.h SetWindowLongPtrW"
-  c_SetWindowLongPtr :: HANDLE -> INT -> LONG_PTR -> IO LONG_PTR
 
 foreign import WINDOWS_CCONV "windows.h GetWindowLongPtrW"
   c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR

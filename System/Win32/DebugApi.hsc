@@ -95,11 +95,11 @@ peekDebugEvent p = do
         dwZero = 0 :: DWORD
         wZero = 0 :: WORD
         
-        rest (#const EXCEPTION_DEBUG_EVENT) p = do
-            chance  <- (#peek EXCEPTION_DEBUG_INFO, dwFirstChance) p
-            flags   <- (#peek EXCEPTION_RECORD, ExceptionFlags) p
-            addr    <- (#peek EXCEPTION_RECORD, ExceptionAddress) p
-            code    <- (#peek EXCEPTION_RECORD, ExceptionCode) p
+        rest (#const EXCEPTION_DEBUG_EVENT) p' = do
+            chance  <- (#peek EXCEPTION_DEBUG_INFO, dwFirstChance) p'
+            flags   <- (#peek EXCEPTION_RECORD, ExceptionFlags) p'
+            addr    <- (#peek EXCEPTION_RECORD, ExceptionAddress) p'
+            code    <- (#peek EXCEPTION_RECORD, ExceptionCode) p'
             e <- case code::DWORD of
                 (#const EXCEPTION_ACCESS_VIOLATION)         -> return $ AccessViolation False 0
                 (#const EXCEPTION_ARRAY_BOUNDS_EXCEEDED)    -> return ArrayBoundsExceeded
@@ -124,51 +124,51 @@ peekDebugEvent p = do
                 _                                           -> return UnknownException 
             return $ Exception (chance/=dwZero, flags==dwZero, addr) e
 
-        rest (#const CREATE_THREAD_DEBUG_EVENT) p = do
-            handle <- (#peek CREATE_THREAD_DEBUG_INFO, hThread)             p
-            local <- (#peek CREATE_THREAD_DEBUG_INFO, lpThreadLocalBase)    p
-            start <- (#peek CREATE_THREAD_DEBUG_INFO, lpStartAddress)       p
+        rest (#const CREATE_THREAD_DEBUG_EVENT) p' = do
+            handle <- (#peek CREATE_THREAD_DEBUG_INFO, hThread)          p'
+            local <- (#peek CREATE_THREAD_DEBUG_INFO, lpThreadLocalBase) p'
+            start <- (#peek CREATE_THREAD_DEBUG_INFO, lpStartAddress)    p'
             return $ CreateThread (handle, local, start)
 
-        rest (#const CREATE_PROCESS_DEBUG_EVENT) p = do
-            file    <- (#peek CREATE_PROCESS_DEBUG_INFO, hFile) p
-            proc    <- (#peek CREATE_PROCESS_DEBUG_INFO, hProcess) p
-            thread  <- (#peek CREATE_PROCESS_DEBUG_INFO, hThread) p
-            imgbase <- (#peek CREATE_PROCESS_DEBUG_INFO, lpBaseOfImage) p
-            dbgoff  <- (#peek CREATE_PROCESS_DEBUG_INFO, dwDebugInfoFileOffset) p
-            dbgsize <- (#peek CREATE_PROCESS_DEBUG_INFO, nDebugInfoSize) p
-            local   <- (#peek CREATE_PROCESS_DEBUG_INFO, lpThreadLocalBase) p
-            start   <- (#peek CREATE_PROCESS_DEBUG_INFO, lpStartAddress) p
-            imgname <- (#peek CREATE_PROCESS_DEBUG_INFO, lpImageName) p
-            --unicode <- (#peek CREATE_PROCESS_DEBUG_INFO, fUnicode) p
+        rest (#const CREATE_PROCESS_DEBUG_EVENT) p' = do
+            file    <- (#peek CREATE_PROCESS_DEBUG_INFO, hFile) p'
+            proc    <- (#peek CREATE_PROCESS_DEBUG_INFO, hProcess) p'
+            thread  <- (#peek CREATE_PROCESS_DEBUG_INFO, hThread) p'
+            imgbase <- (#peek CREATE_PROCESS_DEBUG_INFO, lpBaseOfImage) p'
+            dbgoff  <- (#peek CREATE_PROCESS_DEBUG_INFO, dwDebugInfoFileOffset) p'
+            dbgsize <- (#peek CREATE_PROCESS_DEBUG_INFO, nDebugInfoSize) p'
+            local   <- (#peek CREATE_PROCESS_DEBUG_INFO, lpThreadLocalBase) p'
+            start   <- (#peek CREATE_PROCESS_DEBUG_INFO, lpStartAddress) p'
+            imgname <- (#peek CREATE_PROCESS_DEBUG_INFO, lpImageName) p'
+            --unicode <- (#peek CREATE_PROCESS_DEBUG_INFO, fUnicode) p'
             return $ CreateProcess proc 
                         (file, imgbase, dbgoff, dbgsize, imgname) --, unicode/=wZero)
                         (thread, local, start)
         
-        rest (#const EXIT_THREAD_DEBUG_EVENT) p =
-            (#peek EXIT_THREAD_DEBUG_INFO, dwExitCode) p >>= return.ExitThread
+        rest (#const EXIT_THREAD_DEBUG_EVENT) p' =
+            (#peek EXIT_THREAD_DEBUG_INFO, dwExitCode) p' >>= return.ExitThread
         
-        rest (#const EXIT_PROCESS_DEBUG_EVENT) p =
-            (#peek EXIT_PROCESS_DEBUG_INFO, dwExitCode) p >>= return.ExitProcess
+        rest (#const EXIT_PROCESS_DEBUG_EVENT) p' =
+            (#peek EXIT_PROCESS_DEBUG_INFO, dwExitCode) p' >>= return.ExitProcess
         
-        rest (#const LOAD_DLL_DEBUG_EVENT) p = do
-            file    <- (#peek LOAD_DLL_DEBUG_INFO, hFile) p
-            imgbase <- (#peek LOAD_DLL_DEBUG_INFO, lpBaseOfDll) p
-            dbgoff  <- (#peek LOAD_DLL_DEBUG_INFO, dwDebugInfoFileOffset) p
-            dbgsize <- (#peek LOAD_DLL_DEBUG_INFO, nDebugInfoSize) p
-            imgname <- (#peek LOAD_DLL_DEBUG_INFO, lpImageName) p
-            --unicode <- (#peek LOAD_DLL_DEBUG_INFO, fUnicode) p
+        rest (#const LOAD_DLL_DEBUG_EVENT) p' = do
+            file    <- (#peek LOAD_DLL_DEBUG_INFO, hFile) p'
+            imgbase <- (#peek LOAD_DLL_DEBUG_INFO, lpBaseOfDll) p'
+            dbgoff  <- (#peek LOAD_DLL_DEBUG_INFO, dwDebugInfoFileOffset) p'
+            dbgsize <- (#peek LOAD_DLL_DEBUG_INFO, nDebugInfoSize) p'
+            imgname <- (#peek LOAD_DLL_DEBUG_INFO, lpImageName) p'
+            --unicode <- (#peek LOAD_DLL_DEBUG_INFO, fUnicode) p'
             return $ 
                 LoadDll (file, imgbase, dbgoff, dbgsize, imgname)--, unicode/=wZero)
 
-        rest (#const OUTPUT_DEBUG_STRING_EVENT) p = do
-            dat     <- (#peek OUTPUT_DEBUG_STRING_INFO, lpDebugStringData) p
-            unicode <- (#peek OUTPUT_DEBUG_STRING_INFO, fUnicode) p
-            length  <- (#peek OUTPUT_DEBUG_STRING_INFO, nDebugStringLength) p
-            return $ DebugString dat (unicode/=wZero) length
+        rest (#const OUTPUT_DEBUG_STRING_EVENT) p' = do
+            dat     <- (#peek OUTPUT_DEBUG_STRING_INFO, lpDebugStringData) p'
+            unicode <- (#peek OUTPUT_DEBUG_STRING_INFO, fUnicode) p'
+            len     <- (#peek OUTPUT_DEBUG_STRING_INFO, nDebugStringLength) p'
+            return $ DebugString dat (unicode/=wZero) len
         
-        rest (#const UNLOAD_DLL_DEBUG_EVENT) p =
-            (#peek UNLOAD_DLL_DEBUG_INFO, lpBaseOfDll) p >>= return.UnloadDll
+        rest (#const UNLOAD_DLL_DEBUG_EVENT) p' =
+            (#peek UNLOAD_DLL_DEBUG_INFO, lpBaseOfDll) p' >>= return.UnloadDll
 
         rest _ _ = return UnknownDebugEvent
 
@@ -191,9 +191,9 @@ getDebugEvents timeout = waitForDebugEvent (Just timeout) >>= getMore
     where
         getMore e = case e of
             Nothing -> return []
-            Just e  -> do
+            Just e'  -> do
                 rest <- waitForDebugEvent (Just 0) >>= getMore
-                return $ e:rest
+                return $ e':rest
 
 continueDebugEvent :: DebugEventId -> Bool -> IO ()
 continueDebugEvent (pid,tid) cont =
@@ -362,7 +362,7 @@ modifyThreadContext t a = withThreadContext t $ makeModThreadContext a
 -- On process being debugged
 
 outputDebugString :: String -> IO ()
-outputDebugString s = withTString s $ \s -> c_OutputDebugString s
+outputDebugString s = withTString s $ \c_s -> c_OutputDebugString c_s
 
 --------------------------------------------------------------------------
 -- Raw imports

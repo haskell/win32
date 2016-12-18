@@ -364,13 +364,13 @@ stringToUnicode cp mbstr =
                 nullPtr 0
     -- wchars is the length of buffer required
     allocaArray (fromIntegral wchars) $ \cwstr -> do
-      wchars <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar
+      wchars' <- failIfZero "MultiByteToWideChar" $ multiByteToWideChar
                 cp
                 0
                 cstr
                 (fromIntegral len)
                 cwstr wchars
-      peekCWStringLen (cwstr,fromIntegral wchars)  -- converts UTF-16 to [Char]
+      peekCWStringLen (cwstr,fromIntegral wchars')  -- converts UTF-16 to [Char]
 
 foreign import WINDOWS_CCONV unsafe "MultiByteToWideChar"
   multiByteToWideChar
