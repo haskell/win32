@@ -66,7 +66,7 @@ type ClipboardFormat = UINT
  }
 
 wM_CLIPBOARDUPDATE :: WindowMessage
-wM_CLIPBOARDUPDATE = #const WM_CLIPBOARDUPDATE
+wM_CLIPBOARDUPDATE = 0x031D -- #const WM_CLIPBOARDUPDATE -- Can't use constant due to GHC 7.8.x support.
 
 -- % , CF_UNICODETEXT  -- WinNT only
 
