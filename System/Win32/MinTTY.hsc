@@ -111,7 +111,7 @@ getFileNameByHandle :: HANDLE -> IO String
 getFileNameByHandle h = do
   let sizeOfDWORD = sizeOf (undefined :: DWORD)
   -- note: implicitly assuming that DWORD has stronger alignment than wchar_t
-  let bufSize = sizeOfDWORD + mAX_PATH * sizeOfTCHAR
+      bufSize = sizeOfDWORD + mAX_PATH * sizeOfTCHAR
   allocaBytes bufSize $ \buf -> do
     getFileInformationByHandleEx h fileNameInfo buf (fromIntegral bufSize)
     fni <- peek buf
@@ -129,8 +129,8 @@ getFileInformationByHandleEx h cls buf bufSize = do
 
 ntQueryObjectNameInformation :: HANDLE -> IO String
 ntQueryObjectNameInformation h = do
-  let sizeOfUSHORT = sizeOf (undefined :: USHORT)
-  let bufSize = 8 * sizeOfUSHORT + mAX_PATH * sizeOfTCHAR
+  let sizeOfONI    = sizeOf (undefined :: OBJECT_NAME_INFORMATION)
+      bufSize      = sizeOfONI + mAX_PATH * sizeOfTCHAR
   allocaBytes bufSize $ \buf ->
     alloca $ \p_len -> do
       _ <- failIfNeg "NtQueryObject" $ c_NtQueryObject
