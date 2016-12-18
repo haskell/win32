@@ -32,7 +32,7 @@ data KEYBDINPUT = KEYBDINPUT
 
 instance Storable KEYBDINPUT where
     sizeOf = const #{size KEYBDINPUT}
-    alignment = #alignment KEYBDINPUT
+    alignment _ = #alignment KEYBDINPUT
     poke buf input = do
         (#poke KEYBDINPUT, wVk)     buf (wVk input)
         (#poke KEYBDINPUT, wScan)   buf (wScan input)

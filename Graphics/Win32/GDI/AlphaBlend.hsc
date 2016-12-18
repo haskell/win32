@@ -58,7 +58,7 @@ data BLENDFUNCTION = BLENDFUNCTION
 
 instance Storable BLENDFUNCTION where
     sizeOf = const #size BLENDFUNCTION
-    alignment = #alignment BLENDFUNCTION
+    alignment _ = #alignment BLENDFUNCTION
     poke buf func = do
         (#poke BLENDFUNCTION, BlendOp)     buf (blendOp func)
         (#poke BLENDFUNCTION, BlendFlags)  buf (blendFlags func)

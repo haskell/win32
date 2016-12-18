@@ -33,7 +33,7 @@ data MOUSEINPUT = MOUSEINPUT
 
 instance Storable MOUSEINPUT where
     sizeOf = const #{size MOUSEINPUT}
-    alignment = #alignment MOUSEINPUT
+    alignment _ = #alignment MOUSEINPUT
     poke buf input = do
         (#poke MOUSEINPUT, dx) buf (dx input)
         (#poke MOUSEINPUT, dx) buf (dx input)

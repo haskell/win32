@@ -255,7 +255,7 @@ data BY_HANDLE_FILE_INFORMATION = BY_HANDLE_FILE_INFORMATION
 
 instance Storable BY_HANDLE_FILE_INFORMATION where
     sizeOf = const (#size BY_HANDLE_FILE_INFORMATION)
-    alignment = #alignment BY_HANDLE_FILE_INFORMATION
+    alignment _ = #alignment BY_HANDLE_FILE_INFORMATION
     poke buf bhi = do
         (#poke BY_HANDLE_FILE_INFORMATION, dwFileAttributes)     buf (bhfiFileAttributes bhi)
         (#poke BY_HANDLE_FILE_INFORMATION, ftCreationTime)       buf (bhfiCreationTime bhi)
@@ -295,7 +295,7 @@ data WIN32_FILE_ATTRIBUTE_DATA = WIN32_FILE_ATTRIBUTE_DATA
 
 instance Storable WIN32_FILE_ATTRIBUTE_DATA where
     sizeOf = const (#size WIN32_FILE_ATTRIBUTE_DATA)
-    alignment = #alignment WIN32_FILE_ATTRIBUTE_DATA
+    alignment _ = #alignment WIN32_FILE_ATTRIBUTE_DATA
     poke buf ad = do
         (#poke WIN32_FILE_ATTRIBUTE_DATA, dwFileAttributes) buf (fadFileAttributes ad)
         (#poke WIN32_FILE_ATTRIBUTE_DATA, ftCreationTime)   buf (fadCreationTime ad)

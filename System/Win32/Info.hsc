@@ -219,7 +219,7 @@ data SYSTEM_INFO = SYSTEM_INFO
 
 instance Storable SYSTEM_INFO where
     sizeOf = const #size SYSTEM_INFO
-    alignment = #alignment SYSTEM_INFO
+    alignment _ = #alignment SYSTEM_INFO
     poke buf si = do
         (#poke SYSTEM_INFO, wProcessorArchitecture) buf (siProcessorArchitecture si)
         (#poke SYSTEM_INFO, dwPageSize)             buf (siPageSize si)

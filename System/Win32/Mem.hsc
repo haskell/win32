@@ -49,7 +49,7 @@ data MEMORY_BASIC_INFORMATION = MEMORY_BASIC_INFORMATION
 
 instance Storable MEMORY_BASIC_INFORMATION where
     sizeOf _ = #size MEMORY_BASIC_INFORMATION
-    alignment = #alignment MEMORY_BASIC_INFORMATION
+    alignment _ = #alignment MEMORY_BASIC_INFORMATION
     poke buf mbi = do
         (#poke MEMORY_BASIC_INFORMATION, BaseAddress)       buf (mbiBaseAddress mbi)
         (#poke MEMORY_BASIC_INFORMATION, AllocationBase)    buf (mbiAllocationBase mbi)

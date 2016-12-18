@@ -78,7 +78,7 @@ data OSVERSIONINFOEX = OSVERSIONINFOEX
 
 instance Storable OSVERSIONINFOEX where
     sizeOf = const #{size struct _OSVERSIONINFOEXW}
-    alignment = #alignment OSVERSIONINFOEX
+    alignment _ = #alignment OSVERSIONINFOEX
     poke buf info = do
         (#poke OSVERSIONINFOEXW, dwOSVersionInfoSize) buf (sizeOf info)
         (#poke OSVERSIONINFOEXW, dwMajorVersion) buf (dwMajorVersion info)

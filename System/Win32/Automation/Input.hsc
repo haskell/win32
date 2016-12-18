@@ -72,7 +72,7 @@ data INPUT = Mouse MOUSEINPUT | Keyboard KEYBDINPUT | OtherHardware HARDWAREINPU
 
 instance Storable INPUT where
     sizeOf = const #{size INPUT}
-    alignment = #alignment INPUT
+    alignment _ = #alignment INPUT
 
     poke buf (Mouse mouse) = do
         (#poke INPUT, type) buf (#{const INPUT_MOUSE}:: DWORD)
@@ -104,7 +104,7 @@ data HARDWAREINPUT = HARDWAREINPUT
 
 instance Storable HARDWAREINPUT where
     sizeOf = const #{size HARDWAREINPUT}
-    alignment = #alignment HARDWAREINPUT
+    alignment _ = #alignment HARDWAREINPUT
     poke buf input = do
         (#poke HARDWAREINPUT, uMsg)    buf (uMsg input)
         (#poke HARDWAREINPUT, wParamL) buf (wParamL input)
