@@ -28,7 +28,13 @@ import Foreign
 
 ##include "windows_cconv.h"
 
+#define WINVER 0x0600
+#pragma push_macro("_WIN32_WINNT")
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+
 #include <windows.h>
+#pragma pop_macro("_WIN32_WINNT")
 
 type ClipboardFormat = UINT
 
