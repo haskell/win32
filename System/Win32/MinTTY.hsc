@@ -31,11 +31,10 @@ import System.Win32.Types
 #if MIN_VERSION_base(4,6,0)
 import Control.Exception (catch)
 #endif
-import Data.List (isInfixOf, isSuffixOf)
-import Data.Word (Word8)
+import Data.List (isPrefixOf, isInfixOf, isSuffixOf)
 import Foreign
-import Foreign.C.String
 import Foreign.C.Types
+import System.FilePath (takeFileName)
 
 #if __GLASGOW_HASKELL__ < 711
 #let alignment t = "%lu", (unsigned long)offsetof(struct {char x__; t (y__); }, y__)
@@ -45,6 +44,7 @@ import Foreign.C.Types
 -- Since we need some structs that are only available with Vista or later,
 -- we must manually set WINVER/_WIN32_WINNT accordingly.
 #define WINVER 0x0600
+#undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600
 ##include "windows_cconv.h"
 #include <windows.h>
@@ -90,10 +90,12 @@ isMinTTYCompat h = do
     pure False
 
 cygwinMSYSCheck :: String -> Bool
-cygwinMSYSCheck fn = ("\\cygwin-" `isInfixOf` fn || "\\msys-" `isInfixOf` fn) &&
-            "-pty" `isInfixOf` fn &&
-            "-master" `isSuffixOf` fn
--- Note that GetFileInformationByHandleEx might return something like:
+cygwinMSYSCheck fn = ("cygwin-" `isPrefixOf` fn' || "msys-" `isPrefixOf` fn') &&
+            "-pty" `isInfixOf` fn' &&
+            "-master" `isSuffixOf` fn'
+  where
+    fn' = takeFileName fn
+-- Note that GetFileInformationByHandleEx might return a filepath like:
 --
 --    \msys-dd50a72ab4668b33-pty1-to-master
 --
@@ -101,14 +103,15 @@ cygwinMSYSCheck fn = ("\\cygwin-" `isInfixOf` fn || "\\msys-" `isInfixOf` fn) &&
 --
 --    \Device\NamedPipe\msys-dd50a72ab4668b33-pty1-to-master
 --
--- This means we can't rely on "cygwin-" or "msys-" being at the very start,
--- so we check for their presence using `isInfixOf` instead of `isPrefixOf`.
+-- This means we can't rely on "\cygwin-" or "\msys-" being at the very start
+-- of the filepath. Therefore, we must take care to first call takeFileName
+-- before checking for "cygwin" or "msys" at the start using `isPrefixOf`.
 
 getFileNameByHandle :: HANDLE -> IO String
 getFileNameByHandle h = do
   let sizeOfDWORD = sizeOf (undefined :: DWORD)
   -- note: implicitly assuming that DWORD has stronger alignment than wchar_t
-  let bufSize = sizeOfDWORD + mAX_PATH * sizeOfWchar
+  let bufSize = sizeOfDWORD + mAX_PATH * sizeOfTCHAR
   allocaBytes bufSize $ \buf -> do
     getFileInformationByHandleEx h fileNameInfo buf (fromIntegral bufSize)
     fni <- peek buf
@@ -127,7 +130,7 @@ getFileInformationByHandleEx h cls buf bufSize = do
 ntQueryObjectNameInformation :: HANDLE -> IO String
 ntQueryObjectNameInformation h = do
   let sizeOfUSHORT = sizeOf (undefined :: USHORT)
-  let bufSize = 8 * sizeOfUSHORT + mAX_PATH * sizeOfWchar
+  let bufSize = 8 * sizeOfUSHORT + mAX_PATH * sizeOfTCHAR
   allocaBytes bufSize $ \buf ->
     alloca $ \p_len -> do
       _ <- failIfNeg "NtQueryObject" $ c_NtQueryObject
@@ -159,17 +162,17 @@ data FILE_NAME_INFO = FILE_NAME_INFO
 instance Storable FILE_NAME_INFO where
     sizeOf    _ = #size      FILE_NAME_INFO
     alignment _ = #alignment FILE_NAME_INFO
-    poke buf fni = withCWStringLen (fniFileName fni) $ \(str, len) -> do
-        let len'  = (min mAX_PATH len) * sizeOfWchar
+    poke buf fni = withTStringLen (fniFileName fni) $ \(str, len) -> do
+        let len'  = (min mAX_PATH len) * sizeOfTCHAR
             start = advancePtr (castPtr buf) (#offset FILE_NAME_INFO, FileName)
             end   = advancePtr start len'
         (#poke FILE_NAME_INFO, FileNameLength) buf len'
         copyArray start (castPtr str :: Ptr Word8) len'
-        poke (castPtr end) (0 :: CWchar)
+        poke (castPtr end) (0 :: TCHAR)
     peek buf = do
         vfniFileNameLength <- (#peek FILE_NAME_INFO, FileNameLength) buf
-        let len = fromIntegral vfniFileNameLength `div` sizeOfWchar
-        vfniFileName <- peekCWStringLen (plusPtr buf (#offset FILE_NAME_INFO, FileName), len)
+        let len = fromIntegral vfniFileNameLength `div` sizeOfTCHAR
+        vfniFileName <- peekTStringLen (plusPtr buf (#offset FILE_NAME_INFO, FileName), len)
         return $ FILE_NAME_INFO
           { fniFileNameLength = vfniFileNameLength
           , fniFileName       = vfniFileName
@@ -200,26 +203,26 @@ data UNICODE_STRING = UNICODE_STRING
 instance Storable UNICODE_STRING where
     sizeOf    _ = #size      UNICODE_STRING
     alignment _ = #alignment UNICODE_STRING
-    poke buf us = withCWStringLen (usBuffer us) $ \(str, len) -> do
-        let len'  = (min mAX_PATH len) * sizeOfWchar
+    poke buf us = withTStringLen (usBuffer us) $ \(str, len) -> do
+        let len'  = (min mAX_PATH len) * sizeOfTCHAR
             start = advancePtr (castPtr buf) (#size UNICODE_STRING)
             end   = advancePtr start len'
         (#poke UNICODE_STRING, Length)        buf len'
-        (#poke UNICODE_STRING, MaximumLength) buf (len' + sizeOfWchar)
+        (#poke UNICODE_STRING, MaximumLength) buf (len' + sizeOfTCHAR)
         (#poke UNICODE_STRING, Buffer)        buf start
         copyArray start (castPtr str :: Ptr Word8) len'
-        poke (castPtr end) (0 :: CWchar)
+        poke (castPtr end) (0 :: TCHAR)
     peek buf = do
         vusLength        <- (#peek UNICODE_STRING, Length)        buf
         vusMaximumLength <- (#peek UNICODE_STRING, MaximumLength) buf
         vusBufferPtr     <- (#peek UNICODE_STRING, Buffer)        buf
-        let len          =  fromIntegral vusLength `div` sizeOfWchar
-        vusBuffer        <- peekCWStringLen (vusBufferPtr, len)
+        let len          =  fromIntegral vusLength `div` sizeOfTCHAR
+        vusBuffer        <- peekTStringLen (vusBufferPtr, len)
         return $ UNICODE_STRING
           { usLength        = vusLength
           , usMaximumLength = vusMaximumLength
           , usBuffer        = vusBuffer
           }
 
-sizeOfWchar :: Int
-sizeOfWchar = sizeOf (undefined :: CWchar)
+sizeOfTCHAR :: Int
+sizeOfTCHAR = sizeOf (undefined :: TCHAR)
