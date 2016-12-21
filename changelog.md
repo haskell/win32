@@ -4,6 +4,7 @@
 
 * `failWith` (and the API calls that use it) now throw `IOError`s with proper
   `IOErrorType`s.
+* Add function `findWindowByName`
 
 ## 2.4.0.0 *Nov 2016*
 
