@@ -6,6 +6,10 @@
   `IOErrorType`s.
 * Fix a bug in the implementation of `poke` for `TIME_ZONE_INFORMATION` which
   would cause it to be marshalled incorrectly.
+* Add `System.Win32.MinTTY` module for detecting the presence of MinTTY.
+* Add `ULONG` type to `System.Win32.Types`.
+* Add function `failIfNeg` to `System.Win32.Types`, which fails if a negative
+  number is returned. This simulates the behavior of the `NT_SUCCESS` macro.
 
 ## 2.4.0.0 *Nov 2016*
 
