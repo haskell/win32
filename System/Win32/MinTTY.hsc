@@ -49,7 +49,7 @@ import System.FilePath (takeFileName)
 #define _WIN32_WINNT 0x0600
 ##include "windows_cconv.h"
 #include <windows.h>
-#include <winternl.h>
+#include "winternl_compat.h"
 
 -- | Returns 'True' if the current process's standard error is attached to a
 -- MinTTY console (e.g., Cygwin or MSYS). Returns 'False' otherwise.

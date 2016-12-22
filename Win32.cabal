@@ -69,7 +69,7 @@ Library
         "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi", "ntdll"
     include-dirs: 	include
     includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
-    install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h"
+    install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h", "winternl_compat.h"
     c-sources:
         cbits/HsGDI.c
         cbits/HsWin32.c
