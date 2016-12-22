@@ -71,6 +71,7 @@ type DWORD         = Word32
 type LONG          = Int32
 type FLOAT         = Float
 type LARGE_INTEGER = Int64
+type ULONG         = Word32
 
 type UINT_PTR      = Word
 type LONG_PTR      = CIntPtr
@@ -207,6 +208,9 @@ failIf_ p wh act = do
   v <- act
   if p v then errorWin wh else return ()
 
+failIfNeg :: (Num a, Ord a) => String -> IO a -> IO a
+failIfNeg = failIf (< 0)
+
 failIfNull :: String -> IO (Ptr a) -> IO (Ptr a)
 failIfNull = failIf (== nullPtr)
 
@@ -279,7 +283,7 @@ try loc f n = do
    case e of
         Left n    -> try loc f n
         Right str -> return str
-  
+
 ----------------------------------------------------------------
 -- Primitives
 ----------------------------------------------------------------

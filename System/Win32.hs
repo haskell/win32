@@ -23,6 +23,7 @@ module System.Win32
         , module System.Win32.FileMapping
         , module System.Win32.Info
         , module System.Win32.Mem
+        , module System.Win32.MinTTY
         , module System.Win32.NLS
         , module System.Win32.Process
         , module System.Win32.Registry
@@ -38,6 +39,7 @@ import System.Win32.File
 import System.Win32.FileMapping
 import System.Win32.Info
 import System.Win32.Mem
+import System.Win32.MinTTY
 import System.Win32.NLS hiding  ( LCID, LANGID, SortID, SubLANGID
                                 , PrimaryLANGID, mAKELCID, lANGIDFROMLCID
                                 , sORTIDFROMLCID, mAKELANGID, pRIMARYLANGID

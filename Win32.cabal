@@ -18,7 +18,7 @@ extra-source-files:
         changelog.md
 
 Library
-    build-depends:	base >= 4.5 && < 5, bytestring
+    build-depends:	base >= 4.5 && < 5, bytestring, filepath
     ghc-options:    -Wall -fno-warn-name-shadowing
     cc-options:     -fno-strict-aliasing
     exposed-modules:
@@ -52,6 +52,7 @@ Library
         System.Win32.Info
         System.Win32.Path
         System.Win32.Mem
+        System.Win32.MinTTY
         System.Win32.NLS
         System.Win32.Process
         System.Win32.Registry
@@ -65,10 +66,10 @@ Library
     if impl(ghc >= 7.1)
         extensions: NondecreasingIndentation
     extra-libraries:
-        "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi"
+        "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi", "ntdll"
     include-dirs: 	include
     includes:	"HsWin32.h", "HsGDI.h", "WndProc.h"
-    install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h"
+    install-includes:	"HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h", "winternl_compat.h"
     c-sources:
         cbits/HsGDI.c
         cbits/HsWin32.c
