@@ -6,3 +6,4 @@ test('helloworld', skip, compile_and_run, ['-package lang -package win32'])
 
 test('lasterror', normal, compile_and_run, ['-package Win32'])
 test('T4452', normal, compile_and_run, ['-package Win32'])
+test('PokeTZI', normal, compile_and_run, ['-package Win32'])
