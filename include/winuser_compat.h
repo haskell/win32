@@ -98,6 +98,7 @@ typedef struct tagHARDWAREINPUT {
     WORD wParamH;
 } HARDWAREINPUT, *PHARDWAREINPUT, *LPHARDWAREINPUT;
 
+#if __GLASGOW_HASKELL__ < 710
 typedef struct tagINPUT {
     DWORD type;
     union {
@@ -105,6 +106,8 @@ typedef struct tagINPUT {
         KEYBDINPUT ki;
         HARDWAREINPUT hi;
     } DUMMYUNIONNAME;
-} INPUT;
+} INPUT, *PINPUT, *LPINPUT;
+#endif
+
 #endif /* GHC Version check */
 #endif /* WINUSER_COMPAT_H */
