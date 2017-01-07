@@ -108,7 +108,7 @@ Library
         cbits/ellipse.c
         cbits/errors.c
         cbits/alphablend.c
-    cc-options: -O3 -Wall
+    cc-options: -Wall
 
 source-repository head
     type:     git
