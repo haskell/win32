@@ -105,7 +105,6 @@ typedef struct tagINPUT {
         KEYBDINPUT ki;
         HARDWAREINPUT hi;
     } DUMMYUNIONNAME;
-} INPUT, *PINPUT, *LPINPUT;
-
+} INPUT;
 #endif /* GHC Version check */
 #endif /* WINUSER_COMPAT_H */
