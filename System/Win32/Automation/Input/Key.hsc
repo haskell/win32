@@ -17,6 +17,7 @@ import System.Win32.Types ( ULONG_PTR )
 import System.Win32.Word  ( DWORD, WORD )
 
 #include <windows.h>
+#include "winuser_compat.h"
 
 type PKEYBDINPUT = Ptr KEYBDINPUT
 
