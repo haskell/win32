@@ -16,6 +16,7 @@ import System.Win32.Types       ( DWORD, BOOL, failIfFalse_ )
 
 #include <windows.h>
 ##include "windows_cconv.h"
+#include "winuser_compat.h"
 
 type AnimateWindowType = DWORD
 
