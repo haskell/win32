@@ -110,10 +110,12 @@ instance Storable TIME_ZONE_INFORMATION where
         where
             write buf_ offset str = withCWStringLen str $ \(c_str,len) -> do
                 when (len>31) $ fail "Storable TIME_ZONE_INFORMATION.poke: Too long string."
-                let start = (advancePtr (castPtr buf_) offset)
-                    end = advancePtr start len
-                copyArray (castPtr c_str :: Ptr Word8) start len
-                poke end 0
+                let len'  = len * sizeOf (undefined :: CWchar)
+                    start = (advancePtr (castPtr buf_) offset)
+                    end   = advancePtr start len'
+                copyArray start (castPtr c_str :: Ptr Word8) len'
+                poke (castPtr end) (0 :: CWchar)
+
     peek buf = do
         bias <- (#peek TIME_ZONE_INFORMATION, Bias)         buf
         sdat <- (#peek TIME_ZONE_INFORMATION, StandardDate) buf
