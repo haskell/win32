@@ -66,6 +66,23 @@
 #define INPUT_KEYBOARD 1
 #define INPUT_HARDWARE 2
 
+typedef struct tagMOUSEINPUT {
+    LONG dx;
+    LONG dy;
+    DWORD mouseData;
+    DWORD dwFlags;
+    DWORD time;
+    ULONG_PTR dwExtraInfo;
+} MOUSEINPUT, *PMOUSEINPUT, *LPMOUSEINPUT;
+
+typedef struct tagKEYBDINPUT {
+    WORD wVk;
+    WORD wScan;
+    DWORD dwFlags;
+    DWORD time;
+    ULONG_PTR dwExtraInfo;
+} KEYBDINPUT, *PKEYBDINPUT, *LPKEYBDINPUT;
+
 typedef struct tagHARDWAREINPUT {
     DWORD uMsg;
     WORD wParamL;
@@ -74,12 +91,12 @@ typedef struct tagHARDWAREINPUT {
 
 typedef struct tagINPUT {
     DWORD type;
-    union {
-        MOUSEINPUT    mi;
-        KEYBDINPUT    ki;
+    __C89_NAMELESS union {
+        MOUSEINPUT mi;
+        KEYBDINPUT ki;
         HARDWAREINPUT hi;
-    };
-} INPUT, *PINPUT;
+    } DUMMYUNIONNAME;
+} INPUT, *PINPUT, *LPINPUT;
 
 #endif /* GHC Version check */
 #endif /* WINUSER_COMPAT_H */
