@@ -75,6 +75,7 @@
 #define XBUTTON1 0x0001
 #define XBUTTON2 0x0002
 
+#if __GLASGOW_HASKELL__ < 710
 typedef struct tagMOUSEINPUT {
     LONG dx;
     LONG dy;
@@ -92,7 +93,6 @@ typedef struct tagKEYBDINPUT {
     ULONG_PTR dwExtraInfo;
 } KEYBDINPUT, *PKEYBDINPUT, *LPKEYBDINPUT;
 
-#if __GLASGOW_HASKELL__ < 710
 typedef struct tagHARDWAREINPUT {
     DWORD uMsg;
     WORD wParamL;
