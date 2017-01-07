@@ -31,6 +31,7 @@ import System.Win32.Word         ( DWORD, WORD )
 
 #include <windows.h>
 ##include "windows_cconv.h"
+#include "winuser_compat.h"
 
 sendInput :: [INPUT] -> IO UINT
 sendInput input

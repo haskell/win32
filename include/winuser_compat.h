@@ -62,5 +62,24 @@
 #define AW_SLIDE 0x00040000
 #define AW_BLEND 0x00080000
 
+#define INPUT_MOUSE 0
+#define INPUT_KEYBOARD 1
+#define INPUT_HARDWARE 2
+
+typedef struct tagHARDWAREINPUT {
+    DWORD uMsg;
+    WORD wParamL;
+    WORD wParamH;
+} HARDWAREINPUT, *PHARDWAREINPUT, *LPHARDWAREINPUT;
+
+typedef struct tagINPUT {
+    DWORD type;
+    union {
+        MOUSEINPUT    mi;
+        KEYBDINPUT    ki;
+        HARDWAREINPUT hi;
+    };
+} INPUT, *PINPUT;
+
 #endif /* GHC Version check */
 #endif /* WINUSER_COMPAT_H */
