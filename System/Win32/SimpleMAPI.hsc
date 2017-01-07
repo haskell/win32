@@ -164,9 +164,9 @@ loadMapiFuncs dllname dll =  liftM5 MapiFuncs
     (loadProc "MAPISendMail"    dll mkMapiSendMail)
     where
        loadProc :: String -> HMODULE -> (FunPtr a -> a) -> IO a
-       loadProc name dll conv = withCAString name $ \name' -> do
+       loadProc name dll' conv = withCAString name $ \name' -> do
             proc <- failIfNull ("loadMapiDll: " ++ dllname ++ ": " ++ name)
-                        $ c_GetProcAddress dll name'
+                        $ c_GetProcAddress dll' name'
             return $ conv $ castPtrToFunPtr proc
 -- |
 loadMapiDll :: String -> IO (MapiFuncs, HMODULE)
@@ -213,12 +213,12 @@ mapiLogon
     -> MapiFlag     -- ^ None, one or many flags: FORCE_DOWNLOAD, NEW_SESSION, LOGON_UI, PASSWORD_UI
     -> IO LHANDLE
 mapiLogon f hwnd ses pw flags =
-    maybeWith withCAString ses  $ \ses  ->
-    maybeWith withCAString pw   $ \pw   ->
-    alloca                      $ \out  -> do
+    maybeWith withCAString ses  $ \c_ses ->
+    maybeWith withCAString pw   $ \c_pw  ->
+    alloca                      $ \out   -> do
         mapiFail_ "MAPILogon: " $ mapifLogon
             f (maybeHWND hwnd) 
-            ses pw flags 0 out
+            c_ses c_pw flags 0 out
         peek out
 
 -- | End Simple MAPI-session
@@ -265,12 +265,12 @@ withRecipient f ses rcls rec act = resolve "" rec
             act buf
         resolve err rc = case rc of
             Recip name addr ->
-                withCAString name $ \name ->
-                withCAString addr $ \addr ->
+                withCAString name $ \c_name ->
+                withCAString addr $ \c_addr ->
                 allocaBytes (#size MapiRecipDesc) $ \buf -> do
                     (#poke MapiRecipDesc, ulReserved)   buf (0::ULONG)
-                    (#poke MapiRecipDesc, lpszName)     buf name
-                    (#poke MapiRecipDesc, lpszAddress)  buf addr
+                    (#poke MapiRecipDesc, lpszName)     buf c_name
+                    (#poke MapiRecipDesc, lpszAddress)  buf c_addr
                     (#poke MapiRecipDesc, ulEIDSize)    buf (0::ULONG)
                     (#poke MapiRecipDesc, lpEntryID)    buf nullPtr
                     a buf
@@ -351,18 +351,18 @@ withAttachments att act = allocaBytes (len*as) $ \buf -> write (act len buf) buf
     where
         as = (#size MapiFileDesc)
         len = length att
-        write act _ [] = act
-        write act buf (att:y) =
-            withCAString (attPath att) $ \path ->
-            maybeWith withFileTag (attTag att) $ \tag ->
-            withCAString (maybe (attPath att) id (attName att)) $ \name -> do
+        write act' _ [] = act'
+        write act' buf (att':y) =
+            withCAString (attPath att') $ \path ->
+            maybeWith withFileTag (attTag att') $ \tag ->
+            withCAString (maybe (attPath att') id (attName att')) $ \name -> do
                 (#poke MapiFileDesc, ulReserved)    buf (0::ULONG)
-                (#poke MapiFileDesc, flFlags)       buf (attFlag att)
-                (#poke MapiFileDesc, nPosition)     buf (maybe 0xffffffff id $ attPosition att)
+                (#poke MapiFileDesc, flFlags)       buf (attFlag att')
+                (#poke MapiFileDesc, nPosition)     buf (maybe 0xffffffff id $ attPosition att')
                 (#poke MapiFileDesc, lpszPathName)  buf path
                 (#poke MapiFileDesc, lpszFileName)  buf name
                 (#poke MapiFileDesc, lpFileType)    buf tag
-                write act (plusPtr buf as) y
+                write act' (plusPtr buf as) y
 
 data Message = Message
     { msgSubject    :: String
@@ -410,8 +410,8 @@ withMessage f ses m act =
         act buf
 
 mapiSendMail :: MapiFuncs -> LHANDLE -> Maybe HWND -> Message -> MapiFlag -> IO ()
-mapiSendMail f ses hwnd msg flag = withMessage f ses msg $ \msg ->
-    mapiFail_ "MAPISendMail" $ mapifSendMail f ses (maybeHWND hwnd) msg flag 0
+mapiSendMail f ses hwnd msg flag = withMessage f ses msg $ \c_msg ->
+    mapiFail_ "MAPISendMail" $ mapifSendMail f ses (maybeHWND hwnd) c_msg flag 0
 
 handleIOException :: (IOException -> IO a) -> IO a -> IO a
 handleIOException = handle

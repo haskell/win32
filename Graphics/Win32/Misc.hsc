@@ -133,7 +133,7 @@ messageBox wnd text caption style =
   withTString text $ \ c_text ->
   withTString caption $ \ c_caption ->
   failIfZero "MessageBox" $ c_MessageBox wnd c_text c_caption style
-foreign import WINDOWS_CCONV unsafe "windows.h MessageBoxW"
+foreign import WINDOWS_CCONV safe "windows.h MessageBoxW"
   c_MessageBox :: HWND -> LPCTSTR -> LPCTSTR -> MBStyle -> IO MBStatus
 
 ----------------------------------------------------------------

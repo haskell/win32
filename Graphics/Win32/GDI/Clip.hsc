@@ -22,10 +22,16 @@ module Graphics.Win32.GDI.Clip where
 import Control.Monad
 import Graphics.Win32.GDI.Types
 import System.Win32.Types
+import Graphics.Win32.Message    ( WindowMessage )
 
 import Foreign
 
 ##include "windows_cconv.h"
+
+#undef WINVER
+#define WINVER 0x0600
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
 
 #include <windows.h>
 
@@ -55,7 +61,13 @@ type ClipboardFormat = UINT
  , cF_TEXT              = CF_TEXT
  , cF_WAVE              = CF_WAVE
  , cF_TIFF              = CF_TIFF
+ , cF_DIBV5             = CF_DIBV5
+ , cF_GDIOBJLAST        = CF_GDIOBJLAST
+ , cF_UNICODETEXT       = CF_UNICODETEXT
  }
+
+wM_CLIPBOARDUPDATE :: WindowMessage
+wM_CLIPBOARDUPDATE = 0x031D -- #const WM_CLIPBOARDUPDATE -- Can't use constant due to GHC 7.8.x support.
 
 -- % , CF_UNICODETEXT  -- WinNT only
 

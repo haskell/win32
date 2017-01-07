@@ -11,6 +11,8 @@
 * Add `ULONG` type to `System.Win32.Types`.
 * Add function `failIfNeg` to `System.Win32.Types`, which fails if a negative
   number is returned. This simulates the behavior of the `NT_SUCCESS` macro.
+* Merged package Win32-extras (See #16)
+* `Graphics.Win32.Misc.messageBox` safely imported now https://github.com/haskell/win32/pull/5
 
 ## 2.4.0.0 *Nov 2016*
 

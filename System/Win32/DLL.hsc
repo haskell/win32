@@ -86,3 +86,11 @@ loadLibraryEx name h flags =
   failIfNull "LoadLibraryEx" $ c_LoadLibraryEx c_name h flags
 foreign import WINDOWS_CCONV unsafe "windows.h LoadLibraryExW"
   c_LoadLibraryEx :: LPCTSTR -> HANDLE -> LoadLibraryFlags -> IO HINSTANCE
+
+setDllDirectory :: String -> IO ()
+setDllDirectory name =
+  withTString name $ \ c_name ->
+  failIfFalse_ (unwords ["SetDllDirectory", name]) $ c_SetDllDirectory c_name
+
+foreign import WINDOWS_CCONV unsafe "windows.h SetDllDirectoryW"
+  c_SetDllDirectory :: LPTSTR -> IO BOOL

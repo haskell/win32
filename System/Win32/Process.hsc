@@ -69,11 +69,17 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetProcessId"
 getProcessId :: ProcessHandle -> IO ProcessId
 getProcessId h = failIfZero "GetProcessId" $ c_GetProcessId h
 
+foreign import WINDOWS_CCONV unsafe "windows.h GetCurrentProcess"
+    c_GetCurrentProcess :: IO ProcessHandle 
+
 foreign import WINDOWS_CCONV unsafe "windows.h GetCurrentProcessId"
     c_GetCurrentProcessId :: IO ProcessId
 
 getCurrentProcessId :: IO ProcessId
 getCurrentProcessId = c_GetCurrentProcessId
+
+getCurrentProcess :: IO ProcessHandle
+getCurrentProcess = c_GetCurrentProcess
 
 type Th32SnapHandle = HANDLE
 type Th32SnapFlags = DWORD
