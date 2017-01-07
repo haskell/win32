@@ -72,6 +72,9 @@
 #define MOUSEEVENTF_XDOWN 0x0080
 #define MOUSEEVENTF_XUP 0x0100
 
+#define XBUTTON1 0x0001
+#define XBUTTON2 0x0002
+
 typedef struct tagMOUSEINPUT {
     LONG dx;
     LONG dy;
