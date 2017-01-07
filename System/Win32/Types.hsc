@@ -73,7 +73,7 @@ type DWORD         = Word32
 type LONG          = Int32
 type FLOAT         = Float
 type LARGE_INTEGER = Int64
-<<<<<<< ours
+
 type DWORD32       = Word32
 type DWORD64       = Word64
 type INT32         = Int32
