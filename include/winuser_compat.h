@@ -91,7 +91,7 @@ typedef struct tagHARDWAREINPUT {
 
 typedef struct tagINPUT {
     DWORD type;
-    __C89_NAMELESS union {
+    union {
         MOUSEINPUT mi;
         KEYBDINPUT ki;
         HARDWAREINPUT hi;
