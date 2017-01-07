@@ -34,6 +34,7 @@ import System.Win32.Thread   ( TID, getCurrentThreadId )
 ##include "windows_cconv.h"
 
 #include <windows.h>
+#include "winuser_compat.h"
 
 type VKey   = DWORD
 
