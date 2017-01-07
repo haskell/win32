@@ -24,6 +24,7 @@ import System.Win32.Types ( DWORD, HANDLE, BYTE, BOOL,
 
 #include <windows.h>
 ##include "windows_cconv.h"
+#include "winuser_compat.h"
 
 toLayeredWindow :: HANDLE -> IO ()
 toLayeredWindow w = do

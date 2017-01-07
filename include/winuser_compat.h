@@ -44,5 +44,13 @@
 
 #define VK_PACKET 0xE7
 
+#define LWA_COLORKEY 0x00000001
+#define LWA_ALPHA 0x00000002
+
+#define ULW_COLORKEY 0x00000001
+#define ULW_ALPHA 0x00000002
+#define ULW_OPAQUE 0x00000004
+#define ULW_EX_NORESIZE 0x00000008
+
 #endif /* GHC Version check */
 #endif /* WINUSER_COMPAT_H */
