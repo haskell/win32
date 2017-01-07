@@ -17,6 +17,7 @@ import System.Win32.Types        ( LONG, ULONG_PTR )
 import System.Win32.Word         ( DWORD )
 
 #include <windows.h>
+#include "winuser_compat.h"
 
 type PMOUSEINPUT = Ptr MOUSEINPUT
 
