@@ -92,13 +92,13 @@ typedef struct tagKEYBDINPUT {
     ULONG_PTR dwExtraInfo;
 } KEYBDINPUT, *PKEYBDINPUT, *LPKEYBDINPUT;
 
+#if __GLASGOW_HASKELL__ < 710
 typedef struct tagHARDWAREINPUT {
     DWORD uMsg;
     WORD wParamL;
     WORD wParamH;
 } HARDWAREINPUT, *PHARDWAREINPUT, *LPHARDWAREINPUT;
 
-#if __GLASGOW_HASKELL__ < 710
 typedef struct tagINPUT {
     DWORD type;
     union {
