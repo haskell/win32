@@ -68,7 +68,7 @@ peekMaybe :: Storable a => Ptr a -> IO (Maybe a)
 peekMaybe p = 
   if p == nullPtr
     then return Nothing
-    else Just <$> peek p
+    else Just `fmap` peek p
 
 -- | See also: 'Foreign.Marshal.Utils.maybeWith' function.
 withMaybe :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b

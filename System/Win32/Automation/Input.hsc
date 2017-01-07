@@ -87,10 +87,10 @@ instance Storable INPUT where
         type'  <- (#peek INPUT, type) buf :: IO DWORD
         case type' of
           #{const INPUT_MOUSE} ->
-              Mouse <$> (#peek INPUT, mi) buf
+              Mouse `fmap` (#peek INPUT, mi) buf
           #{const INPUT_KEYBOARD} ->
-              Keyboard <$> (#peek INPUT, ki) buf
-          _ -> OtherHardware <$> (#peek INPUT, hi) buf
+              Keyboard `fmap` (#peek INPUT, ki) buf
+          _ -> OtherHardware `fmap` (#peek INPUT, hi) buf
 
 
 type PHARDWAREINPUT = Ptr HARDWAREINPUT
