@@ -18,6 +18,7 @@ import System.Win32.Word         ( DWORD )
 
 #include <windows.h>
 #include "winuser_compat.h"
+#include "alignment.h"
 
 type PMOUSEINPUT = Ptr MOUSEINPUT
 
@@ -32,7 +33,7 @@ data MOUSEINPUT = MOUSEINPUT
 
 instance Storable MOUSEINPUT where
     sizeOf = const #{size MOUSEINPUT}
-    alignment = sizeOf
+    alignment _ = #alignment MOUSEINPUT
     poke buf input = do
         (#poke MOUSEINPUT, dx) buf (dx input)
         (#poke MOUSEINPUT, dx) buf (dx input)

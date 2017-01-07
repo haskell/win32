@@ -30,6 +30,7 @@ import System.Win32.Types        ( UINT, LPARAM, failIfZero )
 import System.Win32.Word         ( DWORD, WORD )
 
 #include <windows.h>
+#include "alignment.h"
 ##include "windows_cconv.h"
 #include "winuser_compat.h"
 
@@ -71,7 +72,7 @@ data INPUT = Mouse MOUSEINPUT | Keyboard KEYBDINPUT | OtherHardware HARDWAREINPU
 
 instance Storable INPUT where
     sizeOf = const #{size INPUT}
-    alignment = sizeOf
+    alignment _ = #alignment INPUT
 
     poke buf (Mouse mouse) = do
         (#poke INPUT, type) buf (#{const INPUT_MOUSE}:: DWORD)
@@ -103,7 +104,7 @@ data HARDWAREINPUT = HARDWAREINPUT
 
 instance Storable HARDWAREINPUT where
     sizeOf = const #{size HARDWAREINPUT}
-    alignment = sizeOf
+    alignment _ = #alignment HARDWAREINPUT
     poke buf input = do
         (#poke HARDWAREINPUT, uMsg)    buf (uMsg input)
         (#poke HARDWAREINPUT, wParamL) buf (wParamL input)

@@ -66,6 +66,7 @@ import System.Win32.Word     ( DWORD, LPDWORD )
 
 #include <windows.h>
 #include <Lmcons.h>
+#include "alignment.h"
 ##include "windows_cconv.h"
 
 ----------------------------------------------------------------
@@ -137,7 +138,7 @@ data HW_PROFILE_INFO = HW_PROFILE_INFO
 
 instance Storable HW_PROFILE_INFO where
     sizeOf = const #{size HW_PROFILE_INFOW}
-    alignment = sizeOf
+    alignment _ = #alignment HW_PROFILE_INFOW
     poke buf info = do
         (#poke HW_PROFILE_INFOW, dwDockInfo) buf (dwDockInfo info)
         withTString (szHwProfileGuid info) $ \szHwProfileGuid' ->

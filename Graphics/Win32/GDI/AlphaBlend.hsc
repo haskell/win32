@@ -17,6 +17,7 @@ import Graphics.Win32.GDI.Types ( HDC )
 import System.Win32.Types       ( BOOL, BYTE, UINT )
 
 #include <windows.h>
+#include "alignment.h"
 ##include "windows_cconv.h"
 
 foreign import ccall unsafe "alphablend.h"
@@ -57,7 +58,7 @@ data BLENDFUNCTION = BLENDFUNCTION
 
 instance Storable BLENDFUNCTION where
     sizeOf = const #size BLENDFUNCTION
-    alignment = sizeOf
+    alignment _ = #alignment BLENDFUNCTION
     poke buf func = do
         (#poke BLENDFUNCTION, BlendOp)     buf (blendOp func)
         (#poke BLENDFUNCTION, BlendFlags)  buf (blendFlags func)
