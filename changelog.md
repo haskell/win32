@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## Unreleased GIT version
+
+* Add `withHandleToHANDLE` (originally found in the `ansi-terminal` library)
+
 ## 2.5.0.0 *Jan 2017*
 
 * `failWith` (and the API calls that use it) now throw `IOError`s with proper
