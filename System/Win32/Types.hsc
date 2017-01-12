@@ -21,20 +21,27 @@ module System.Win32.Types
         , nullPtr
         ) where
 
-import Control.Exception (throwIO)
+import Control.Concurrent.MVar (readMVar)
+import Control.Exception (bracket, throwIO)
 import Data.Bits (shiftL, shiftR, (.|.), (.&.))
 import Data.Char (isSpace)
 import Data.Int (Int32, Int64, Int16)
 import Data.Maybe (fromMaybe)
+import Data.Typeable (cast)
 import Data.Word (Word8, Word16, Word32, Word64)
 import Foreign.C.Error (Errno(..), errnoToIOError)
 import Foreign.C.String (newCWString, withCWStringLen)
 import Foreign.C.String (peekCWString, peekCWStringLen, withCWString)
-import Foreign.C.Types (CChar, CUChar, CWchar, CInt(..), CIntPtr, CUIntPtr)
+import Foreign.C.Types (CChar, CUChar, CWchar, CInt(..), CIntPtr(..), CUIntPtr)
 import Foreign.ForeignPtr (ForeignPtr, newForeignPtr, newForeignPtr_)
-import Foreign.Ptr (FunPtr, Ptr, nullPtr)
+import Foreign.Ptr (FunPtr, Ptr, nullPtr, ptrToIntPtr)
+import Foreign.StablePtr (StablePtr, freeStablePtr, newStablePtr)
 import Foreign (allocaArray)
+import GHC.IO.FD (FD(..))
+import GHC.IO.Handle.FD (fdToHandle)
+import GHC.IO.Handle.Types (Handle(..), Handle__(..))
 import Numeric (showHex)
+import qualified System.IO as IO ()
 import System.IO.Error (ioeSetErrorString)
 import System.IO.Unsafe (unsafePerformIO)
 
@@ -51,6 +58,7 @@ finiteBitSize :: (Bits a) => a -> Int
 finiteBitSize = bitSize
 #endif
 
+#include <fcntl.h>
 #include <windows.h>
 ##include "windows_cconv.h"
 
@@ -212,6 +220,60 @@ nullFinalHANDLE = unsafePerformIO (newForeignPtr_ nullPtr)
 
 iNVALID_HANDLE_VALUE :: HANDLE
 iNVALID_HANDLE_VALUE = castUINTPtrToPtr (-1)
+
+foreign import ccall "_open_osfhandle"
+  _open_osfhandle :: CIntPtr -> CInt -> IO CInt
+
+-- | Create a Haskell 'Handle' from a Windows 'HANDLE'.
+--
+-- Beware that this function allocates a new file descriptor. A consequence of
+-- this is that calling 'hANDLEToHandle' on the standard Windows handles will
+-- not give you 'IO.stdin', 'IO.stdout', or 'IO.stderr'. For example, if you
+-- run this code:
+--
+-- @
+-- import Graphics.Win32.Misc
+-- stdoutHANDLE <- getStdHandle sTD_OUTPUT_HANDLE
+-- stdout2 <- 'hANDLEToHandle' stdoutHANDLE
+-- @
+--
+-- Then although you can use @stdout2@ to write to standard output, it is not
+-- the case that @'IO.stdout' == stdout2@.
+hANDLEToHandle :: HANDLE -> IO Handle
+hANDLEToHandle handle =
+  _open_osfhandle (fromIntegral (ptrToIntPtr handle)) (#const _O_BINARY) >>= fdToHandle
+
+foreign import ccall unsafe "_get_osfhandle"
+  c_get_osfhandle :: CInt -> IO HANDLE
+
+-- | Extract a Windows 'HANDLE' from a Haskell 'Handle' and perform
+-- an action on it.
+
+-- Originally authored by Max Bolingbroke in the ansi-terminal library
+withHandleToHANDLE :: Handle -> (HANDLE -> IO a) -> IO a
+withHandleToHANDLE haskell_handle action =
+    -- Create a stable pointer to the Handle. This prevents the garbage collector
+    -- getting to it while we are doing horrible manipulations with it, and hence
+    -- stops it being finalized (and closed).
+    withStablePtr haskell_handle $ const $ do
+        -- Grab the write handle variable from the Handle
+        let write_handle_mvar = case haskell_handle of
+                FileHandle _ handle_mvar     -> handle_mvar
+                DuplexHandle _ _ handle_mvar -> handle_mvar
+                  -- This is "write" MVar, we could also take the "read" one
+
+        -- Get the FD from the algebraic data type
+        Just fd <- fmap (\(Handle__ { haDevice = dev }) -> fmap fdFD (cast dev))
+                 $ readMVar write_handle_mvar
+
+        -- Finally, turn that (C-land) FD into a HANDLE using msvcrt
+        windows_handle <- c_get_osfhandle fd
+
+        -- Do what the user originally wanted
+        action windows_handle
+
+withStablePtr :: a -> (StablePtr a -> IO b) -> IO b
+withStablePtr value = bracket (newStablePtr value) freeStablePtr
 
 ----------------------------------------------------------------
 -- Errors
