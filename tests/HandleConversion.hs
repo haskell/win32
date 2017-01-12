@@ -5,10 +5,9 @@ import System.IO
 import System.Win32.Types
 
 testStdHandle :: Handle -> StdHandleId -> IO ()
-testStdHandle haskHandle winStdHandle
-  = withHandleToHANDLE haskHandle $ \h -> do
-      winHandle <- getStdHandle winStdHandle
-      print (h == winHandle)
+testStdHandle haskHandle winStdHandle = do
+  winHandle <- getStdHandle winStdHandle
+  withHandleToHANDLE haskHandle $ print . (== winHandle)
 
 main :: IO ()
 main = do
