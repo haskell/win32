@@ -14,6 +14,3 @@ main = do
   takeMVar m
   r <- getLastError
   when (r /= 42) $ fail ("wrong: " ++ show r)
-
-foreign import stdcall unsafe "windows.h SetLastError"
-  setLastError :: ErrCode -> IO ()
