@@ -25,7 +25,6 @@ import Graphics.Win32.Key        ( VKey, c_MapVirtualKey )
 import System.Win32.Automation.Input.Key
 import System.Win32.Automation.Input.Mouse ( MOUSEINPUT )
 import System.Win32.Automation.Input.Mouse hiding ( MOUSEINPUT(..) )
-import qualified System.Win32.Automation.Input.Mouse
 import System.Win32.Types        ( UINT, LPARAM, failIfZero )
 import System.Win32.Word         ( DWORD, WORD )
 
