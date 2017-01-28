@@ -10,6 +10,4 @@ main = do
     alloca $ \buf -> do
         poke buf tzi
         tzi' <- peek buf
-        print tzi
-        print tzi'
         assert (tzi == tzi') $ return ()
