@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.5.0.1 *Feb 2017*
+## 2.5.1.0 *Feb 2017*
 
 * Add `withHandleToHANDLE` (originally found in the `ansi-terminal` library)
 * fixed `PokeTZI` test
