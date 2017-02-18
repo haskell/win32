@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## Unreleased GIT version
+
+* Add `commandLineToArgv`
+
 ## 2.5.1.0 *Feb 2017*
 
 * Add `withHandleToHANDLE` (originally found in the `ansi-terminal` library)

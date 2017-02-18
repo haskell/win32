@@ -25,12 +25,21 @@ module System.Win32.Console (
         setConsoleOutputCP,
         -- * Ctrl events
         CtrlEvent, cTRL_C_EVENT, cTRL_BREAK_EVENT,
-        generateConsoleCtrlEvent
+        generateConsoleCtrlEvent,
+        -- * Command line
+        commandLineToArgv
   ) where
 
 ##include "windows_cconv.h"
 
 import System.Win32.Types
+
+import Foreign.C.Types (CInt(..))
+import Foreign.C.String (withCWString, CWString)
+import Foreign.Ptr (Ptr)
+import Foreign.Storable (peek)
+import Foreign.Marshal.Array (peekArray)
+import Foreign.Marshal.Alloc (alloca)
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleCP"
         getConsoleCP :: IO UINT
@@ -59,4 +68,18 @@ generateConsoleCtrlEvent e p
 foreign import WINDOWS_CCONV safe "windows.h GenerateConsoleCtrlEvent"
     c_GenerateConsoleCtrlEvent :: CtrlEvent -> DWORD -> IO BOOL
 
--- ToDo: lots more
+foreign import WINDOWS_CCONV unsafe "Shellapi.h CommandLineToArgvW"
+     c_CommandLineToArgvW :: CWString -> Ptr CInt -> IO (Ptr CWString)
+
+-- | This function can be used to parse commandline arguments and return
+--   the split up arguments as elements in a list.
+commandLineToArgv :: String -> IO [String]
+commandLineToArgv []  = return []
+commandLineToArgv arg =
+  do withCWString arg $ \c_arg -> do
+       alloca $ \c_size -> do
+         res <- c_CommandLineToArgvW c_arg c_size
+         size <- peek c_size
+         args <- peekArray (fromIntegral size) res
+         _ <- localFree res
+         mapM peekTString args
