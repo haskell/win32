@@ -20,7 +20,7 @@ module Graphics.Win32.Window where
 
 import Control.Monad (liftM)
 import Data.Maybe (fromMaybe)
-import Data.Word (Word32)
+import Data.Int (Int32)
 import Foreign.ForeignPtr (withForeignPtr)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, castPtr, nullPtr)
@@ -185,7 +185,7 @@ type WindowStyleEx   = DWORD
 
 cW_USEDEFAULT :: Pos
 -- See Note [Overflow checking and fromIntegral] in Graphics/Win32/GDI/HDC.hs
-cW_USEDEFAULT = fromIntegral (#{const CW_USEDEFAULT} :: Word32)
+cW_USEDEFAULT = fromIntegral (#{const CW_USEDEFAULT} :: Int32)
 
 type Pos = Int
 
