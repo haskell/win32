@@ -79,7 +79,7 @@ type MenuName = LPCTSTR
 
 checkMenuItem :: HMENU -> MenuItem -> MenuFlag -> IO Bool
 checkMenuItem menu item check = do
-  rv <- failIf (== -1) "CheckMenuItem" $ c_CheckMenuItem menu item check
+  rv <- failIf (== maxBound) "CheckMenuItem" $ c_CheckMenuItem menu item check
   return (rv == mF_CHECKED)
 foreign import WINDOWS_CCONV unsafe "windows.h CheckMenuItem"
   c_CheckMenuItem :: HMENU -> UINT -> UINT -> IO DWORD
@@ -230,13 +230,13 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetMenu"
 
 getMenuDefaultItem :: HMENU -> Bool -> GMDIFlag -> IO MenuItem
 getMenuDefaultItem menu bypos flags =
-  failIf (== -1) "GetMenuDefaultItem" $ c_GetMenuDefaultItem menu bypos flags
+  failIf (== maxBound) "GetMenuDefaultItem" $ c_GetMenuDefaultItem menu bypos flags
 foreign import WINDOWS_CCONV unsafe "windows.h GetMenuDefaultItem"
   c_GetMenuDefaultItem :: HMENU -> Bool -> UINT -> IO UINT
 
 getMenuState :: HMENU -> MenuItem -> MenuFlag -> IO MenuState
 getMenuState menu item flags =
-  failIf (== -1) "GetMenuState" $ c_GetMenuState menu item flags
+  failIf (== maxBound) "GetMenuState" $ c_GetMenuState menu item flags
 foreign import WINDOWS_CCONV unsafe "windows.h GetMenuState"
   c_GetMenuState :: HMENU -> UINT -> UINT -> IO MenuState
 
@@ -254,7 +254,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetMenu"
 
 getMenuItemCount :: HMENU -> IO Int
 getMenuItemCount menu =
-  failIf (== -1) "GetMenuItemCount" $ c_GetMenuItemCount menu
+  failIf (== maxBound) "GetMenuItemCount" $ c_GetMenuItemCount menu
 foreign import WINDOWS_CCONV unsafe "windows.h GetMenuItemCount"
   c_GetMenuItemCount :: HMENU -> IO Int
 
@@ -262,7 +262,7 @@ type MenuID = UINT
 
 getMenuItemID :: HMENU -> MenuItem -> IO MenuID
 getMenuItemID menu item =
-  failIf (== -1) "GetMenuItemID" $ c_GetMenuItemID menu item
+  failIf (== maxBound) "GetMenuItemID" $ c_GetMenuItemID menu item
 foreign import WINDOWS_CCONV unsafe "windows.h GetMenuItemID"
   c_GetMenuItemID :: HMENU -> UINT -> IO MenuID
 
