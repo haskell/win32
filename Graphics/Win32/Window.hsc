@@ -1,4 +1,5 @@
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE NegativeLiterals #-}
 #if __GLASGOW_HASKELL__ >= 701
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -20,7 +21,7 @@ module Graphics.Win32.Window where
 
 import Control.Monad (liftM)
 import Data.Maybe (fromMaybe)
-import Data.Word (Word32)
+import Data.Int (Int32)
 import Foreign.ForeignPtr (withForeignPtr)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, castPtr, nullPtr)
@@ -185,7 +186,10 @@ type WindowStyleEx   = DWORD
 
 cW_USEDEFAULT :: Pos
 -- See Note [Overflow checking and fromIntegral] in Graphics/Win32/GDI/HDC.hs
-cW_USEDEFAULT = fromIntegral (#{const CW_USEDEFAULT} :: Word32)
+-- Weird way to essentially get a value with the top bit set. But GHC 7.8.4 was
+-- rejecting all other sane attempts.
+cW_USEDEFAULT = let val = negate (#{const CW_USEDEFAULT}) :: Integer
+                in fromIntegral (fromIntegral val :: Int32) :: Pos
 
 type Pos = Int
 

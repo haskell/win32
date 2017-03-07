@@ -1,7 +1,8 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## Unreleased GIT version
+## 2.5.2.0 *March 2017*
 
+* Fix constant underflows with (-1) and unsigned numbers.
 * Add `commandLineToArgv`
 
 ## 2.5.1.0 *Feb 2017*
