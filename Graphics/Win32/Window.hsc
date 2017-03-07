@@ -1,5 +1,4 @@
 {-# LANGUAGE CApiFFI #-}
-{-# LANGUAGE NegativeLiterals #-}
 #if __GLASGOW_HASKELL__ >= 701
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -186,7 +185,7 @@ type WindowStyleEx   = DWORD
 
 cW_USEDEFAULT :: Pos
 -- See Note [Overflow checking and fromIntegral] in Graphics/Win32/GDI/HDC.hs
-cW_USEDEFAULT = fromIntegral (#{const CW_USEDEFAULT} :: Int32)
+cW_USEDEFAULT = fromIntegral (-#{const CW_USEDEFAULT} :: Int32)
 
 type Pos = Int
 
