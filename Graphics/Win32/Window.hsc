@@ -186,6 +186,8 @@ type WindowStyleEx   = DWORD
 
 cW_USEDEFAULT :: Pos
 -- See Note [Overflow checking and fromIntegral] in Graphics/Win32/GDI/HDC.hs
+-- Weird way to essentially get a value with the top bit set. But GHC 7.8.4 was
+-- rejecting all other sane attempts.
 cW_USEDEFAULT = let val = negate (#{const CW_USEDEFAULT}) :: Integer
                 in fromIntegral (fromIntegral val :: Int32) :: Pos
 
