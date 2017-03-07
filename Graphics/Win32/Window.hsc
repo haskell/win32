@@ -186,7 +186,8 @@ type WindowStyleEx   = DWORD
 
 cW_USEDEFAULT :: Pos
 -- See Note [Overflow checking and fromIntegral] in Graphics/Win32/GDI/HDC.hs
-cW_USEDEFAULT = fromIntegral (negate (#{const CW_USEDEFAULT}) :: Int32)
+cW_USEDEFAULT = let val = negate (#{const CW_USEDEFAULT}) :: Integer
+                in fromIntegral (fromIntegral val :: Int32) :: Pos
 
 type Pos = Int
 
