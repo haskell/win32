@@ -43,6 +43,17 @@ efficient (fromIntegral is optimized away,) and conveys the idea we
 simply want the same representational value.
 -}
 
+----------------------
+-- Implement GetPixel
+----------------------
+
+getPixel :: HDC -> Int -> Int -> IO COLORREF
+getPixel dc x y = c_GetPixel dc x y
+foreign import WINDOWS_CCONV unsafe "windows.h GetPixel"
+  c_GetPixel :: HDC -> Int -> Int -> IO COLORREF
+
+----------------------
+
 setArcDirection :: HDC -> ArcDirection -> IO ArcDirection
 setArcDirection dc dir =
   failIfZero "SetArcDirection" $ c_SetArcDirection dc dir
