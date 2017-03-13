@@ -1,5 +1,10 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## Unreleased GIT Version
+
+* Fix buffer overflow in `regSetValue`. (See #39)
+* Added `getPixel`. (See #37)
+
 ## 2.5.2.0 *March 2017*
 
 * Fix constant underflows with (-1) and unsigned numbers.
