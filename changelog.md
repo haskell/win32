@@ -9,7 +9,7 @@
 
 * Fix constant underflows with (-1) and unsigned numbers.
 * Add `commandLineToArgv`
-* Drop dependency on `ntdll`
+* Drop dependency on `ntdll` because of incorrect import library on x86. (See #79)
 
 ## 2.5.1.0 *Feb 2017*
 
