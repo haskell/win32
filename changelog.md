@@ -9,6 +9,7 @@
 
 * Fix constant underflows with (-1) and unsigned numbers.
 * Add `commandLineToArgv`
+* Drop dependency on `ntdll`
 
 ## 2.5.1.0 *Feb 2017*
 

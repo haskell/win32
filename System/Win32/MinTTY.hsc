@@ -134,6 +134,9 @@ ntQueryObjectNameInformation h = do
       bufSize   = sizeOfONI + mAX_PATH * sizeOfTCHAR
   allocaBytes bufSize $ \buf ->
     alloca $ \p_len -> do
+      hwnd <- getModuleHandle (Just "ntdll.exe")
+      addr <- getProcAddress hwnd "NtQueryObject"
+      let c_NtQueryObject = mk_NtQueryObject (castPtrToFunPtr addr)
       _ <- failIfNeg "NtQueryObject" $ c_NtQueryObject
              h objectNameInformation buf (fromIntegral bufSize) p_len
       oni <- peek buf
@@ -147,6 +150,12 @@ mAX_PATH = #const MAX_PATH
 
 objectNameInformation :: CInt
 objectNameInformation = #const ObjectNameInformation
+
+type F_NtQueryObject = HANDLE -> CInt -> Ptr OBJECT_NAME_INFORMATION
+                     -> ULONG -> Ptr ULONG -> IO NTSTATUS
+                     
+foreign import WINDOWS_CCONV "dynamic"
+  mk_NtQueryObject :: FunPtr F_NtQueryObject -> F_NtQueryObject
 
 type F_GetFileInformationByHandleEx =
   HANDLE -> CInt -> Ptr FILE_NAME_INFO -> DWORD -> IO BOOL
@@ -178,10 +187,6 @@ instance Storable FILE_NAME_INFO where
           { fniFileNameLength = vfniFileNameLength
           , fniFileName       = vfniFileName
           }
-
-foreign import WINDOWS_CCONV "winternl.h NtQueryObject"
-  c_NtQueryObject :: HANDLE -> CInt -> Ptr OBJECT_NAME_INFORMATION
-                  -> ULONG -> Ptr ULONG -> IO NTSTATUS
 
 type NTSTATUS = #type NTSTATUS
 

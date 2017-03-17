@@ -94,7 +94,7 @@ Library
     if impl(ghc >= 7.1)
         extensions: NondecreasingIndentation
     extra-libraries:
-        "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi", "msimg32", "imm32", "ntdll"
+        "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi", "msimg32", "imm32"
     ghc-options:      -Wall
     include-dirs:     include
     includes:         "alphablend.h", "diatemp.h", "dumpBMP.h", "ellipse.h", "errors.h", "HsGDI.h", "HsWin32.h", "Win32Aux.h", "win32debug.h", "windows_cconv.h", "WndProc.h", "alignment.h"
