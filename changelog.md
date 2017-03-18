@@ -1,9 +1,10 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## Unreleased GIT Version
+## 2.5.3.0 *March 2017*
 
 * Fix buffer overflow in `regSetValue`. (See #39)
 * Added `getPixel`. (See #37)
+* Drop dependency on `ntdll` because of incorrect import library on x86. (See #79)
 
 ## 2.5.2.0 *March 2017*
 
