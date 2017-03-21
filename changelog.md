@@ -1,5 +1,11 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## Unreleased GIT version
+
+* Make cabal error out on compilation on non-Windows OSes. (See #80)
+* Update cabal format to 1.10 and set language 
+  default to Haskell2010. (See #81)
+
 ## 2.5.3.0 *March 2017*
 
 * Fix buffer overflow in `regSetValue`. (See #39)
