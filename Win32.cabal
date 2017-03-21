@@ -11,13 +11,18 @@ category:	System, Graphics
 synopsis:	A binding to part of the Win32 library
 description:	A binding to part of the Win32 library.
 build-type:     Simple
-cabal-version:  >=1.6
+cabal-version:  >=1.10
 extra-source-files:
 	include/diatemp.h include/dumpBMP.h include/ellipse.h include/errors.h
 	include/Win32Aux.h include/win32debug.h include/alignment.h
         changelog.md
 
 Library
+    default-language: Haskell2010
+    default-extensions: ForeignFunctionInterface, CPP
+    if impl(ghc >= 7.1)
+        default-extensions: NondecreasingIndentation
+
     if !os(windows)
         -- This package requires Windows to build
         build-depends: unbuildable<0
@@ -95,9 +100,6 @@ Library
         System.Win32.Utils
         System.Win32.Word
 
-    extensions:    ForeignFunctionInterface, CPP
-    if impl(ghc >= 7.1)
-        extensions: NondecreasingIndentation
     extra-libraries:
         "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi", "msimg32", "imm32"
     ghc-options:      -Wall
