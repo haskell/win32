@@ -16,3 +16,6 @@ test_script:
 - stack init
 - stack setup > nul
 - echo "" | stack --no-terminal build
+
+install:
+- set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
