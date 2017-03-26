@@ -23,6 +23,7 @@ import System.Win32.Types
 
 import Foreign
 import Foreign.C
+import Data.Maybe (fromMaybe)
 
 ##include "windows_cconv.h"
 
@@ -87,10 +88,10 @@ loadLibraryEx name h flags =
 foreign import WINDOWS_CCONV unsafe "windows.h LoadLibraryExW"
   c_LoadLibraryEx :: LPCTSTR -> HANDLE -> LoadLibraryFlags -> IO HINSTANCE
 
-setDllDirectory :: String -> IO ()
+setDllDirectory :: Maybe String -> IO ()
 setDllDirectory name =
-  withTString name $ \ c_name ->
-  failIfFalse_ (unwords ["SetDllDirectory", name]) $ c_SetDllDirectory c_name
+  maybeWith withTString name $ \ c_name ->
+  failIfFalse_ (unwords ["SetDllDirectory", fromMaybe "NULL" name]) $ c_SetDllDirectory c_name
 
 foreign import WINDOWS_CCONV unsafe "windows.h SetDllDirectoryW"
   c_SetDllDirectory :: LPTSTR -> IO BOOL

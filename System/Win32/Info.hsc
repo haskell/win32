@@ -21,7 +21,7 @@ module System.Win32.Info where
 
 import Control.Exception (catch)
 import Foreign.Marshal.Alloc (alloca)
-import Foreign.Marshal.Utils (with)
+import Foreign.Marshal.Utils (with, maybeWith)
 import Foreign.Marshal.Array (allocaArray)
 import Foreign.Ptr (Ptr, nullPtr)
 import Foreign.Storable (Storable(..))
@@ -132,11 +132,11 @@ getShortPathName name = do
     try "getShortPathName"
       (c_GetShortPathName c_name) 512
 
-searchPath :: Maybe String -> FilePath -> String -> IO (Maybe FilePath)
+searchPath :: Maybe String -> FilePath -> Maybe String -> IO (Maybe FilePath)
 searchPath path filename ext =
   maybe ($ nullPtr) withTString path $ \p_path ->
   withTString filename $ \p_filename ->
-  withTString ext      $ \p_ext ->
+  maybeWith withTString ext      $ \p_ext ->
   alloca $ \ppFilePart -> (do
     s <- try "searchPath" (\buf len -> c_SearchPath p_path p_filename p_ext
                           len buf ppFilePart) 512

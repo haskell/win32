@@ -60,10 +60,10 @@ data VolumeInformation = VolumeInformation
       , fileSystemName     :: String
       } deriving Show
 
-getVolumeInformation :: String -> IO VolumeInformation
+getVolumeInformation :: Maybe String -> IO VolumeInformation
 getVolumeInformation drive =
-   withTString drive        $ \c_drive ->
-   withTStringBufferLen 256 $ \(vnBuf, vnLen) ->
+   maybeWith withTString drive $ \c_drive ->
+   withTStringBufferLen 256    $ \(vnBuf, vnLen) ->
    alloca $ \serialNum ->
    alloca $ \maxLen ->
    alloca $ \fsFlags ->

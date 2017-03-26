@@ -209,6 +209,9 @@ nullHANDLE = nullPtr
 
 type MbHANDLE      = Maybe HANDLE
 
+nullHINSTANCE :: HINSTANCE
+nullHINSTANCE = nullPtr
+
 type   HINSTANCE   = Ptr ()
 type MbHINSTANCE   = Maybe HINSTANCE
 

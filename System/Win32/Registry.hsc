@@ -23,7 +23,7 @@ module System.Win32.Registry
           regCloseKey        -- :: HKEY -> IO ()
         , regConnectRegistry -- :: Maybe String -> HKEY -> IO HKEY
         , regCreateKey       -- :: HKEY -> String -> IO HKEY
-        , regCreateKeyEx     -- :: HKEY -> String -> String
+        , regCreateKeyEx     -- :: HKEY -> String -> Maybe String
                              -- -> RegCreateOptions -> REGSAM
                              -- -> Maybe LPSECURITY_ATTRIBUTES
                              -- -> IO (HKEY, Bool)
@@ -39,10 +39,10 @@ module System.Win32.Registry
         , regOpenKey         -- :: HKEY -> String -> IO HKEY
         , regOpenKeyEx       -- :: HKEY -> String -> REGSAM -> IO HKEY
         , regQueryInfoKey    -- :: HKEY -> IO RegInfoKey
-        , regQueryValue      -- :: HKEY -> Maybe String -> IO String
-        , regQueryValueKey   -- :: HKEY -> Maybe String -> IO String
+        , regQueryValue      -- :: HKEY -> String -> IO String
+        , regQueryValueKey   -- :: HKEY -> String -> IO String
         , regQueryValueEx    -- :: HKEY -> String -> Addr -> Int -> IO RegValueType
-        , regReplaceKey      -- :: HKEY -> String -> String -> String -> IO ()
+        , regReplaceKey      -- :: HKEY -> Maybe String -> String -> String -> IO ()
         , regRestoreKey      -- :: HKEY -> String -> RegRestoreFlags -> IO ()
         , regSaveKey         -- :: HKEY -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
         , regSetValue        -- :: HKEY -> String -> String -> IO ()
@@ -144,11 +144,11 @@ type REGSAM = #{type REGSAM}
  , kEY_WRITE            = KEY_WRITE
  }
 
-regCreateKeyEx :: HKEY -> String -> String -> RegCreateOptions -> REGSAM -> Maybe LPSECURITY_ATTRIBUTES -> IO (HKEY, Bool)
+regCreateKeyEx :: HKEY -> String -> Maybe String -> RegCreateOptions -> REGSAM -> Maybe LPSECURITY_ATTRIBUTES -> IO (HKEY, Bool)
 regCreateKeyEx key subkey cls opts sam mb_attr =
   withForeignPtr key $ \ p_key ->
   withTString subkey $ \ c_subkey ->
-  withTString cls $ \ c_cls ->
+  maybeWith withTString cls $ \ c_cls ->
   alloca $ \ p_res ->
   alloca $ \ p_disp -> do
   failUnlessSuccess "RegCreateKeyEx" $
@@ -387,10 +387,10 @@ foreign import WINDOWS_CCONV unsafe "windows.h RegQueryInfoKeyW"
 -- (and better!) version of it. If you want RegQueryValue()s
 -- behaviour, use regQueryValueKey.
 
-regQueryValueKey :: HKEY -> Maybe String -> IO String
+regQueryValueKey :: HKEY -> String -> IO String
 regQueryValueKey key mb_subkey =
   withForeignPtr key $ \ p_key ->
-  maybeWith withTString mb_subkey $ \ c_subkey ->
+  withTString mb_subkey $ \ c_subkey ->
   alloca $ \ p_value_len -> do
   failUnlessSuccess "RegQueryValue" $
     c_RegQueryValue p_key c_subkey nullPtr p_value_len
@@ -402,10 +402,10 @@ regQueryValueKey key mb_subkey =
 foreign import WINDOWS_CCONV unsafe "windows.h RegQueryValueW"
   c_RegQueryValue :: PKEY -> LPCTSTR -> LPTSTR -> Ptr LONG -> IO ErrCode
 
-regQueryValue :: HKEY -> Maybe String -> IO String
+regQueryValue :: HKEY -> String -> IO String
 regQueryValue key mb_subkey =
   withForeignPtr key $ \ p_key ->
-  maybeWith withTString mb_subkey $ \ c_subkey ->
+  withTString mb_subkey $ \ c_subkey ->
   alloca $ \ p_ty ->
   alloca $ \ p_value_len -> do
   failUnlessSuccess "RegQueryValue" $
@@ -430,10 +430,10 @@ regQueryValueEx key name value value_len =
 foreign import WINDOWS_CCONV unsafe "windows.h RegQueryValueExW"
   c_RegQueryValueEx :: PKEY -> LPCTSTR -> Ptr DWORD -> Ptr DWORD -> LPBYTE -> Ptr DWORD -> IO ErrCode
 
-regReplaceKey :: HKEY -> String -> String -> String -> IO ()
+regReplaceKey :: HKEY -> Maybe String -> String -> String -> IO ()
 regReplaceKey key subkey newfile oldfile =
   withForeignPtr key $ \ p_key ->
-  withTString subkey $ \ c_subkey ->
+  maybeWith withTString subkey $ \ c_subkey ->
   withTString newfile $ \ c_newfile ->
   withTString oldfile $ \ c_oldfile ->
   failUnlessSuccess "RegReplaceKey" $

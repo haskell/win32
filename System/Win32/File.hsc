@@ -376,10 +376,10 @@ moveFile src dest =
 foreign import WINDOWS_CCONV unsafe "windows.h MoveFileW"
   c_MoveFile :: LPCTSTR -> LPCTSTR -> IO Bool
 
-moveFileEx :: String -> String -> MoveFileFlag -> IO ()
+moveFileEx :: String -> Maybe String -> MoveFileFlag -> IO ()
 moveFileEx src dest flags =
   withTString src $ \ c_src ->
-  withTString dest $ \ c_dest ->
+  maybeWith withTString dest $ \ c_dest ->
   failIfFalseWithRetry_ (unwords ["MoveFileEx",show src,show dest]) $
     c_MoveFileEx c_src c_dest flags
 foreign import WINDOWS_CCONV unsafe "windows.h MoveFileExW"
@@ -609,9 +609,9 @@ foreign import WINDOWS_CCONV unsafe "windows.h FindClose"
 -- DOS Device flags
 ----------------------------------------------------------------
 
-defineDosDevice :: DefineDosDeviceFlags -> String -> String -> IO ()
+defineDosDevice :: DefineDosDeviceFlags -> String -> Maybe String -> IO ()
 defineDosDevice flags name path =
-  withTString path $ \ c_path ->
+  maybeWith withTString path $ \ c_path ->
   withTString name $ \ c_name ->
   failIfFalse_ "DefineDosDevice" $ c_DefineDosDevice flags c_name c_path
 foreign import WINDOWS_CCONV unsafe "windows.h DefineDosDeviceW"
@@ -661,10 +661,10 @@ getDiskFreeSpace path =
 foreign import WINDOWS_CCONV unsafe "windows.h GetDiskFreeSpaceW"
   c_GetDiskFreeSpace :: LPCTSTR -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> IO Bool
 
-setVolumeLabel :: String -> String -> IO ()
+setVolumeLabel :: Maybe String -> Maybe String -> IO ()
 setVolumeLabel path name =
-  withTString path $ \ c_path ->
-  withTString name $ \ c_name ->
+  maybeWith withTString path $ \ c_path ->
+  maybeWith withTString name $ \ c_name ->
   failIfFalse_ "SetVolumeLabel" $ c_SetVolumeLabel c_path c_name
 foreign import WINDOWS_CCONV unsafe "windows.h SetVolumeLabelW"
   c_SetVolumeLabel :: LPCTSTR -> LPCTSTR -> IO Bool
