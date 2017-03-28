@@ -5,7 +5,7 @@
 * Make cabal error out on compilation on non-Windows OSes. (See #80)
 * Update cabal format to 1.10 and set language 
   default to Haskell2010. (See #81)
-* Use `Maybe` in wrappers for functions with nullable pointer parameters (See #84)
+* Use `Maybe` in wrappers for functions with nullable pointer parameters (See #83)
 
 ## 2.5.3.0 *March 2017*
 
