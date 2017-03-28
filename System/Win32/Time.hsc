@@ -30,6 +30,7 @@ import Foreign          ( Storable(sizeOf, alignment, peekByteOff, peek,
                         , with, alloca, allocaBytes, copyArray )
 import Foreign.C        ( CInt(..), CWchar(..)
                         , peekCWString, withCWStringLen, withCWString )
+import Foreign.Marshal.Utils (maybeWith)
 
 ##include "windows_cconv.h"
 #include <windows.h>
@@ -305,10 +306,10 @@ type GetTimeFormatFlags = DWORD
 
 foreign import WINDOWS_CCONV "windows.h GetTimeFormatW"
     c_GetTimeFormat :: LCID -> GetTimeFormatFlags -> Ptr SYSTEMTIME -> LPCTSTR -> LPTSTR -> CInt -> IO CInt
-getTimeFormat :: LCID -> GetTimeFormatFlags -> SYSTEMTIME -> String -> IO String
+getTimeFormat :: LCID -> GetTimeFormatFlags -> Maybe SYSTEMTIME -> Maybe String -> IO String
 getTimeFormat locale flags st fmt =
-    with st $ \c_st ->
-    withCWString fmt $ \c_fmt -> do
+    maybeWith with st $ \c_st ->
+    maybeWith withCWString fmt $ \c_fmt -> do
         size <- c_GetTimeFormat locale flags c_st c_fmt nullPtr 0
         allocaBytes ((fromIntegral size) * (sizeOf (undefined::CWchar))) $ \out -> do
             size' <- failIf (==0) "getTimeFormat: GetTimeFormat" $

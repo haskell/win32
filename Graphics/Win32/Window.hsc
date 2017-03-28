@@ -23,6 +23,7 @@ import Control.Monad (liftM)
 import Data.Maybe (fromMaybe)
 import Data.Int (Int32)
 import Foreign.ForeignPtr (withForeignPtr)
+import Foreign.Marshal.Utils (maybeWith)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, castPtr, nullPtr)
 import Foreign.Storable (pokeByteOff)
@@ -474,24 +475,24 @@ endDeferWindowPos pos =
 foreign import WINDOWS_CCONV unsafe "windows.h EndDeferWindowPos"
   c_EndDeferWindowPos :: HDWP -> IO Bool
 
-findWindow :: String -> String -> IO (Maybe HWND)
+findWindow :: Maybe String -> Maybe String -> IO (Maybe HWND)
 findWindow cname wname =
-  withTString cname $ \ c_cname ->
-  withTString wname $ \ c_wname ->
+  maybeWith withTString cname $ \ c_cname ->
+  maybeWith withTString wname $ \ c_wname ->
   liftM ptrToMaybe $ c_FindWindow c_cname c_wname
 
+{-# DEPRECATED findWindowByName "Use 'findWindow Nothing' instead." #-}
 findWindowByName :: String -> IO (Maybe HWND)
-findWindowByName wname = withTString wname $ \ c_wname ->
-  liftM ptrToMaybe $ c_FindWindow nullPtr c_wname
+findWindowByName wname = findWindow Nothing $ Just wname
 
 foreign import WINDOWS_CCONV unsafe "windows.h FindWindowW"
   c_FindWindow :: LPCTSTR -> LPCTSTR -> IO HWND
 
-findWindowEx :: HWND -> HWND -> String -> String -> IO (Maybe HWND)
+findWindowEx :: Maybe HWND -> Maybe HWND -> Maybe String -> Maybe String -> IO (Maybe HWND)
 findWindowEx parent after cname wname =
-  withTString cname $ \ c_cname ->
-  withTString wname $ \ c_wname ->
-  liftM ptrToMaybe $ c_FindWindowEx parent after c_cname c_wname
+  maybeWith withTString cname $ \ c_cname ->
+  maybeWith withTString wname $ \ c_wname ->
+  liftM ptrToMaybe $ c_FindWindowEx (maybePtr parent) (maybePtr after) c_cname c_wname
 foreign import WINDOWS_CCONV unsafe "windows.h FindWindowExW"
   c_FindWindowEx :: HWND -> HWND -> LPCTSTR -> LPCTSTR -> IO HWND
 

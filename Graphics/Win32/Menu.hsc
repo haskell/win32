@@ -446,23 +446,23 @@ foreign import WINDOWS_CCONV unsafe "windows.h TrackPopupMenuEx"
 -- Note: these 3 assume the flags don't include MF_BITMAP or MF_OWNERDRAW
 -- (which are hidden by this interface)
 
-appendMenu :: HMENU -> MenuFlag -> MenuID -> String -> IO ()
+appendMenu :: HMENU -> MenuFlag -> MenuID -> Maybe String -> IO ()
 appendMenu menu flags id_item name =
-  withTString name $ \ c_name ->
+  maybeWith withTString name $ \ c_name ->
   failIfFalse_ "AppendMenu" $ c_AppendMenu menu flags id_item c_name
 foreign import WINDOWS_CCONV unsafe "windows.h AppendMenuW"
   c_AppendMenu :: HMENU -> UINT -> MenuID -> LPCTSTR -> IO Bool
 
-insertMenu :: HMENU -> MenuItem -> MenuFlag -> MenuID -> String -> IO ()
+insertMenu :: HMENU -> MenuItem -> MenuFlag -> MenuID -> Maybe String -> IO ()
 insertMenu menu item flags id_item name =
-  withTString name $ \ c_name ->
+  maybeWith withTString name $ \ c_name ->
   failIfFalse_ "InsertMenu" $ c_InsertMenu menu item flags id_item c_name
 foreign import WINDOWS_CCONV unsafe "windows.h InsertMenuW"
   c_InsertMenu :: HMENU -> UINT -> UINT -> MenuID -> LPCTSTR -> IO Bool
 
-modifyMenu :: HMENU -> MenuItem -> MenuFlag -> MenuID -> String -> IO ()
+modifyMenu :: HMENU -> MenuItem -> MenuFlag -> MenuID -> Maybe String -> IO ()
 modifyMenu menu item flags id_item name =
-  withTString name $ \ c_name ->
+  maybeWith withTString name $ \ c_name ->
   failIfFalse_ "ModifyMenu" $ c_ModifyMenu menu item flags id_item c_name
 foreign import WINDOWS_CCONV unsafe "windows.h ModifyMenuW"
   c_ModifyMenu :: HMENU -> UINT -> UINT -> MenuID -> LPCTSTR -> IO Bool
