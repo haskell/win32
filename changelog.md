@@ -7,6 +7,10 @@
   default to Haskell2010. (See #81)
 * Use `Maybe` in wrappers for functions with nullable pointer parameters (See #83)
 
+## 2.5.4.1 *April 2017*
+
+* Fixed GetWindowLong on 32-bit Windows
+
 ## 2.5.3.0 *March 2017*
 
 * Fix buffer overflow in `regSetValue`. (See #39)

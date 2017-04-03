@@ -52,8 +52,13 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetLayeredWindowAttributes"
 foreign import WINDOWS_CCONV unsafe "windows.h UpdateLayeredWindow"
   c_UpdateLayeredWindow :: HANDLE -> HDC -> Ptr POINT -> Ptr SIZE ->  HDC -> Ptr POINT -> COLORREF -> Ptr BLENDFUNCTION -> DWORD -> IO BOOL
 
+#if defined(x86_64_HOST_ARCH)
 foreign import WINDOWS_CCONV "windows.h GetWindowLongPtrW"
   c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
+#else
+foreign import WINDOWS_CCONV "windows.h GetWindowLongW"
+  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
+#endif
 
 #{enum DWORD,
  , uLW_ALPHA    = ULW_ALPHA
