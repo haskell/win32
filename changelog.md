@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.5.4.0 *April 2017*
+## 2.5.4.1 *April 2017*
 
 * Fixed GetWindowLong on 32-bit Windows
 
