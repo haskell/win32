@@ -56,7 +56,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h DeleteObject"
 
 type PenStyle   = INT
 
-#{enum PenStyle,                              // Pick one of these
+#{enum PenStyle,
  , pS_SOLID             = PS_SOLID            // default
  , pS_DASH              = PS_DASH             // -------
  , pS_DOT               = PS_DOT              // .......
@@ -69,14 +69,14 @@ type PenStyle   = INT
  , pS_STYLE_MASK        = PS_STYLE_MASK       // all the above
  }
 
-#{enum PenStyle ,                             // "or" with one of these
+#{enum PenStyle,
  , pS_ENDCAP_ROUND      = PS_ENDCAP_ROUND     // default
  , pS_ENDCAP_SQUARE     = PS_ENDCAP_SQUARE
  , pS_ENDCAP_FLAT       = PS_ENDCAP_FLAT
  , pS_ENDCAP_MASK       = PS_ENDCAP_MASK      // all the above
  }
 
-#{enum PenStyle,                              // "or" with one of these
+#{enum PenStyle,
  , pS_JOIN_ROUND        = PS_JOIN_ROUND       // default
  , pS_JOIN_BEVEL        = PS_JOIN_BEVEL
  , pS_JOIN_MITER        = PS_JOIN_MITER
@@ -87,7 +87,7 @@ If PS_JOIN_MASK is not defined with your GNU Windows32 header files,
 you'll have to define it.
 -}
 
-#{enum PenStyle,                              // "or" with one of these
+#{enum PenStyle,
  , pS_COSMETIC          = PS_COSMETIC         // default
  , pS_GEOMETRIC         = PS_GEOMETRIC
  , pS_TYPE_MASK         = PS_TYPE_MASK        // all the above
