@@ -53,12 +53,6 @@ type MapiFlag = ULONG
     , mAPI_LOGON_UI         = MAPI_LOGON_UI
     , mAPI_NEW_SESSION      = MAPI_NEW_SESSION
     , mAPI_FORCE_DOWNLOAD   = MAPI_FORCE_DOWNLOAD
-#ifdef MAPI_LOGOFF_SHARED
-    , mAPI_LOGOFF_SHARED    = MAPI_LOGOFF_SHARED
-#endif
-#ifdef MAPI_LOGOFF_UI
-    , mAPI_LOGOFF_UI        = MAPI_LOGOFF_UI
-#endif
     , mAPI_DIALOG           = MAPI_DIALOG
     , mAPI_UNREAD_ONLY      = MAPI_UNREAD_ONLY
     , mAPI_LONG_MSGID       = MAPI_LONG_MSGID
@@ -74,6 +68,19 @@ type MapiFlag = ULONG
     , mAPI_RECEIPT_REQUESTED = MAPI_RECEIPT_REQUESTED
     , mAPI_SENT             = MAPI_SENT
     }
+-- Have to define enum values outside previous declaration due to
+-- hsc2hs bug in --cross-compile mode:
+--    https://ghc.haskell.org/trac/ghc/ticket/13620
+#ifdef MAPI_LOGOFF_SHARED
+#{enum MapiFlag,
+    , mAPI_LOGOFF_SHARED    = MAPI_LOGOFF_SHARED
+}
+#endif
+#ifdef MAPI_LOGOFF_UI
+#{enum MapiFlag,
+    , mAPI_LOGOFF_UI        = MAPI_LOGOFF_UI
+}
+#endif
 
 mapiErrors :: [(ULONG,String)]
 mapiErrors =
