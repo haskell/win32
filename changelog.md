@@ -6,6 +6,7 @@
 * Update cabal format to 1.10 and set language 
   default to Haskell2010. (See #81)
 * Use `Maybe` in wrappers for functions with nullable pointer parameters (See #83)
+* Improve cross compilation support. (See #87)
 
 ## 2.5.4.1 *April 2017*
 
