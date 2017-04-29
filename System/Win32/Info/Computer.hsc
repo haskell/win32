@@ -65,7 +65,7 @@ import System.Win32.Utils    ( tryWithoutNull )
 import System.Win32.Word     ( DWORD, LPDWORD )
 
 #include <windows.h>
-#include <Lmcons.h>
+#include <lmcons.h>
 #include "alignment.h"
 ##include "windows_cconv.h"
 
