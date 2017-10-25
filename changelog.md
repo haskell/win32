@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## not released yet
+
+* Add `terminateProcessById` (See #91)
+
 ## 2.6.0.0 *September 2017*
 
 * Make cabal error out on compilation on non-Windows OSes. (See #80)
