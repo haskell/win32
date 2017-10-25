@@ -19,7 +19,7 @@
 
 module System.Win32.Process where
 import Control.Exception    ( bracket )
-import Control.Monad        ( liftM5 )
+import Control.Monad        ( liftM5, void )
 import Foreign              ( Ptr, peekByteOff, allocaBytes, pokeByteOff
                             , plusPtr )
 import System.Win32.File    ( closeHandle )
@@ -80,6 +80,18 @@ getCurrentProcessId = c_GetCurrentProcessId
 
 getCurrentProcess :: IO ProcessHandle
 getCurrentProcess = c_GetCurrentProcess
+
+foreign import WINDOWS_CCONV unsafe "windows.h TerminateProcess"
+    c_TerminateProcess :: ProcessHandle -> Int -> IO Int
+
+foreign import WINDOWS_CCONV unsafe "windows.h CloseProcess"
+    c_CloseProcess :: ProcessHandle -> IO Bool
+
+terminateProcessId :: ProcessId -> IO ()
+terminateProcessId p = bracket
+    (openProcess pROCESS_TERMINATE False p)
+    (void . c_CloseProcess)
+    (\h -> void $ c_TerminateProcess h 1)
 
 type Th32SnapHandle = HANDLE
 type Th32SnapFlags = DWORD
