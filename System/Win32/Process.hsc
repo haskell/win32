@@ -84,13 +84,10 @@ getCurrentProcess = c_GetCurrentProcess
 foreign import WINDOWS_CCONV unsafe "windows.h TerminateProcess"
     c_TerminateProcess :: ProcessHandle -> Int -> IO Int
 
-foreign import WINDOWS_CCONV unsafe "windows.h CloseProcess"
-    c_CloseProcess :: ProcessHandle -> IO Bool
-
 terminateProcessId :: ProcessId -> IO ()
 terminateProcessId p = bracket
     (openProcess pROCESS_TERMINATE False p)
-    (void . c_CloseProcess)
+    closeHandle
     (\h -> void $ c_TerminateProcess h 1)
 
 type Th32SnapHandle = HANDLE
