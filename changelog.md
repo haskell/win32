@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## not released yet
+## 2.6.1.0 *November 2017*
 
 * Add `terminateProcessById` (See #91)
 
