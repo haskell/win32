@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.6.2.0 *TBD*
+
+* Add `setFilePointer`
+
 ## 2.6.1.0 *November 2017*
 
 * Add `terminateProcessById` (See #91)

@@ -531,9 +531,13 @@ win32_WriteFile h buf n mb_over =
 foreign import WINDOWS_CCONV unsafe "windows.h WriteFile"
   c_WriteFile :: HANDLE -> Ptr a -> DWORD -> Ptr DWORD -> LPOVERLAPPED -> IO Bool
 
--- missing Seek functioinality; GSL ???
--- Dont have Word64; ADR
--- %fun SetFilePointer :: HANDLE -> Word64 -> FilePtrDirection -> IO Word64
+setFilePointer :: HANDLE -> LARGE_INTEGER -> FilePtrDirection -> IO LARGE_INTEGER
+setFilePointer h dist dir =
+  alloca $ \p_pos -> do
+  failIfFalse_ "SetFilePointerEx" $ c_SetFilePointerEx h dist p_pos dir
+  peek p_pos
+foreign import WINDOWS_CCONV unsafe "windows.h SetFilePointerEx"
+  c_SetFilePointerEx :: HANDLE -> LARGE_INTEGER -> Ptr LARGE_INTEGER -> FilePtrDirection -> IO Bool
 
 ----------------------------------------------------------------
 -- File Notifications
