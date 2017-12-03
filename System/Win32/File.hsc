@@ -531,8 +531,8 @@ win32_WriteFile h buf n mb_over =
 foreign import WINDOWS_CCONV unsafe "windows.h WriteFile"
   c_WriteFile :: HANDLE -> Ptr a -> DWORD -> Ptr DWORD -> LPOVERLAPPED -> IO Bool
 
-setFilePointer :: HANDLE -> LARGE_INTEGER -> FilePtrDirection -> IO LARGE_INTEGER
-setFilePointer h dist dir =
+setFilePointerEx :: HANDLE -> LARGE_INTEGER -> FilePtrDirection -> IO LARGE_INTEGER
+setFilePointerEx h dist dir =
   alloca $ \p_pos -> do
   failIfFalse_ "SetFilePointerEx" $ c_SetFilePointerEx h dist p_pos dir
   peek p_pos
