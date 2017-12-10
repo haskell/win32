@@ -37,7 +37,9 @@ module System.Win32.Console (
   ) where
 
 #include <windows.h>
+#include "alignment.h"
 ##include "windows_cconv.h"
+#include "wincon_compat.h"
 
 import System.Win32.Types
 import Graphics.Win32.Misc 
@@ -156,7 +158,7 @@ instance Storable SMALL_RECT where
         (#poke SMALL_RECT, Bottom) buf (bottom small_rect)
 
 foreign import WINDOWS_CCONV safe "windows.h GetConsoleScreenBufferInfo"
-        c_GetConsoleScreenBufferInfo :: HANDLE -> Ptr CONSOLE_SCREEN_BUFFER_INFO -> IO BOOL
+    c_GetConsoleScreenBufferInfo :: HANDLE -> Ptr CONSOLE_SCREEN_BUFFER_INFO -> IO BOOL
 
 getConsoleScreenBufferInfo :: HANDLE -> IO CONSOLE_SCREEN_BUFFER_INFO
 getConsoleScreenBufferInfo h = alloca $ \ptr -> do
