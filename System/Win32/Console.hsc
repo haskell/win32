@@ -39,7 +39,6 @@ module System.Win32.Console (
 #include <windows.h>
 #include "alignment.h"
 ##include "windows_cconv.h"
-#include "wincon_compat.h"
 
 import System.Win32.Types
 import Graphics.Win32.Misc 
