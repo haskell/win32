@@ -3,7 +3,7 @@ version:	2.6.2.0
 license:	BSD3
 license-file:	LICENSE
 author:		Alastair Reid, shelarcy, Tamar Christina
-copyright:	Alastair Reid, 1999-2003; shelarcy, 2012-2013; Tamar Christina, 2016-2017
+copyright:	Alastair Reid, 1999-2003; shelarcy, 2012-2013; Tamar Christina, 2016-2018
 maintainer:	Haskell Libraries <libraries@haskell.org>
 bug-reports:    https://github.com/haskell/win32/issues
 homepage:       https://github.com/haskell/win32
