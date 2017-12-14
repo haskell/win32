@@ -3,6 +3,7 @@
 ## 2.6.2.0 *TBD*
 
 * Add `setFilePointerEx`
+* Add `getConsoleScreenBufferInfo` and `getCurrentConsoleScreenBufferInfo`
 
 ## 2.6.1.0 *November 2017*
 
