@@ -1,9 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.6.2.0 *TBD*
+## 2.6.2.0 *December 2017*
 
-* Add `setFilePointerEx`
-* Add `getConsoleScreenBufferInfo` and `getCurrentConsoleScreenBufferInfo`
+* Add `setFilePointerEx` (See #94)
+* Add `getConsoleScreenBufferInfo` and `getCurrentConsoleScreenBufferInfo` (See #95)
 
 ## 2.6.1.0 *November 2017*
 
