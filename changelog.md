@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## Unreleased git
+
+* Fixed `DWORD_PTR` type (See #99)
+
 ## 2.6.2.0 *December 2017*
 
 * Add `setFilePointerEx` (See #94)
