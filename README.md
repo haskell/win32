@@ -1,7 +1,7 @@
 The `Win32` Package
 =====================
 
-[![Hackage](https://img.shields.io/hackage/v/Win32.svg)](https://hackage.haskell.org/package/Win32) [![PyPI](https://img.shields.io/pypi/l/Django.svg)]()
+[![Hackage](https://img.shields.io/hackage/v/Win32.svg)](https://hackage.haskell.org/package/Win32) [![PyPI](https://img.shields.io/pypi/l/Django.svg)]() [![Windows build status](https://ci.appveyor.com/api/projects/status/github/haskell/win32?branch=master&svg=true)](https://ci.appveyor.com/project/hvr/win32)
 
 See [`Win32` on Hackage](http://hackage.haskell.org/package/Win32) for
 more information.
