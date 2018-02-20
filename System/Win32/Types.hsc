@@ -99,11 +99,10 @@ type ULONG         = Word32
 type UINT_PTR      = Word
 type LONG_PTR      = CIntPtr
 type ULONG_PTR     = CUIntPtr
+type DWORD_PTR     = ULONG_PTR
 #ifdef _WIN64
 type HALF_PTR      = Ptr INT32
-type DWORD_PTR     = DWORD64
 #else
-type DWORD_PTR     = DWORD32
 type HALF_PTR      = Ptr SHORT
 #endif
 
