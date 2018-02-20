@@ -227,6 +227,15 @@ type FileType = DWORD
 
 ----------------------------------------------------------------
 
+type LockMode = DWORD
+
+#{enum LockMode,
+ , lOCKFILE_EXCLUSIVE_LOCK   = LOCKFILE_EXCLUSIVE_LOCK
+ , lOCKFILE_FAIL_IMMEDIATELY = LOCKFILE_FAIL_IMMEDIATELY
+ }
+
+----------------------------------------------------------------
+
 newtype GET_FILEEX_INFO_LEVELS = GET_FILEEX_INFO_LEVELS (#type GET_FILEEX_INFO_LEVELS)
     deriving (Eq, Ord)
 
@@ -672,6 +681,17 @@ setVolumeLabel path name =
   failIfFalse_ "SetVolumeLabel" $ c_SetVolumeLabel c_path c_name
 foreign import WINDOWS_CCONV unsafe "windows.h SetVolumeLabelW"
   c_SetVolumeLabel :: LPCTSTR -> LPCTSTR -> IO Bool
+
+----------------------------------------------------------------
+-- File locks
+----------------------------------------------------------------
+
+
+foreign import WINDOWS_CCONV interruptible "LockFileEx"
+  c_LockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED -> IO BOOL
+
+foreign import WINDOWS_CCONV interruptible "UnlockFileEx"
+  c_UnlockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED -> IO BOOL
 
 ----------------------------------------------------------------
 -- End
