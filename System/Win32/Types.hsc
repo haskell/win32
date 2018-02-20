@@ -101,9 +101,9 @@ type LONG_PTR      = CIntPtr
 type ULONG_PTR     = CUIntPtr
 #ifdef _WIN64
 type HALF_PTR      = Ptr INT32
-type DWORD_PTR     = Ptr DWORD64
+type DWORD_PTR     = DWORD64
 #else
-type DWORD_PTR     = Ptr DWORD32
+type DWORD_PTR     = DWORD32
 type HALF_PTR      = Ptr SHORT
 #endif
 
