@@ -700,12 +700,19 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetVolumeLabelW"
 -- File locks
 ----------------------------------------------------------------
 
-lockFile :: HANDLE -> LockMode -> DWORD64 -> DWORD64 -> IO BOOL
+-- | Locks a given range in a file handle, To lock an entire file
+--   use 0xFFFFFFFFFFFFFFFF for size and 0 for offset.
+lockFile :: HANDLE   -- ^ CreateFile handle
+         -> LockMode -- ^ Locking mode
+         -> DWORD64  -- ^ Size of region to lock
+         -> DWORD64  -- ^ Beginning offset of file to lock
+         -> IO BOOL  -- ^ Indicates if locking was successful, if not query
+                     --   getLastError.
 lockFile hwnd mode size f_offset =
   do let s_low = fromIntegral (size .&. 0xFFFFFFFF)
-         s_hi  = fromIntegral (size `shift` (finiteBitSize size `div` 2))
+         s_hi  = fromIntegral (size `shiftR` 32)
          o_low = fromIntegral (f_offset .&. 0xFFFFFFFF)
-         o_hi  = fromIntegral (f_offset `shift` (finiteBitSize f_offset `div` 2))
+         o_hi  = fromIntegral (f_offset `shiftR` 32)
          ovlp  = OVERLAPPED 0 0 o_low o_hi nullPtr
      with ovlp $ \ptr -> c_LockFileEx hwnd mode 0 s_low s_hi ptr
 
@@ -713,12 +720,18 @@ foreign import WINDOWS_CCONV unsafe "LockFileEx"
   c_LockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED
                -> IO BOOL
 
-unlockFile :: HANDLE -> DWORD64 -> DWORD64 -> IO BOOL
+-- | Unlocks a given range in a file handle, To unlock an entire file
+--   use 0xFFFFFFFFFFFFFFFF for size and 0 for offset.
+unlockFile :: HANDLE  -- ^ CreateFile handle
+           -> DWORD64 -- ^ Size of region to unlock
+           -> DWORD64 -- ^ Beginning offset of file to unlock
+           -> IO BOOL -- ^ Indicates if unlocking was successful, if not query
+                      --   getLastError.
 unlockFile hwnd size f_offset =
   do let s_low = fromIntegral (size .&. 0xFFFFFFFF)
-         s_hi  = fromIntegral (size `shift` (finiteBitSize size `div` 2))
+         s_hi  = fromIntegral (size `shiftR` 32)
          o_low = fromIntegral (f_offset .&. 0xFFFFFFFF)
-         o_hi  = fromIntegral (f_offset `shift` (finiteBitSize f_offset `div` 2))
+         o_hi  = fromIntegral (f_offset `shiftR` 32)
          ovlp  = OVERLAPPED 0 0 o_low o_hi nullPtr
      with ovlp $ \ptr -> c_UnlockFileEx hwnd 0 s_low s_hi ptr
 
