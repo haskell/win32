@@ -3,6 +3,7 @@
 ## Unreleased git
 
 * Fixed `DWORD_PTR` type (See #99)
+* Add `lockFile` and `unlockFile` (See #103)
 
 ## 2.6.2.0 *December 2017*
 

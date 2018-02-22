@@ -17,14 +17,7 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.File
-{-
-        ( AccessMode, ShareMode, CreateMode, FileAttributeOrFlag
-        , CreateFile, CloseHandle, DeleteFile, CopyFile
-        , MoveFileFlag, MoveFile, MoveFileEx,
-        )
--}
-where
+module System.Win32.File where
 
 import System.Win32.Types
 import System.Win32.Time
@@ -223,6 +216,15 @@ type FileType = DWORD
  , fILE_TYPE_CHAR       = FILE_TYPE_CHAR
  , fILE_TYPE_PIPE       = FILE_TYPE_PIPE
  , fILE_TYPE_REMOTE     = FILE_TYPE_REMOTE
+ }
+
+----------------------------------------------------------------
+
+type LockMode = DWORD
+
+#{enum LockMode,
+ , lOCKFILE_EXCLUSIVE_LOCK   = LOCKFILE_EXCLUSIVE_LOCK
+ , lOCKFILE_FAIL_IMMEDIATELY = LOCKFILE_FAIL_IMMEDIATELY
  }
 
 ----------------------------------------------------------------
@@ -503,12 +505,33 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetFileInformationByHandle"
 ----------------------------------------------------------------
 
 -- No support for this yet
---type OVERLAPPED =
--- (DWORD,  -- Offset
---  DWORD,  -- OffsetHigh
---  HANDLE) -- hEvent
+data OVERLAPPED
+  = OVERLAPPED { ovl_internal     :: ULONG_PTR
+               , ovl_internalHigh :: ULONG_PTR
+               , ovl_offset       :: DWORD
+               , ovl_offsetHigh   :: DWORD
+               , ovl_hEvent       :: HANDLE
+               } deriving (Show)
 
-type LPOVERLAPPED = Ptr ()
+instance Storable OVERLAPPED where
+  sizeOf = const (#size OVERLAPPED)
+  alignment _ = #alignment OVERLAPPED
+  poke buf ad = do
+      (#poke OVERLAPPED, Internal    ) buf (ovl_internal     ad)
+      (#poke OVERLAPPED, InternalHigh) buf (ovl_internalHigh ad)
+      (#poke OVERLAPPED, Offset      ) buf (ovl_offset       ad)
+      (#poke OVERLAPPED, OffsetHigh  ) buf (ovl_offsetHigh   ad)
+      (#poke OVERLAPPED, hEvent      ) buf (ovl_hEvent       ad)
+
+  peek buf = do
+      intnl      <- (#peek OVERLAPPED, Internal    ) buf
+      intnl_high <- (#peek OVERLAPPED, InternalHigh) buf
+      off        <- (#peek OVERLAPPED, Offset      ) buf
+      off_high   <- (#peek OVERLAPPED, OffsetHigh  ) buf
+      hevnt      <- (#peek OVERLAPPED, hEvent      ) buf
+      return $ OVERLAPPED intnl intnl_high off off_high hevnt
+
+type LPOVERLAPPED = Ptr OVERLAPPED
 
 type MbLPOVERLAPPED = Maybe LPOVERLAPPED
 
@@ -672,6 +695,48 @@ setVolumeLabel path name =
   failIfFalse_ "SetVolumeLabel" $ c_SetVolumeLabel c_path c_name
 foreign import WINDOWS_CCONV unsafe "windows.h SetVolumeLabelW"
   c_SetVolumeLabel :: LPCTSTR -> LPCTSTR -> IO Bool
+
+----------------------------------------------------------------
+-- File locks
+----------------------------------------------------------------
+
+-- | Locks a given range in a file handle, To lock an entire file
+--   use 0xFFFFFFFFFFFFFFFF for size and 0 for offset.
+lockFile :: HANDLE   -- ^ CreateFile handle
+         -> LockMode -- ^ Locking mode
+         -> DWORD64  -- ^ Size of region to lock
+         -> DWORD64  -- ^ Beginning offset of file to lock
+         -> IO BOOL  -- ^ Indicates if locking was successful, if not query
+                     --   getLastError.
+lockFile hwnd mode size f_offset =
+  do let s_low = fromIntegral (size .&. 0xFFFFFFFF)
+         s_hi  = fromIntegral (size `shiftR` 32)
+         o_low = fromIntegral (f_offset .&. 0xFFFFFFFF)
+         o_hi  = fromIntegral (f_offset `shiftR` 32)
+         ovlp  = OVERLAPPED 0 0 o_low o_hi nullPtr
+     with ovlp $ \ptr -> c_LockFileEx hwnd mode 0 s_low s_hi ptr
+
+foreign import WINDOWS_CCONV unsafe "LockFileEx"
+  c_LockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED
+               -> IO BOOL
+
+-- | Unlocks a given range in a file handle, To unlock an entire file
+--   use 0xFFFFFFFFFFFFFFFF for size and 0 for offset.
+unlockFile :: HANDLE  -- ^ CreateFile handle
+           -> DWORD64 -- ^ Size of region to unlock
+           -> DWORD64 -- ^ Beginning offset of file to unlock
+           -> IO BOOL -- ^ Indicates if unlocking was successful, if not query
+                      --   getLastError.
+unlockFile hwnd size f_offset =
+  do let s_low = fromIntegral (size .&. 0xFFFFFFFF)
+         s_hi  = fromIntegral (size `shiftR` 32)
+         o_low = fromIntegral (f_offset .&. 0xFFFFFFFF)
+         o_hi  = fromIntegral (f_offset `shiftR` 32)
+         ovlp  = OVERLAPPED 0 0 o_low o_hi nullPtr
+     with ovlp $ \ptr -> c_UnlockFileEx hwnd 0 s_low s_hi ptr
+
+foreign import WINDOWS_CCONV unsafe "UnlockFileEx"
+  c_UnlockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED -> IO BOOL
 
 ----------------------------------------------------------------
 -- End
