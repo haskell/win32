@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## Unreleased git
+## 2.7.0.0 *March 2018*
 
 * Fixed `DWORD_PTR` type (See #99)
 * Add `lockFile` and `unlockFile` (See #103)
