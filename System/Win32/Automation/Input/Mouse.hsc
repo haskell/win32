@@ -36,7 +36,7 @@ instance Storable MOUSEINPUT where
     alignment _ = #alignment MOUSEINPUT
     poke buf input = do
         (#poke MOUSEINPUT, dx) buf (dx input)
-        (#poke MOUSEINPUT, dx) buf (dx input)
+        (#poke MOUSEINPUT, dy) buf (dy input)
         (#poke MOUSEINPUT, mouseData)   buf (mouseData input)
         (#poke MOUSEINPUT, dwFlags)     buf (dwFlags input)
         (#poke MOUSEINPUT, time)        buf (time input)
