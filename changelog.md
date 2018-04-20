@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.7.1.0 *April 2018*
+
+* Fixed `MOUSEINPUT` storable instance. (See #106)
+
 ## 2.7.0.0 *March 2018*
 
 * Fixed `DWORD_PTR` type (See #99)
