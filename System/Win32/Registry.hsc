@@ -80,6 +80,7 @@ import System.Win32.Types (castUINTPtrToPtr, failUnlessSuccessOr, maybePtr)
 ##include "windows_cconv.h"
 
 #include <windows.h>
+#include "winreg_compat.h"
 
 #{enum HKEY, (unsafePerformIO . newForeignHANDLE . castUINTPtrToPtr)
  , hKEY_CLASSES_ROOT    = (UINT_PTR)HKEY_CLASSES_ROOT
@@ -384,6 +385,20 @@ foreign import WINDOWS_CCONV unsafe "windows.h RegQueryInfoKeyW"
 
 -- RegQueryMultipleValues :: HKEY -> IO ([VALENT],String)
 
+{-# DEPRECATED regQueryValueKey "Use regQueryValue instead." #-}
+regQueryValueKey :: HKEY -> Maybe String -> IO String
+regQueryValueKey key mb_subkey =
+  withForeignPtr key $ \ p_key ->
+  maybeWith withTString mb_subkey $ \ c_subkey ->
+  alloca $ \ p_value_len -> do
+  failUnlessSuccess "RegQueryValueKey" $
+    c_RegQueryValue p_key c_subkey nullPtr p_value_len
+  value_len <- peek p_value_len
+  allocaArray0 (fromIntegral value_len) $ \ c_value -> do
+    failUnlessSuccess "RegQueryValueKey" $
+      c_RegQueryValue p_key c_subkey c_value p_value_len
+    peekTString c_value
+
 regQueryValue :: HKEY -> Maybe String -> IO String
 regQueryValue key mb_subkey =
   withForeignPtr key $ \ p_key ->
@@ -497,6 +512,8 @@ type RegTypeRestriction = DWORD
   , rRF_RT_REG_SZ         = RRF_RT_REG_SZ
   , rRF_NOEXPAND          = RRF_NOEXPAND
   , rRF_ZEROONFAILURE     = RRF_ZEROONFAILURE
+  , rRF_SUBKEY_WOW6464KEY = RRF_SUBKEY_WOW6464KEY
+  , rRF_SUBKEY_WOW6432KEY = RRF_SUBKEY_WOW6432KEY
   }
 
 regSetValue :: HKEY -> String -> String -> IO ()
