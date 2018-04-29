@@ -39,12 +39,14 @@ module System.Win32.Registry
         , regOpenKey         -- :: HKEY -> String -> IO HKEY
         , regOpenKeyEx       -- :: HKEY -> String -> REGSAM -> IO HKEY
         , regQueryInfoKey    -- :: HKEY -> IO RegInfoKey
-        , regQueryValue      -- :: HKEY -> String -> IO String
-        , regQueryValueKey   -- :: HKEY -> String -> IO String
+        , regQueryValue      -- :: HKEY -> Maybe String -> IO String
+        , regQueryDefaultValue -- :: HKEY -> String -> IO String
         , regQueryValueEx    -- :: HKEY -> String -> Addr -> Int -> IO RegValueType
         , regReplaceKey      -- :: HKEY -> Maybe String -> String -> String -> IO ()
         , regRestoreKey      -- :: HKEY -> String -> RegRestoreFlags -> IO ()
         , regSaveKey         -- :: HKEY -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
+        , regGetValue        -- :: HKEY -> Maybe String -> Maybe String -> RegTypeRestriction
+                             -- -> Maybe LPDWORD -> Maybe LPVOID -> Maybe LPDWORD -> IO ()
         , regSetValue        -- :: HKEY -> String -> String -> IO ()
         , regSetValueEx      -- :: HKEY -> String -> RegValueType -> LPTSTR -> Int -> IO ()
         , regSetStringValue  -- :: HKEY -> String -> String -> IO ()
@@ -72,12 +74,13 @@ import System.Win32.File (LPSECURITY_ATTRIBUTES)
 import System.Win32.Time (FILETIME)
 import System.Win32.Types (DWORD, ErrCode, HKEY, LPCTSTR, PKEY, withTString)
 import System.Win32.Types (HANDLE, LONG, LPBYTE, newForeignHANDLE, peekTString)
-import System.Win32.Types (LPTSTR, TCHAR, failUnlessSuccess)
+import System.Win32.Types (LPTSTR, TCHAR, LPDWORD, LPVOID, failUnlessSuccess)
 import System.Win32.Types (castUINTPtrToPtr, failUnlessSuccessOr, maybePtr)
 
 ##include "windows_cconv.h"
 
 #include <windows.h>
+#include "winreg_compat.h"
 
 #{enum HKEY, (unsafePerformIO . newForeignHANDLE . castUINTPtrToPtr)
  , hKEY_CLASSES_ROOT    = (UINT_PTR)HKEY_CLASSES_ROOT
@@ -382,15 +385,24 @@ foreign import WINDOWS_CCONV unsafe "windows.h RegQueryInfoKeyW"
 
 -- RegQueryMultipleValues :: HKEY -> IO ([VALENT],String)
 
--- RegQueryValue() isn't really that, it just allows you to
--- get at the default values of keys, so we provide our own
--- (and better!) version of it. If you want RegQueryValue()s
--- behaviour, use regQueryValueKey.
-
-regQueryValueKey :: HKEY -> String -> IO String
+{-# DEPRECATED regQueryValueKey "Use regQueryValue instead." #-}
+regQueryValueKey :: HKEY -> Maybe String -> IO String
 regQueryValueKey key mb_subkey =
   withForeignPtr key $ \ p_key ->
-  withTString mb_subkey $ \ c_subkey ->
+  maybeWith withTString mb_subkey $ \ c_subkey ->
+  alloca $ \ p_value_len -> do
+  failUnlessSuccess "RegQueryValueKey" $
+    c_RegQueryValue p_key c_subkey nullPtr p_value_len
+  value_len <- peek p_value_len
+  allocaArray0 (fromIntegral value_len) $ \ c_value -> do
+    failUnlessSuccess "RegQueryValueKey" $
+      c_RegQueryValue p_key c_subkey c_value p_value_len
+    peekTString c_value
+
+regQueryValue :: HKEY -> Maybe String -> IO String
+regQueryValue key mb_subkey =
+  withForeignPtr key $ \ p_key ->
+  maybeWith withTString mb_subkey $ \ c_subkey ->
   alloca $ \ p_value_len -> do
   failUnlessSuccess "RegQueryValue" $
     c_RegQueryValue p_key c_subkey nullPtr p_value_len
@@ -402,19 +414,21 @@ regQueryValueKey key mb_subkey =
 foreign import WINDOWS_CCONV unsafe "windows.h RegQueryValueW"
   c_RegQueryValue :: PKEY -> LPCTSTR -> LPTSTR -> Ptr LONG -> IO ErrCode
 
-regQueryValue :: HKEY -> String -> IO String
-regQueryValue key mb_subkey =
+-- Gets the data associated with the default value of a key (assumed to be of
+-- type REG_SZ) using RegQeryValueEx.
+regQueryDefaultValue :: HKEY -> String -> IO String
+regQueryDefaultValue key mb_subkey =
   withForeignPtr key $ \ p_key ->
   withTString mb_subkey $ \ c_subkey ->
   alloca $ \ p_ty ->
   alloca $ \ p_value_len -> do
-  failUnlessSuccess "RegQueryValue" $
+  failUnlessSuccess "regQueryDefaultValue" $
     c_RegQueryValueEx p_key c_subkey nullPtr p_ty nullPtr p_value_len
   ty <- peek p_ty
-  failUnlessSuccess "RegQueryValue" $ return (if ty == rEG_SZ then 0 else 1)
+  failUnlessSuccess "regQueryDefaultValue" $ return (if ty == rEG_SZ then 0 else 1)
   value_len <- peek p_value_len
   allocaArray0 (fromIntegral value_len) $ \ c_value -> do
-    failUnlessSuccess "RegQueryValue" $
+    failUnlessSuccess "regQueryDefaultValue" $
       c_RegQueryValueEx p_key c_subkey nullPtr p_ty c_value p_value_len
     peekTString (castPtr c_value)
 
@@ -472,6 +486,35 @@ foreign import WINDOWS_CCONV unsafe "windows.h RegSaveKeyW"
 -- endif
 
 -- 3.1 compat. - only allows storage of REG_SZ values.
+
+regGetValue :: HKEY -> Maybe String -> Maybe String -> RegTypeRestriction -> Maybe LPDWORD -> Maybe LPVOID -> Maybe LPDWORD -> IO ()
+regGetValue key m_subkey m_valuename flags m_type m_value m_size =
+  withForeignPtr key $ \ p_key ->
+  maybeWith withTString m_subkey $ \ c_subkey ->
+  maybeWith withTString m_valuename $ \ c_valuename ->
+  failUnlessSuccess "RegGetValue" $
+    c_RegGetValue p_key c_subkey c_valuename flags (maybePtr m_type) (maybePtr m_value) (maybePtr m_size)
+foreign import WINDOWS_CCONV unsafe "windows.h RegGetValueW"
+  c_RegGetValue :: PKEY -> LPCTSTR -> LPCTSTR -> DWORD -> LPDWORD -> LPVOID -> LPDWORD -> IO ErrCode
+
+type RegTypeRestriction = DWORD
+
+#{enum RegTypeRestriction,
+  , rRF_RT_ANY            = RRF_RT_ANY
+  , rRF_RT_DWORD          = RRF_RT_DWORD
+  , rRF_RT_QWORD          = RRF_RT_QWORD
+  , rRF_RT_REG_BINARY     = RRF_RT_REG_BINARY
+  , rRF_RT_REG_DWORD      = RRF_RT_REG_DWORD
+  , rRF_RT_REG_EXPAND_SZ  = RRF_RT_REG_EXPAND_SZ
+  , rRF_RT_REG_MULTI_SZ   = RRF_RT_REG_MULTI_SZ
+  , rRF_RT_REG_NONE       = RRF_RT_REG_NONE
+  , rRF_RT_REG_QWORD      = RRF_RT_REG_QWORD
+  , rRF_RT_REG_SZ         = RRF_RT_REG_SZ
+  , rRF_NOEXPAND          = RRF_NOEXPAND
+  , rRF_ZEROONFAILURE     = RRF_ZEROONFAILURE
+  , rRF_SUBKEY_WOW6464KEY = RRF_SUBKEY_WOW6464KEY
+  , rRF_SUBKEY_WOW6432KEY = RRF_SUBKEY_WOW6432KEY
+  }
 
 regSetValue :: HKEY -> String -> String -> IO ()
 regSetValue key subkey value =
