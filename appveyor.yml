@@ -2,18 +2,31 @@ clone_folder: "c:\\WORK"
 
 environment:
   global:
-    CABOPTS:  "--store-dir=C:\\SR --http-transport=plain-http"
+    CABOPTS:  "--http-transport=plain-http"
   matrix:
+    - GHCVER: "8.4.2"
     - GHCVER: "8.2.2"
     - GHCVER: "8.0.2"
-
-#cache:
-# - "C:\\SR"
-
+    - GHCVER: "7.10.3.2"
+    - GHCVER: "7.8.4.1" 
+  platform:
+    - x86
+    - x64
+  
 install:
- - "choco install -y ghc --version %GHCVER%"
+ - ps: |
+     if ($env:PLATFORM -eq "x86")
+       {
+         choco install -y ghc --version %GHCVER% --forcex86
+         choco install -y cabal --forcex86
+       }
+     else
+       {
+         choco install -y ghc --version %GHCVER%
+         choco install -y cabal
+       }
  - "refreshenv"
- - "set PATH=C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%"
+ - "set PATH=C:\\ghc\\ghc-%GHCVER%:C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%"
  - "cabal --version"
  - "ghc --version"
  - "cabal %CABOPTS% update -v"
