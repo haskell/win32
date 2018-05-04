@@ -1,5 +1,12 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.8.0.0 *May 2018*
+
+* Deprecated `regQueryValueKey`. (See #105, #108)
+* Updated `regQueryValue` signature (See #108)
+* Add `regQueryDefaultValue` (See #108)
+* Add `regGetValue` and `RegTypeRestriction` (See #109)
+
 ## 2.7.1.0 *April 2018*
 
 * Fixed `MOUSEINPUT` storable instance. (See #106)
