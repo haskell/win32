@@ -35,7 +35,7 @@ import System.Win32.Types
 iNFINITE :: DWORD
 iNFINITE = #{const INFINITE}
 
-oreign import WINDOWS_CCONV unsafe "windows.h Sleep"
+foreign import WINDOWS_CCONV unsafe "windows.h Sleep"
   sleep :: DWORD -> IO ()
 
 
