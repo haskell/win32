@@ -54,7 +54,6 @@ type ProcessAccessRights = DWORD
     , pROCESS_VM_OPERATION          = PROCESS_VM_OPERATION
     , pROCESS_VM_READ               = PROCESS_VM_READ
     , pROCESS_VM_WRITE              = PROCESS_VM_WRITE
-    , sYNCHRONIZE                   = SYNCHRONIZE 
     }
 
 foreign import WINDOWS_CCONV unsafe "windows.h OpenProcess"
@@ -71,7 +70,7 @@ getProcessId :: ProcessHandle -> IO ProcessId
 getProcessId h = failIfZero "GetProcessId" $ c_GetProcessId h
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetCurrentProcess"
-    c_GetCurrentProcess :: IO ProcessHandle 
+    c_GetCurrentProcess :: IO ProcessHandle
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetCurrentProcessId"
     c_GetCurrentProcessId :: IO ProcessId
@@ -105,7 +104,7 @@ type ProcessEntry32 = (ProcessId, Int, ProcessId, LONG, String)
     }
 {-
     , tH32CS_SNAPGETALLMODS = TH32CS_GETALLMODS
-    , tH32CS_SNAPNOHEAPS    = TH32CS_SNAPNOHEAPS 
+    , tH32CS_SNAPNOHEAPS    = TH32CS_SNAPNOHEAPS
 -}
 
 foreign import WINDOWS_CCONV unsafe "tlhelp32.h CreateToolhelp32Snapshot"

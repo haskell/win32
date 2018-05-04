@@ -6,7 +6,7 @@
 * Updated `regQueryValue` signature (See #108)
 * Add `regQueryDefaultValue` (See #108)
 * Add `regGetValue` and `RegTypeRestriction` (See #109)
-* Correct spelling of `sYNCHRONIZE`. (See #110)
+* Remove `sYNCHRONIZE` from System.Win32.Process, use System.Win32.File instead. (See #110)
 
 ## 2.7.1.0 *April 2018*
 
