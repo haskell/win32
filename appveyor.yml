@@ -4,14 +4,28 @@ environment:
   global:
     CABOPTS:  "--http-transport=plain-http"
   matrix:
+    # 64 bit builds
     - GHCVER: "8.4.2"
+      CHOCOPTS:
     - GHCVER: "8.2.2"
+      CHOCOPTS:
     - GHCVER: "8.0.2"
+      CHOCOPTS:
     - GHCVER: "7.10.3.2"
+      CHOCOPTS:
     - GHCVER: "7.8.4.1"
-    # extra options to pass to chocolatey
-    - CHOCOPTS: --forcex86
-    - CHOCOPTS:
+      CHOCOPTS:
+    # 32 bit builds
+    - GHCVER: "8.4.2"
+      CHOCOPTS: --forcex86
+    - GHCVER: "8.2.2"
+      CHOCOPTS: --forcex86
+    - GHCVER: "8.0.2"
+      CHOCOPTS: --forcex86
+    - GHCVER: "7.10.3.2"
+      CHOCOPTS: --forcex86
+    - GHCVER: "7.8.4.1"
+      CHOCOPTS: --forcex86
 
 install:
  - "choco install -y ghc --version %GHCVER% %CHOCOPTS%"
