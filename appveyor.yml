@@ -8,23 +8,14 @@ environment:
     - GHCVER: "8.2.2"
     - GHCVER: "8.0.2"
     - GHCVER: "7.10.3.2"
-    - GHCVER: "7.8.4.1" 
+    - GHCVER: "7.8.4.1"
   platform:
-    - x86
-    - x64
-  
+    - build: --forcex86
+    - build:
+
 install:
- - ps: |
-     if ($env:PLATFORM -eq "x86")
-       {
-         choco install -y ghc --version %GHCVER% --forcex86
-         choco install -y cabal --forcex86
-       }
-     else
-       {
-         choco install -y ghc --version %GHCVER%
-         choco install -y cabal
-       }
+ - "choco install -y ghc --version %GHCVER% %BUILD%"
+ - "choco install -y cabal %BUILD%"
  - "refreshenv"
  - "set PATH=C:\\ghc\\ghc-%GHCVER%:C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%"
  - "cabal --version"
