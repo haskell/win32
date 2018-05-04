@@ -35,7 +35,7 @@ import System.Win32.Types
 iNFINITE :: DWORD
 iNFINITE = #{const INFINITE}
 
-foreign import WINDOWS_CCONV unsafe "windows.h Sleep"
+oreign import WINDOWS_CCONV unsafe "windows.h Sleep"
   sleep :: DWORD -> IO ()
 
 
@@ -54,7 +54,7 @@ type ProcessAccessRights = DWORD
     , pROCESS_VM_OPERATION          = PROCESS_VM_OPERATION
     , pROCESS_VM_READ               = PROCESS_VM_READ
     , pROCESS_VM_WRITE              = PROCESS_VM_WRITE
-    , sYNCHORNIZE                   = SYNCHRONIZE 
+    , sYNCHRONIZE                   = SYNCHRONIZE 
     }
 
 foreign import WINDOWS_CCONV unsafe "windows.h OpenProcess"
