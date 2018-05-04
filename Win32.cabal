@@ -13,8 +13,8 @@ description:	This library contains direct bindings to the Windows Win32 APIs for
 build-type:     Simple
 cabal-version:  >=1.10
 extra-source-files:
-	include/diatemp.h include/dumpBMP.h include/ellipse.h include/errors.h
-	include/Win32Aux.h include/win32debug.h include/alignment.h
+        include/diatemp.h include/dumpBMP.h include/ellipse.h include/errors.h
+        include/Win32Aux.h include/win32debug.h include/alignment.h
         changelog.md
 
 Library
