@@ -2,7 +2,7 @@
 
 #if __GLASGOW_HASKELL__ >= 709
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 701
+#else
 {-# LANGUAGE Trustworthy #-}
 #endif
 -----------------------------------------------------------------------------
@@ -153,7 +153,7 @@ objectNameInformation = #const ObjectNameInformation
 
 type F_NtQueryObject = HANDLE -> CInt -> Ptr OBJECT_NAME_INFORMATION
                      -> ULONG -> Ptr ULONG -> IO NTSTATUS
-                     
+
 foreign import WINDOWS_CCONV "dynamic"
   mk_NtQueryObject :: FunPtr F_NtQueryObject -> F_NtQueryObject
 

@@ -1,6 +1,6 @@
 #if __GLASGOW_HASKELL__ >= 709
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 701
+#else
 {-# LANGUAGE Trustworthy #-}
 #endif
 -----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ data Exception
     | SingleStep
     | StackOverflow
     deriving (Show)
-    
+
 data DebugEventInfo
     = UnknownDebugEvent
     | Exception         ExceptionInfo Exception
@@ -94,7 +94,7 @@ peekDebugEvent p = do
     where
         dwZero = 0 :: DWORD
         wZero = 0 :: WORD
-        
+
         rest (#const EXCEPTION_DEBUG_EVENT) p' = do
             chance  <- (#peek EXCEPTION_DEBUG_INFO, dwFirstChance) p'
             flags   <- (#peek EXCEPTION_RECORD, ExceptionFlags) p'
@@ -121,7 +121,7 @@ peekDebugEvent p = do
                 (#const EXCEPTION_PRIV_INSTRUCTION)         -> return PrivilegedInstruction
                 (#const EXCEPTION_SINGLE_STEP)              -> return SingleStep
                 (#const EXCEPTION_STACK_OVERFLOW)           -> return StackOverflow
-                _                                           -> return UnknownException 
+                _                                           -> return UnknownException
             return $ Exception (chance/=dwZero, flags==dwZero, addr) e
 
         rest (#const CREATE_THREAD_DEBUG_EVENT) p' = do
@@ -141,16 +141,16 @@ peekDebugEvent p = do
             start   <- (#peek CREATE_PROCESS_DEBUG_INFO, lpStartAddress) p'
             imgname <- (#peek CREATE_PROCESS_DEBUG_INFO, lpImageName) p'
             --unicode <- (#peek CREATE_PROCESS_DEBUG_INFO, fUnicode) p'
-            return $ CreateProcess proc 
+            return $ CreateProcess proc
                         (file, imgbase, dbgoff, dbgsize, imgname) --, unicode/=wZero)
                         (thread, local, start)
-        
+
         rest (#const EXIT_THREAD_DEBUG_EVENT) p' =
             (#peek EXIT_THREAD_DEBUG_INFO, dwExitCode) p' >>= return.ExitThread
-        
+
         rest (#const EXIT_PROCESS_DEBUG_EVENT) p' =
             (#peek EXIT_PROCESS_DEBUG_INFO, dwExitCode) p' >>= return.ExitProcess
-        
+
         rest (#const LOAD_DLL_DEBUG_EVENT) p' = do
             file    <- (#peek LOAD_DLL_DEBUG_INFO, hFile) p'
             imgbase <- (#peek LOAD_DLL_DEBUG_INFO, lpBaseOfDll) p'
@@ -158,7 +158,7 @@ peekDebugEvent p = do
             dbgsize <- (#peek LOAD_DLL_DEBUG_INFO, nDebugInfoSize) p'
             imgname <- (#peek LOAD_DLL_DEBUG_INFO, lpImageName) p'
             --unicode <- (#peek LOAD_DLL_DEBUG_INFO, fUnicode) p'
-            return $ 
+            return $
                 LoadDll (file, imgbase, dbgoff, dbgsize, imgname)--, unicode/=wZero)
 
         rest (#const OUTPUT_DEBUG_STRING_EVENT) p' = do
@@ -166,7 +166,7 @@ peekDebugEvent p = do
             unicode <- (#peek OUTPUT_DEBUG_STRING_INFO, fUnicode) p'
             len     <- (#peek OUTPUT_DEBUG_STRING_INFO, nDebugStringLength) p'
             return $ DebugString dat (unicode/=wZero) len
-        
+
         rest (#const UNLOAD_DLL_DEBUG_EVENT) p' =
             (#peek UNLOAD_DLL_DEBUG_INFO, lpBaseOfDll) p' >>= return.UnloadDll
 
@@ -339,7 +339,7 @@ dr n = case n of
     6 -> (#offset CONTEXT, Dr6)
     7 -> (#offset CONTEXT, Dr7)
     _ -> undefined
-    
+
 setReg :: Ptr a -> Int -> DWORD -> IO ()
 setReg = pokeByteOff
 
@@ -381,12 +381,12 @@ foreign import WINDOWS_CCONV "windows.h ContinueDebugEvent"
 
 foreign import WINDOWS_CCONV "windows.h DebugActiveProcess"
     c_DebugActiveProcess :: DWORD -> IO Bool
-    
+
 -- Windows XP
 -- foreign import WINDOWS_CCONV "windows.h DebugActiveProcessStop"
 --     c_DebugActiveProcessStop :: DWORD -> IO Bool
 
-foreign import WINDOWS_CCONV "windows.h ReadProcessMemory" c_ReadProcessMemory :: 
+foreign import WINDOWS_CCONV "windows.h ReadProcessMemory" c_ReadProcessMemory ::
     PHANDLE -> Ptr () -> Ptr Word8 -> DWORD -> Ptr DWORD -> IO BOOL
 
 foreign import WINDOWS_CCONV "windows.h WriteProcessMemory" c_WriteProcessMemory ::
