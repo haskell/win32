@@ -5,9 +5,7 @@
 --     http://hackage.haskell.org/trac/ghc/wiki/WorkingConventions#Warnings
 -- for details
 
-#if __GLASGOW_HASKELL__ >= 701
 {-# LANGUAGE Trustworthy #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  System.Win32.Security
@@ -22,7 +20,7 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.Security ( 
+module System.Win32.Security (
         -- * Types
         SID, PSID,
         ACL, PACL,
@@ -96,34 +94,34 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorControl"
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> Ptr SECURITY_DESCRIPTOR_CONTROL -- pControl
     -> LPDWORD -- lpdwRevision
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorDacl"
-  c_getSecurityDescriptorDacl 
+  c_getSecurityDescriptorDacl
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> LPBOOL -- lpbDaclPresent
     -> Ptr PACL -- pDacl
     -> LPBOOL -- lpbDaclDefaulted
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorGroup"
   c_getSecurityDescriptorGroup
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> Ptr PSID -- pGroup
     -> LPBOOL -- lpbGroupDefaulted
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorLength"
   c_getSecurityDescriptorLength
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
-    -> IO DWORD 
+    -> IO DWORD
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorOwner"
   c_getSecurityDescriptorOwner
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> Ptr PSID -- pOwner
     -> LPBOOL -- lpbOwnerDefaulted
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorSacl"
   c_getSecurityDescriptorSacl
@@ -131,18 +129,18 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetSecurityDescriptorSacl"
     -> LPBOOL -- lpbSaclPresent
     -> Ptr PACL -- pSacl
     -> LPBOOL -- lpbSaclDefaulted
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h InitializeSecurityDescriptor"
   c_initializeSecurityDescriptor
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> DWORD -- dwRevision
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h IsValidSecurityDescriptor"
   c_isValidSecurityDescriptor
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorDacl"
   c_setSecurityDescriptorDacl
@@ -150,21 +148,21 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorDacl"
     -> BOOL -- bDaclPresent
     -> PACL -- pDacl
     -> BOOL -- bDaclDefaulted
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorGroup"
   c_setSecurityDescriptorGroup
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> PSID -- pGroup
     -> BOOL -- bGroupDefaulted
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorOwner"
   c_setSecurityDescriptorOwner
     :: PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> PSID -- pOwner
     -> BOOL -- bOwnerDefaulted
-    -> IO BOOL 
+    -> IO BOOL
 
 foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorSacl"
   c_setSecurityDescriptorSacl
@@ -172,7 +170,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetSecurityDescriptorSacl"
     -> BOOL -- bSaclPresent
     -> PACL -- pSacl
     -> BOOL -- bSaclDefaulted
-    -> IO BOOL 
+    -> IO BOOL
 
 -- ---------------------------------------------------------------------------
 
@@ -190,7 +188,7 @@ type SECURITY_INFORMATION = DWORD
 -- , pROTECTED_DACL_SECURITY_INFORMATION = PROTECTED_DACL_SECURITY_INFORMATION
 -- , pROTECTED_SACL_SECURITY_INFORMATION = PROTECTED_SACL_SECURITY_INFORMATION
 -- , uNPROTECTED_DACL_SECURITY_INFORMATION = UNPROTECTED_DACL_SECURITY_INFORMATION
--- , uNPROTECTED_SACL_SECURITY_INFORMATION = UNPROTECTED_SACL_SECURITY_INFORMATION 
+-- , uNPROTECTED_SACL_SECURITY_INFORMATION = UNPROTECTED_SACL_SECURITY_INFORMATION
 
 getFileSecurity
     :: String
@@ -203,7 +201,7 @@ getFileSecurity filename si =
   needed <- peek lpnLengthNeeded
   fpSd <- mallocForeignPtrBytes (fromIntegral needed)
   withForeignPtr fpSd $ \pSd -> do
-  failIfFalse_ "getFileSecurity" $ 
+  failIfFalse_ "getFileSecurity" $
     c_GetFileSecurity lpFileName si pSd needed lpnLengthNeeded
   return (SecurityDescriptor fpSd)
 
@@ -214,7 +212,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetFileSecurityW"
     -> PSECURITY_DESCRIPTOR -- pSecurityDescriptor
     -> DWORD -- nLength
     -> LPDWORD -- lpnLengthNeeded
-    -> IO BOOL 
+    -> IO BOOL
 
 --foreign import WINDOWS_CCONV unsafe "windows.h AccessCheck"
 --  c_AccessCheck

@@ -1,6 +1,6 @@
 #if __GLASGOW_HASKELL__ >= 709
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 701
+#else
 {-# LANGUAGE Trustworthy #-}
 #endif
 -----------------------------------------------------------------------------
@@ -360,10 +360,10 @@ type SMSetting = UINT
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetUserNameW"
   c_GetUserName :: LPTSTR -> LPDWORD -> IO Bool
-  
+
 getUserName :: IO String
-getUserName =     
-  allocaArray 512 $ \ c_str -> 
+getUserName =
+  allocaArray 512 $ \ c_str ->
     with 512 $ \ c_len -> do
         failIfFalse_ "GetUserName" $ c_GetUserName c_str c_len
         len <- peek c_len

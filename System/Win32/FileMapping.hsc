@@ -1,6 +1,4 @@
-#if __GLASGOW_HASKELL__ >= 701
 {-# LANGUAGE Trustworthy #-}
-#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  System.Win32.FileMapping
@@ -143,7 +141,7 @@ openFileMapping access inherit name =
             c_OpenFileMapping access inherit c_name
 
 mapViewOfFileEx :: HANDLE -> FileMapAccess -> DDWORD -> SIZE_T -> Ptr a -> IO (Ptr b)
-mapViewOfFileEx h access offset size base = 
+mapViewOfFileEx h access offset size base =
     failIfNull "mapViewOfFile(Ex): c_MapViewOfFileEx" $
         c_MapViewOfFileEx h access ohi olow size base
     where
@@ -162,7 +160,7 @@ foreign import WINDOWS_CCONV "windows.h OpenFileMappingW"
     c_OpenFileMapping :: DWORD -> BOOL -> LPCTSTR -> IO HANDLE
 
 foreign import WINDOWS_CCONV "windows.h CreateFileMappingW"
-    c_CreateFileMapping :: HANDLE -> Ptr () -> DWORD -> DWORD -> DWORD -> LPCTSTR -> IO HANDLE 
+    c_CreateFileMapping :: HANDLE -> Ptr () -> DWORD -> DWORD -> DWORD -> LPCTSTR -> IO HANDLE
 
 foreign import WINDOWS_CCONV "windows.h MapViewOfFileEx"
     c_MapViewOfFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> SIZE_T -> Ptr a -> IO (Ptr b)

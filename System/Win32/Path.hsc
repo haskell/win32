@@ -1,6 +1,6 @@
 #if __GLASGOW_HASKELL__ >= 709
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 701
+#else
 {-# LANGUAGE Trustworthy #-}
 #endif
 -----------------------------------------------------------------------------
@@ -53,5 +53,5 @@ pathRelativePathTo from from_attr to to_attr =
     _ <- localFree p_AbsPath
     return path
 
-foreign import WINDOWS_CCONV unsafe "Shlwapi.h PathRelativePathToW" 
+foreign import WINDOWS_CCONV unsafe "Shlwapi.h PathRelativePathToW"
          c_pathRelativePathTo :: LPTSTR -> LPCTSTR -> DWORD -> LPCTSTR -> DWORD -> IO UINT

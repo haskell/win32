@@ -1,6 +1,6 @@
 #if __GLASGOW_HASKELL__ >= 709
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 701
+#else
 {-# LANGUAGE Trustworthy #-}
 #endif
 -----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ mapiLogon f hwnd ses pw flags =
     maybeWith withCAString pw   $ \c_pw  ->
     alloca                      $ \out   -> do
         mapiFail_ "MAPILogon: " $ mapifLogon
-            f (maybeHWND hwnd) 
+            f (maybeHWND hwnd)
             c_ses c_pw flags 0 out
         peek out
 

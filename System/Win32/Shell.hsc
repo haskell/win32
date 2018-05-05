@@ -1,6 +1,6 @@
 #if __GLASGOW_HASKELL__ >= 709
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 701
+#else
 {-# LANGUAGE Trustworthy #-}
 #endif
 -----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ sHGetFolderPath hwnd csidl hdl flags =
     peekTString pstr
 
 raiseUnsupported :: String -> IO ()
-raiseUnsupported loc = 
+raiseUnsupported loc =
    ioError (ioeSetErrorString (mkIOError illegalOperationErrorType loc Nothing Nothing) "unsupported operation")
 
 foreign import WINDOWS_CCONV unsafe "SHGetFolderPathW"

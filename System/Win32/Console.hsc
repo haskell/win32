@@ -1,6 +1,6 @@
 #if __GLASGOW_HASKELL__ >= 709
 {-# LANGUAGE Safe #-}
-#elif __GLASGOW_HASKELL__ >= 701
+#else
 {-# LANGUAGE Trustworthy #-}
 #endif
 -----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ module System.Win32.Console (
 ##include "windows_cconv.h"
 
 import System.Win32.Types
-import Graphics.Win32.Misc 
+import Graphics.Win32.Misc
 
 import Foreign.C.Types (CInt(..))
 import Foreign.C.String (withCWString, CWString)
