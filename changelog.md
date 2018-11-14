@@ -1,5 +1,11 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.8.1.0 *Nov 2018*
+
+* Fix broken links (See #116)
+* Remove unused CPP Lower bounds (See #114)
+* GHC 8.8 release
+
 ## 2.8.0.0 *May 2018*
 
 * Deprecated `regQueryValueKey`. (See #105, #108)
