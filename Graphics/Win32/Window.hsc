@@ -1,5 +1,4 @@
 {-# LANGUAGE CApiFFI #-}
-{-# LANGUAGE NegativeLiterals #-}
 {-# LANGUAGE Trustworthy #-}
 -----------------------------------------------------------------------------
 -- |
@@ -682,7 +681,7 @@ allocaMessage = allocaBytes #{size MSG}
 
 getMessage :: LPMSG -> Maybe HWND -> IO Bool
 getMessage msg mb_wnd = do
-  res <- failIf (== -1) "GetMessage" $
+  res <- failIf (== maxBound) "GetMessage" $
     c_GetMessage msg (maybePtr mb_wnd) 0 0
   return (res /= 0)
 foreign import WINDOWS_CCONV "windows.h GetMessageW"
@@ -694,7 +693,7 @@ foreign import WINDOWS_CCONV "windows.h GetMessageW"
 
 peekMessage :: LPMSG -> Maybe HWND -> UINT -> UINT -> UINT -> IO ()
 peekMessage msg mb_wnd filterMin filterMax remove = do
-  failIf_ (== -1) "PeekMessage" $
+  failIf_ (== maxBound) "PeekMessage" $
     c_PeekMessage msg (maybePtr mb_wnd) filterMin filterMax remove
 foreign import WINDOWS_CCONV "windows.h PeekMessageW"
   c_PeekMessage :: LPMSG -> HWND -> UINT -> UINT -> UINT -> IO LONG

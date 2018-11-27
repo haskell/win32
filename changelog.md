@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.8.2.0 *Dec 2018*
+
+* Drop use of NegativeLiterals (See #118)
+
 ## 2.8.1.0 *Nov 2018*
 
 * Fix broken links (See #116)
