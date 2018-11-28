@@ -15,6 +15,8 @@ environment:
       CHOCOPTS:
     - GHCVER: "7.8.4.1"
       CHOCOPTS:
+    - GHCVER: "7.6.3.1"
+      CHOCOPTS:
     # 32 bit builds
     - GHCVER: "8.4.2"
       CHOCOPTS: --forcex86
@@ -25,6 +27,8 @@ environment:
     - GHCVER: "7.10.3.2"
       CHOCOPTS: --forcex86
     - GHCVER: "7.8.4.1"
+      CHOCOPTS: --forcex86
+    - GHCVER: "7.6.3.1"
       CHOCOPTS: --forcex86
 
 install:
