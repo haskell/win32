@@ -5,6 +5,10 @@ environment:
     CABOPTS:  "--http-transport=plain-http"
   matrix:
     # 64 bit builds
+    - GHCVER: "head"
+      CHOCOPTS:
+    - GHCVER: "8.6.2"
+      CHOCOPTS:
     - GHCVER: "8.4.2"
       CHOCOPTS:
     - GHCVER: "8.2.2"
@@ -18,6 +22,8 @@ environment:
     - GHCVER: "7.6.3.1"
       CHOCOPTS:
     # 32 bit builds
+    - GHCVER: "8.6.2"
+      CHOCOPTS: --forcex86
     - GHCVER: "8.4.2"
       CHOCOPTS: --forcex86
     - GHCVER: "8.2.2"
@@ -32,6 +38,7 @@ environment:
       CHOCOPTS: --forcex86
 
 install:
+ - "choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2"
  - "choco install -y ghc --version %GHCVER% %CHOCOPTS%"
  - "choco install -y cabal %CHOCOPTS%"
  - "refreshenv"
