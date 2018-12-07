@@ -1,4 +1,5 @@
 # Specific generated files
+.cabal-sandbox/
 GNUmakefile
 ghc.mk
 dist/
