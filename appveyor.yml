@@ -39,7 +39,8 @@ environment:
 
 install:
  - "choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2"
- - if ("%GHCVER%".equals("head")) { "choco install -y ghc-head %CHOCOPTS%" } else { "choco install -y ghc --version %GHCVER% %CHOCOPTS%" }
+ - "IF '%GHCVER%'=='head' choco install -y ghc-head %CHOCOPTS%"
+ - "IF NOT '%GHCVER%'=='head' choco install -y ghc --version %GHCVER% %CHOCOPTS%"
  - "choco install -y cabal %CHOCOPTS%"
  - "refreshenv"
  - "set PATH=C:\\ghc\\ghc-%GHCVER%:C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%"
