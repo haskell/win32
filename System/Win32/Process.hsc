@@ -24,10 +24,11 @@ import Foreign               ( Ptr, peekByteOff, allocaBytes, pokeByteOff
                              , plusPtr )
 import Foreign.C.Types       ( CUInt(..) )
 import System.Win32.File     ( closeHandle )
-import System.Win32.DebugApi (ForeignAddress)
+import System.Win32.DebugApi ( ForeignAddress )
 import System.Win32.Types
 
 ##include "windows_cconv.h"
+##include "tlhelp32_compat.h"
 
 #include <windows.h>
 #include <tlhelp32.h>
@@ -177,7 +178,6 @@ th32SnapEnumModules h = allocaBytes (#size MODULEENTRY32W) $ \pe -> do
         readAndNext ok pe res
             | not ok    = do
                 err <- getLastError
-                print err
                 if err == (#const ERROR_NO_MORE_FILES)
                     then return $ reverse res
                     else failWith "th32SnapEnumModules: Module32First/Module32Next" err

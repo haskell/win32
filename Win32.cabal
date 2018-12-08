@@ -105,7 +105,7 @@ Library
     ghc-options:      -Wall
     include-dirs:     include
     includes:         "alphablend.h", "diatemp.h", "dumpBMP.h", "ellipse.h", "errors.h", "HsGDI.h", "HsWin32.h", "Win32Aux.h", "win32debug.h", "windows_cconv.h", "WndProc.h", "alignment.h"
-    install-includes: "HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h", "alphablend.h", "winternl_compat.h", "winuser_compat.h", "winreg_compat.h"
+    install-includes: "HsWin32.h", "HsGDI.h", "WndProc.h", "windows_cconv.h", "alphablend.h", "winternl_compat.h", "winuser_compat.h", "winreg_compat.h", "tlhelp32_compat.h"
     c-sources:
         cbits/HsGDI.c
         cbits/HsWin32.c
