@@ -28,10 +28,10 @@ import System.Win32.DebugApi ( ForeignAddress )
 import System.Win32.Types
 
 ##include "windows_cconv.h"
-##include "tlhelp32_compat.h"
 
 #include <windows.h>
 #include <tlhelp32.h>
+#include "tlhelp32_compat.h"
 
 -- constant to wait for a very long time.
 iNFINITE :: DWORD
