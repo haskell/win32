@@ -5,6 +5,10 @@ environment:
     CABOPTS:  "--http-transport=plain-http"
   matrix:
     # 64 bit builds
+    - GHCVER: "head"
+      CHOCOPTS: --pre
+    - GHCVER: "8.6.2"
+      CHOCOPTS:
     - GHCVER: "8.4.2"
       CHOCOPTS:
     - GHCVER: "8.2.2"
@@ -14,8 +18,12 @@ environment:
     - GHCVER: "7.10.3.2"
       CHOCOPTS:
     - GHCVER: "7.8.4.1"
+      CHOCOPTS:
+    - GHCVER: "7.6.3.1"
       CHOCOPTS:
     # 32 bit builds
+    - GHCVER: "8.6.2"
+      CHOCOPTS: --forcex86
     - GHCVER: "8.4.2"
       CHOCOPTS: --forcex86
     - GHCVER: "8.2.2"
@@ -25,10 +33,14 @@ environment:
     - GHCVER: "7.10.3.2"
       CHOCOPTS: --forcex86
     - GHCVER: "7.8.4.1"
+      CHOCOPTS: --forcex86
+    - GHCVER: "7.6.3.1"
       CHOCOPTS: --forcex86
 
 install:
- - "choco install -y ghc --version %GHCVER% %CHOCOPTS%"
+ - "choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2"
+ - "IF '%GHCVER%'=='head' choco install -vy ghc-head %CHOCOPTS%"
+ - "IF NOT '%GHCVER%'=='head' choco install -vy ghc --version %GHCVER% %CHOCOPTS%"
  - "choco install -y cabal %CHOCOPTS%"
  - "refreshenv"
  - "set PATH=C:\\ghc\\ghc-%GHCVER%:C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%"
