@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.8.3.0 *Dec 2018* (Unreleased)
+
+* Add `Module32FirstW` and `Module32NextW` (See #121)
+
 ## 2.8.2.0 *Dec 2018*
 
 * Drop use of NegativeLiterals (See #118)
