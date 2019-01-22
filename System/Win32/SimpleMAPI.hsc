@@ -98,7 +98,7 @@ mapiErrors =
     , ((#const MAPI_E_TOO_MANY_SESSIONS), "Too many open sessions")
     , ((#const MAPI_E_TOO_MANY_FILES)   , "Too many open files")
     , ((#const MAPI_E_TOO_MANY_RECIPIENTS)      , "Too many recipients")
-    , ((#const MAPI_E_ATTACHMENT_NOT_FOUND)     , "Attachemnt not found")
+    , ((#const MAPI_E_ATTACHMENT_NOT_FOUND)     , "Attachment not found")
     , ((#const MAPI_E_ATTACHMENT_OPEN_FAILURE)  , "Couldn't open attachment")
     , ((#const MAPI_E_ATTACHMENT_WRITE_FAILURE) , "Couldn't write attachment")
     , ((#const MAPI_E_UNKNOWN_RECIPIENT)        , "Unknown recipient")

@@ -25,7 +25,7 @@ import System.Win32.Types  ( BOOL, nullPtr )
 
 #include "windows_cconv.h"
 
--- | NOTE: createHardLink is /flipped arguments/ to provide compatiblity for Unix.
+-- | NOTE: createHardLink is /flipped arguments/ to provide compatibility for Unix.
 -- 
 -- If you want to create hard link by Windows way, use 'createHardLink'' instead.
 createHardLink :: FilePath -- ^ Target file path
