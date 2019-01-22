@@ -35,7 +35,7 @@ type SymbolicLinkFlags = DWORD
 
 -- | createSymbolicLink* functions don't check that file is exist or not.
 --
--- NOTE: createSymbolicLink* functions are /flipped arguments/ to provide compatiblity for Unix,
+-- NOTE: createSymbolicLink* functions are /flipped arguments/ to provide compatibility for Unix,
 -- except 'createSymbolicLink''.
 -- 
 -- If you want to create symbolic link by Windows way, use 'createSymbolicLink'' instead.
