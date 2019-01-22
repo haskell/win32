@@ -51,7 +51,7 @@ import System.Win32.Types (failIf, failIf_, failIfFalse_, failIfNull, maybeNum)
 
 type ClassName   = LPCTSTR
 
--- Note: this is one of those rare functions which doesnt free all
+-- Note: this is one of those rare functions which doesn't free all
 -- its String arguments.
 
 mkClassName :: String -> ClassName
