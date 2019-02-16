@@ -1,8 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.8.3.0 *Dec 2018* (Unreleased)
+## 2.8.3.0 *Feb 2019*
 
 * Add `Module32FirstW` and `Module32NextW` (See #121)
+* Add `Virtual[Alloc/Free]Ex` (See #124)
 
 ## 2.8.2.0 *Dec 2018*
 
