@@ -268,10 +268,11 @@ virtualAlloc addt size ty flags =
 foreign import WINDOWS_CCONV unsafe "windows.h VirtualAlloc"
   c_VirtualAlloc :: Addr -> DWORD -> DWORD -> DWORD -> IO Addr
 
--- %fun VirtualAllocEx :: HANDLE -> Addr -> DWORD -> VirtualAllocFlags -> ProtectFlags ->IO Addr
--- %code extern LPVOID WINAPI VirtualAllocEx(HANDLE,LPVOID,DWORD,DWORD,DWORD);
--- %     LPVOID res1=VirtualAllocEx(arg1,arg2,arg3,arg4,arg5);
--- %fail {res1==NULL}{ErrorWin("VirtualAllocEx")}
+virtualAllocEx :: HANDLE -> Addr -> DWORD -> VirtualAllocFlags -> ProtectFlags -> IO Addr
+virtualAllocEx proc addt size ty flags =
+  failIfNull "VirtualAllocEx" $ c_VirtualAllocEx proc addt size ty flags
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualAllocEx"
+  c_VirtualAllocEx :: HANDLE -> Addr -> DWORD -> DWORD -> DWORD -> IO Addr
 
 virtualFree :: Addr -> DWORD -> FreeFlags -> IO ()
 virtualFree addr size flags =
@@ -279,10 +280,11 @@ virtualFree addr size flags =
 foreign import WINDOWS_CCONV unsafe "windows.h VirtualFree"
   c_VirtualFree :: Addr -> DWORD -> FreeFlags -> IO Bool
 
--- %fun VirtualFreeEx :: HANDLE -> Addr -> DWORD -> FreeFlags -> IO ()
--- %code extern BOOL WINAPI VirtualFreeEx(HANDLE,LPVOID,DWORD,DWORD);
--- %     BOOL res1=VirtualFreeEx(arg1,arg2,arg3,arg4);
--- %fail {res1=0}{ErrorWin("VirtualFreeEx")}
+virtualFreeEx :: HANDLE -> Addr -> DWORD -> FreeFlags -> IO ()
+virtualFreeEx proc addr size flags =
+  failIfFalse_ "VirtualFreeEx" $ c_VirtualFreeEx proc addr size flags
+foreign import WINDOWS_CCONV unsafe "windows.h VirtualFreeEx"
+  c_VirtualFreeEx :: HANDLE -> Addr -> DWORD -> FreeFlags -> IO Bool
 
 virtualLock :: Addr -> DWORD -> IO ()
 virtualLock addr size =
