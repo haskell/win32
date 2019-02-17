@@ -55,7 +55,7 @@ install:
 before_build:
  - cabal --version
  - ghc --version
- - cabal %CABOPTS% update
+ - cabal %CABOPTS% new-update
  - IF EXIST configure.ac bash -c "autoreconf -i"
 
 build_script:
