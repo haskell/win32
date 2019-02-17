@@ -7,8 +7,8 @@ platform:
 
 environment:
   global:
-    - CABOPTS:  --http-transport=plain-http
-    - CHOCOCMD: ghc --version %GHCVER%
+    CABOPTS:  --http-transport=plain-http
+    CHOCOCMD: ghc --version %GHCVER%
   matrix:
     - GHCVER: head
     - GHCVER: 8.6.2
@@ -31,15 +31,15 @@ for:
         - platform: x86
     environment:
       global:
-        - GHCOPTS: --forcex86
+        GHCOPTS: --forcex86
   -
     matrix:
       only:
         - GHCVER: head
     environment:
       global:
-        - GHCOPTS: --pre
-        - CHOCOCMD: ghc-head
+        GHCOPTS: --pre
+        CHOCOCMD: ghc-head
 
 install:
  - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
