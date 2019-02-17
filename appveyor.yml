@@ -1,56 +1,60 @@
 clone_folder: "c:\\WORK"
+clone_depth: 5
+
+platform:
+  - x86_64
+  - x86
 
 environment:
   global:
-    CABOPTS:  "--http-transport=plain-http"
+    - CABOPTS:  --http-transport=plain-http
+    - CHOCOCMD: ghc --version %GHCVER%
   matrix:
-    # 64 bit builds
-    - GHCVER: "head"
-      CHOCOPTS: --pre
-    - GHCVER: "8.6.2"
-      CHOCOPTS:
-    - GHCVER: "8.4.2"
-      CHOCOPTS:
-    - GHCVER: "8.2.2"
-      CHOCOPTS:
-    - GHCVER: "8.0.2"
-      CHOCOPTS:
-    - GHCVER: "7.10.3.2"
-      CHOCOPTS:
-    - GHCVER: "7.8.4.1"
-      CHOCOPTS:
-    - GHCVER: "7.6.3.1"
-      CHOCOPTS:
-    # 32 bit builds
-    - GHCVER: "8.6.2"
-      CHOCOPTS: --forcex86
-    - GHCVER: "8.4.2"
-      CHOCOPTS: --forcex86
-    - GHCVER: "8.2.2"
-      CHOCOPTS: --forcex86
-    - GHCVER: "8.0.2"
-      CHOCOPTS: --forcex86
-    - GHCVER: "7.10.3.2"
-      CHOCOPTS: --forcex86
-    - GHCVER: "7.8.4.1"
-      CHOCOPTS: --forcex86
-    - GHCVER: "7.6.3.1"
-      CHOCOPTS: --forcex86
+    - GHCVER: head
+    - GHCVER: 8.6.2
+    - GHCVER: 8.4.2
+    - GHCVER: 8.2.2
+    - GHCVER: 8.0.2
+    - GHCVER: 7.10.3.2
+    - GHCVER: 7.8.4.1
+    - GHCVER: 7.6.3.1
+
+matrix:
+  exclude:
+    - platform: x86
+      GHCVER: head
+      
+for:
+  -
+    matrix:
+      only:
+        - platform: x86
+    environment:
+      global:
+        - GHCOPTS: --forcex86
+  -
+    matrix:
+      only:
+        - GHCVER: head
+    environment:
+      global:
+        - GHCOPTS: --pre
+        - CHOCOCMD: ghc-head
 
 install:
- - "choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2"
- - "IF '%GHCVER%'=='head' choco install -vy ghc-head %CHOCOPTS%"
- - "IF NOT '%GHCVER%'=='head' choco install -vy ghc --version %GHCVER% %CHOCOPTS%"
- - "choco install -y cabal %CHOCOPTS%"
- - "refreshenv"
- - "set PATH=C:\\ghc\\ghc-%GHCVER%:C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%"
- - "cabal --version"
- - "ghc --version"
- - "cabal %CABOPTS% update -v"
+ - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
+ - choco install %CHOCOCMD% -y %GHCOPTS% %CHOCOPTS% --ignore-dependencies
+ - choco install -y cabal %CHOCOPTS%
+ - refreshenv
+ # TODO: remove once new cabal package has been published
+ - set PATH=C:\\ghc\\ghc-%GHCVER%:C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%
 
-build: off
-
-test_script:
+before_build:
+ - cabal --version
+ - ghc --version
+ - cabal %CABOPTS% update
  - IF EXIST configure.ac bash -c "autoreconf -i"
- - "echo packages:. > cabal.project"
- - "cabal %CABOPTS% new-build -j1 all"
+
+build_script:
+ - echo packages:. > cabal.project
+ - cabal %CABOPTS% new-build -j all
