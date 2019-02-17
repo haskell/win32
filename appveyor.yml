@@ -50,7 +50,7 @@ install:
  - choco install -y cabal %CHOCOPTS%
  - refreshenv
  # TODO: remove once new cabal package has been published
- - set PATH=C:\\ghc\\ghc-%GHCVER%:C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%
+ - set PATH=C:\\ghc\\ghc-%GHCVER%\\bin;C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%
 
 before_build:
  - cabal --version
