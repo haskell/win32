@@ -414,9 +414,13 @@ foreign import WINDOWS_CCONV unsafe "windows.h CreateDirectoryExW"
 
 removeDirectory :: String -> IO ()
 removeDirectory name =
-  withTString name $ \ c_name ->
-  failIfFalseWithRetry_ (unwords ["RemoveDirectory",show name]) $
-    c_RemoveDirectory c_name
+  withTString name $ \ c_name -> do
+      failIfFalseWithRetry_ (unwords ["RemoveDirectory",show name]) $
+        c_RemoveDirectory c_name
+      -- If the directory is open the RemoveDirectory API will remove it and
+      -- return success however an immediate call to RemoveDirectory for the
+      -- parent directory will fail with "The directory is not empty." error.
+      threadDelay 100
 foreign import WINDOWS_CCONV unsafe "windows.h RemoveDirectoryW"
   c_RemoveDirectory :: LPCTSTR -> IO Bool
 
