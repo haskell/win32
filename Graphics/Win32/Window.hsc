@@ -22,6 +22,7 @@ import Data.Int (Int32)
 import Foreign.ForeignPtr (withForeignPtr)
 import Foreign.Marshal.Utils (maybeWith)
 import Foreign.Marshal.Alloc (allocaBytes)
+import Foreign.Marshal.Array (allocaArray)
 import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, castPtr, nullPtr)
 import Foreign.Storable (pokeByteOff)
 import Foreign.C.Types (CIntPtr(..))
@@ -34,8 +35,8 @@ import Graphics.Win32.Message (WindowMessage)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Win32.Types (ATOM, maybePtr, newTString, ptrToMaybe, numToMaybe)
 import System.Win32.Types (Addr, BOOL, DWORD, INT, LONG, LRESULT, UINT, WPARAM)
-import System.Win32.Types (HINSTANCE, LPARAM, LPCTSTR, LPVOID, withTString)
-import System.Win32.Types (failIf, failIf_, failIfFalse_, failIfNull, maybeNum)
+import System.Win32.Types (HINSTANCE, LPARAM, LPCTSTR, LPTSTR, LPVOID, withTString, peekTString)
+import System.Win32.Types (failIf, failIf_, failIfFalse_, failIfNull, maybeNum, failUnlessSuccess, getLastError, errorWin)
 
 ##include "windows_cconv.h"
 
@@ -320,6 +321,41 @@ setWindowText wnd text =
   failIfFalse_ "SetWindowText" $ c_SetWindowText wnd c_text
 foreign import WINDOWS_CCONV "windows.h SetWindowTextW"
   c_SetWindowText :: HWND -> LPCTSTR -> IO Bool
+
+----------------------------------------------------------------
+-- Getting window text/label
+----------------------------------------------------------------
+-- For getting the title bar text. 
+-- If the window has no title bar or text, if the title bar is empty,
+-- or if the window or control handle is invalid, the return value is zero.
+-- If invalid handle throws exception.
+-- If size <= 0 throws exception.
+
+getWindowText :: HWND -> Int -> IO String
+getWindowText wnd size 
+  | size <= 0 = errorWin "GetWindowTextW"
+  | otherwise  = do
+      allocaArray size $ \ p_buf -> do
+      _ <- c_GetWindowText wnd p_buf size
+      failUnlessSuccess "GetWindowTextW" getLastError
+      peekTString p_buf
+foreign import WINDOWS_CCONV "windows.h GetWindowTextW"
+  c_GetWindowText :: HWND -> LPTSTR -> Int -> IO Int
+
+----------------------------------------------------------------
+-- Getting window text length
+----------------------------------------------------------------
+-- For getting the title bar text length. 
+-- If the window has no text, the return value is zero.
+-- If invalid handle throws exception.
+  
+getWindowTextLength :: HWND -> IO Int
+getWindowTextLength wnd = do
+  size' <- c_GetWindowTextLength wnd
+  failUnlessSuccess "GetWindowTextLengthW" getLastError
+  return size'
+foreign import WINDOWS_CCONV "windows.h GetWindowTextLengthW"
+  c_GetWindowTextLength :: HWND -> IO Int
 
 ----------------------------------------------------------------
 -- Paint struct
