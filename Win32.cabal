@@ -11,7 +11,7 @@ category:	System, Graphics
 synopsis:	A binding to Windows Win32 API.
 description:	This library contains direct bindings to the Windows Win32 APIs for Haskell.
 build-type:     Simple
-cabal-version:  >=1.10
+cabal-version:  >= 2.0
 extra-source-files:
         include/diatemp.h include/dumpBMP.h include/ellipse.h include/errors.h
         include/Win32Aux.h include/win32debug.h include/alignment.h
@@ -30,7 +30,7 @@ Library
 
     build-depends:	base >= 4.5 && < 5, bytestring, filepath
     -- Black list hsc2hs 0.68.6 which is horribly broken.
-    build-tool-depends: hsc2hs < 0.68.6 && > 0.68.6
+    build-tool-depends: hsc2hs:hsc2hs > 0 && < 0.68.6 || > 0.68.6
     ghc-options:    -Wall -fno-warn-name-shadowing
     cc-options:     -fno-strict-aliasing
     exposed-modules:
