@@ -1,5 +1,10 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.8.4.0 *Sep 2019*
+
+* Added function `getWindowText`
+* Added function `getWindowTextLength`
+
 ## 2.8.3.0 *Feb 2019*
 
 * Add `Module32FirstW` and `Module32NextW` (See #121)
