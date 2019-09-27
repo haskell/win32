@@ -23,6 +23,10 @@ environment:
     - GHCVER: 7.6.3.1
 
 matrix:
+  # set this flag to immediately finish build once one of the jobs fails.
+  fast_finish: true
+
+matrix:
   exclude:
     - platform: x86
       GHCVER: head
@@ -49,8 +53,6 @@ install:
  - choco install %CHOCOCMD% -y %GHCOPTS% %CHOCOPTS% --ignore-dependencies
  - choco install -y cabal %CHOCOPTS%
  - refreshenv
- # TODO: remove once new cabal package has been published
- - set PATH=C:\\ghc\\ghc-%GHCVER%\\bin;C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;%PATH%
 
 before_build:
  - cabal --version
