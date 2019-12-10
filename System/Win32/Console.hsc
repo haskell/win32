@@ -18,6 +18,23 @@
 -----------------------------------------------------------------------------
 
 module System.Win32.Console (
+        -- * Console mode
+        getConsoleMode,
+        setConsoleMode,
+        eNABLE_ECHO_INPUT,
+        eNABLE_EXTENDED_FLAGS,
+        eNABLE_INSERT_MODE,
+        eNABLE_LINE_INPUT,
+        eNABLE_MOUSE_INPUT,
+        eNABLE_PROCESSED_INPUT,
+        eNABLE_QUICK_EDIT_MODE,
+        eNABLE_WINDOW_INPUT,
+        eNABLE_VIRTUAL_TERMINAL_INPUT,
+        eNABLE_PROCESSED_OUTPUT,
+        eNABLE_WRAP_AT_EOL_OUTPUT,
+        eNABLE_VIRTUAL_TERMINAL_PROCESSING,
+        dISABLE_NEWLINE_AUTO_RETURN,
+        eNABLE_LVB_GRID_WORLDWIDE,
         -- * Console code pages
         getConsoleCP,
         setConsoleCP,
@@ -49,6 +66,40 @@ import Foreign.Ptr (Ptr)
 import Foreign.Storable (Storable(..))
 import Foreign.Marshal.Array (peekArray)
 import Foreign.Marshal.Alloc (alloca)
+
+foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleMode"
+        c_GetConsoleMode :: HANDLE -> LPDWORD -> IO BOOL
+
+foreign import WINDOWS_CCONV unsafe "windows.h SetConsoleMode"
+        c_SetConsoleMode :: HANDLE -> DWORD -> IO BOOL
+
+getConsoleMode :: HANDLE -> IO DWORD
+getConsoleMode h = alloca $ \ptr -> do
+    failIfFalse_ "GetConsoleMode" $ c_GetConsoleMode h ptr
+    peek ptr
+
+setConsoleMode :: HANDLE -> DWORD -> IO ()
+setConsoleMode h mode = failIfFalse_ "SetConsoleMode" $ c_SetConsoleMode h mode
+
+eNABLE_ECHO_INPUT, eNABLE_EXTENDED_FLAGS, eNABLE_INSERT_MODE, eNABLE_LINE_INPUT,
+    eNABLE_MOUSE_INPUT, eNABLE_PROCESSED_INPUT, eNABLE_QUICK_EDIT_MODE,
+    eNABLE_WINDOW_INPUT, eNABLE_VIRTUAL_TERMINAL_INPUT, eNABLE_PROCESSED_OUTPUT,
+    eNABLE_WRAP_AT_EOL_OUTPUT, eNABLE_VIRTUAL_TERMINAL_PROCESSING,
+    dISABLE_NEWLINE_AUTO_RETURN, eNABLE_LVB_GRID_WORLDWIDE :: DWORD
+eNABLE_ECHO_INPUT = 4
+eNABLE_EXTENDED_FLAGS = 128
+eNABLE_INSERT_MODE = 32
+eNABLE_LINE_INPUT = 2
+eNABLE_MOUSE_INPUT = 16
+eNABLE_PROCESSED_INPUT = 1
+eNABLE_QUICK_EDIT_MODE = 64
+eNABLE_WINDOW_INPUT = 8
+eNABLE_VIRTUAL_TERMINAL_INPUT = 512
+eNABLE_PROCESSED_OUTPUT = 1
+eNABLE_WRAP_AT_EOL_OUTPUT = 2
+eNABLE_VIRTUAL_TERMINAL_PROCESSING = 4
+dISABLE_NEWLINE_AUTO_RETURN = 8
+eNABLE_LVB_GRID_WORLDWIDE = 16
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetConsoleCP"
         getConsoleCP :: IO UINT
