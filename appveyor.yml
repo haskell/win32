@@ -36,20 +36,20 @@ for:
         - platform: x86
     environment:
       global:
-        SHARED_OPTS: --forcex86
+        CHOCO_OPTS: --forcex86
   -
     matrix:
       only:
         - GHCVER: head
     environment:
       global:
-        GHCOPTS: --pre
+        GHC_OPTS: --pre
         CHOCOCMD: ghc-head
 
 install:
  - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
- - choco install %CHOCOCMD% -y %SHARED_OPTS% %CHOCOPTS% --ignore-dependencies
- - choco install -y cabal %SHARED_OPTS% %CHOCOPTS%
+ - choco install %CHOCOCMD% -y %GHC_OPTS% %CHOCO_OPTS% --ignore-dependencies
+ - choco install -y cabal %CHOCO_OPTS%
  - refreshenv
 
 before_build:
