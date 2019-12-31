@@ -1,5 +1,7 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## *Unreleased version*
+
 ## 2.8.5.0 Dec 2019
 
 * Add `getConsoleMode` and `setConsoleMode` (See #137)
