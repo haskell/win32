@@ -293,6 +293,11 @@ defWindowProc mb_wnd msg w l = do
 foreign import WINDOWS_CCONV "windows.h DefWindowProcW"
   c_DefWindowProc :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
+-- | Frees a function pointer to the window closure which has been set
+-- directly by 'setWindowClosure' or indirectly by 'createWindowEx'. You
+-- should call this function in your window closure's 'wM_NCDESTROY' case
+-- unless you delegate that case to 'defWindowProc' (e.g. as part of the
+-- default).
 freeWindowProc :: HWND -> IO ()
 freeWindowProc hwnd = do
    fp <- c_GetWindowLongPtr hwnd (#{const GWLP_USERDATA})

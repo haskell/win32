@@ -2,6 +2,12 @@
 
 ## *Unreleased version*
 
+* `setWindowClosure` now returns the old window closure.
+* `defWindowProc` now assumes the data stored in `GWLP\_USERDATA` 
+  is the window closure (in line with `setWindowClosure` and
+  the supplied C `genericWndProc`)
+* `defWindowProc` now frees the window closure 
+
 ## 2.8.5.0 Dec 2019
 
 * Add `getConsoleMode` and `setConsoleMode` (See #137)
