@@ -53,12 +53,12 @@ freed; otherwise, lpps and onPaint action would be kept in memory.
 \begin{code}
 
 wndProc :: Graphics.Win32.LPPAINTSTRUCT
-	-> (Graphics.Win32.RECT -> Graphics.Win32.HDC -> IO ()) -- on paint action
+        -> (Graphics.Win32.RECT -> Graphics.Win32.HDC -> IO ()) -- on paint action
         -> Graphics.Win32.HWND
         -> Graphics.Win32.WindowMessage
-	-> Graphics.Win32.WPARAM
-	-> Graphics.Win32.LPARAM
-	-> IO Graphics.Win32.LRESULT
+        -> Graphics.Win32.WPARAM
+        -> Graphics.Win32.LPARAM
+        -> IO Graphics.Win32.LRESULT
 wndProc lpps onPaint hwnd wmsg wParam lParam
  | wmsg == Graphics.Win32.wM_DESTROY = do
      Graphics.Win32.sendMessage hwnd Graphics.Win32.wM_QUIT 1 0
@@ -78,26 +78,26 @@ createWindow width height wndProc = do
   bgBrush      <- Graphics.Win32.createSolidBrush (Graphics.Win32.rgb 0 0 255)
   mainInstance <- getModuleHandle Nothing
   Graphics.Win32.registerClass
-  	  ( Graphics.Win32.cS_VREDRAW + Graphics.Win32.cS_HREDRAW
-	  , mainInstance
-	  , Just icon
-	  , Just cursor
-	  , Just bgBrush
-	  , Nothing
-	  , winClass
-	  )
+          ( Graphics.Win32.cS_VREDRAW + Graphics.Win32.cS_HREDRAW
+          , mainInstance
+          , Just icon
+          , Just cursor
+          , Just bgBrush
+          , Nothing
+          , winClass
+          )
   w <- Graphics.Win32.createWindow
-  		 winClass
-		 "Hello, World example"
-		 Graphics.Win32.wS_OVERLAPPEDWINDOW
-		 Nothing Nothing -- leave it to the shell to decide the position
-		 		 -- at where to put the window initially
+                 winClass
+                 "Hello, World example"
+                 Graphics.Win32.wS_OVERLAPPEDWINDOW
+                 Nothing Nothing -- leave it to the shell to decide the position
+                                 -- at where to put the window initially
                  (Just width)
-		 (Just height)
-		 Nothing      -- no parent, i.e, root window is the parent.
-		 Nothing      -- no menu handle
-		 mainInstance
-		 wndProc
+                 (Just height)
+                 Nothing      -- no parent, i.e, root window is the parent.
+                 Nothing      -- no menu handle
+                 mainInstance
+                 wndProc
   Graphics.Win32.showWindow w Graphics.Win32.sW_SHOWNORMAL
   Graphics.Win32.updateWindow w
   return w
