@@ -14,13 +14,11 @@ module Graphics.Win32.LayeredWindow (module Graphics.Win32.LayeredWindow, Graphi
 import Control.Monad   ( void )
 import Data.Bits       ( (.|.) )
 import Foreign.Ptr     ( Ptr )
-import Foreign.C.Types ( CIntPtr(..) )
 import Foreign.Marshal.Utils ( with )
 import Graphics.Win32.GDI.AlphaBlend ( BLENDFUNCTION )
 import Graphics.Win32.GDI.Types      ( COLORREF, HDC, SIZE, SIZE, POINT )
-import Graphics.Win32.Window         ( WindowStyleEx, c_GetWindowLongPtr, c_SetWindowLongPtr,  )
-import System.Win32.Types ( DWORD, HANDLE, BYTE, BOOL,
-                            LONG_PTR, INT )
+import Graphics.Win32.Window         ( WindowStyleEx, c_GetWindowLongPtr, c_SetWindowLongPtr )
+import System.Win32.Types ( DWORD, HANDLE, BYTE, BOOL, INT )
 
 #include <windows.h>
 ##include "windows_cconv.h"
