@@ -294,14 +294,28 @@ foreign import WINDOWS_CCONV "windows.h CreateWindowExW"
 
 ----------------------------------------------------------------
 
+-- | Delegates to the Win32 default window procedure. If you are using a
+-- window created by 'createWindow', 'createWindowEx' or on which you have
+-- called 'setWindowClosure', please note that the window will leak memory once
+-- it is destroyed unless you call 'freeWindowProc' when it receives
+-- 'wM_NCDESTROY'. If you wish to do this, instead of using this function
+-- directly, you can delegate to 'defWindowProcSafe' which will handle it for
+-- you. As an alternative, you can manually retrieve the window closure
+-- function pointer and free it after the window has been destroyed. Check the
+-- implementation of 'freeWindowProc' for a guide.
+defWindowProc :: Maybe HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
+defWindowProc mb_wnd msg w l =
+  c_DefWindowProc (maybePtr mb_wnd) msg w l
+
 -- | Delegates to the standard default window procedure, but if it receives the
 -- 'wM_NCDESTROY' message it first frees the window closure to allow the
 -- closure and any objects it closes over to be garbage collected. 'wM_NCDESTROY' is
 -- the last message a window receives prior to being deleted.
-defWindowProc :: Maybe HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
-defWindowProc mb_wnd msg w l = do
+defWindowProcSafe :: Maybe HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
+defWindowProcSafe mb_wnd msg w l = do
   when (msg == wM_NCDESTROY) (maybe (return ()) freeWindowProc mb_wnd)
-  c_DefWindowProc (maybePtr mb_wnd) msg w l
+  defWindowProc mb_wnd msg w l
+
 foreign import WINDOWS_CCONV "windows.h DefWindowProcW"
   c_DefWindowProc :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 
