@@ -36,7 +36,8 @@ import Graphics.Win32.Message (WindowMessage, wM_NCDESTROY)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Win32.Types (ATOM, maybePtr, newTString, ptrToMaybe, numToMaybe)
 import System.Win32.Types (Addr, BOOL, DWORD, INT, LONG, LRESULT, UINT, WPARAM)
-import System.Win32.Types (HINSTANCE, LPARAM, LPCTSTR, LPTSTR, LPVOID, withTString, peekTString)
+import System.Win32.Types (HANDLE, HINSTANCE, LONG_PTR, LPARAM, LPCTSTR)
+import System.Win32.Types (LPTSTR, LPVOID, withTString, peekTString)
 import System.Win32.Types (failIf, failIf_, failIfFalse_, failIfNull, maybeNum, failUnlessSuccess, getLastError, errorWin)
 
 ##include "windows_cconv.h"
@@ -240,6 +241,17 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongPtrW"
 # error Unknown mingw32 arch
 #endif
   c_SetWindowLongPtr :: HWND -> INT -> Ptr LONG -> IO (Ptr LONG)
+
+#if defined(x86_64_HOST_ARCH)
+foreign import WINDOWS_CCONV "windows.h GetWindowLongPtrW"
+  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
+#elif defined(x86_64_HOST_ARCH)
+foreign import WINDOWS_CCONV "windows.h GetWindowLongW"
+  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
+#else
+# error Unknown mingw32 arch
+#endif
+
 
 -- | Creates a window with a default extended window style. If you create many
 -- windows over the life of your program, WindowClosure may leak memory. Be
