@@ -242,15 +242,14 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongPtrW"
 #endif
   c_SetWindowLongPtr :: HWND -> INT -> Ptr LONG -> IO (Ptr LONG)
 
-#if defined(x86_64_HOST_ARCH)
-foreign import WINDOWS_CCONV "windows.h GetWindowLongPtrW"
-  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
+#if defined(i386_HOST_ARCH)
+foreign import WINDOWS_CCONV unsafe "windows.h GetWindowLongW"
 #elif defined(x86_64_HOST_ARCH)
-foreign import WINDOWS_CCONV "windows.h GetWindowLongW"
-  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
+foreign import WINDOWS_CCONV unsafe "windows.h GetWindowLongPtrW"
 #else
 # error Unknown mingw32 arch
 #endif
+  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
 
 
 -- | Creates a window with a default extended window style. If you create many
