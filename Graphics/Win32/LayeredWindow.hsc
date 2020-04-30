@@ -10,17 +10,15 @@
 
    Provides LayeredWindow functionality.
 -}
-module Graphics.Win32.LayeredWindow where
+module Graphics.Win32.LayeredWindow (module Graphics.Win32.LayeredWindow, Graphics.Win32.Window.c_GetWindowLongPtr ) where
 import Control.Monad   ( void )
 import Data.Bits       ( (.|.) )
 import Foreign.Ptr     ( Ptr )
-import Foreign.C.Types ( CIntPtr(..) )
 import Foreign.Marshal.Utils ( with )
 import Graphics.Win32.GDI.AlphaBlend ( BLENDFUNCTION )
 import Graphics.Win32.GDI.Types      ( COLORREF, HDC, SIZE, SIZE, POINT )
-import Graphics.Win32.Window         ( WindowStyleEx, c_SetWindowLongPtr,  )
-import System.Win32.Types ( DWORD, HANDLE, BYTE, BOOL,
-                            LONG_PTR, INT )
+import Graphics.Win32.Window         ( WindowStyleEx, c_GetWindowLongPtr, c_SetWindowLongPtr )
+import System.Win32.Types ( DWORD, HANDLE, BYTE, BOOL, INT )
 
 #include <windows.h>
 ##include "windows_cconv.h"
@@ -52,16 +50,9 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetLayeredWindowAttributes"
 foreign import WINDOWS_CCONV unsafe "windows.h UpdateLayeredWindow"
   c_UpdateLayeredWindow :: HANDLE -> HDC -> Ptr POINT -> Ptr SIZE ->  HDC -> Ptr POINT -> COLORREF -> Ptr BLENDFUNCTION -> DWORD -> IO BOOL
 
-#if defined(x86_64_HOST_ARCH)
-foreign import WINDOWS_CCONV "windows.h GetWindowLongPtrW"
-  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
-#else
-foreign import WINDOWS_CCONV "windows.h GetWindowLongW"
-  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
-#endif
-
 #{enum DWORD,
  , uLW_ALPHA    = ULW_ALPHA
  , uLW_COLORKEY = ULW_COLORKEY
  , uLW_OPAQUE   = ULW_OPAQUE
  }
+

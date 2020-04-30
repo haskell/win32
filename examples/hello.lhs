@@ -9,9 +9,9 @@ Demonstrates how the Win32 library can be put to use.
 {-# LANGUAGE ScopedTypeVariables #-}
 module Main(main) where
 
-import Control.Exception (SomeException, bracket, catch)
+import Control.Monad (when, void)
+import Control.Exception (SomeException, bracket, try)
 import Foreign.Ptr (nullPtr)
-import System.Exit (ExitCode(ExitSuccess), exitWith)
 import System.Win32.DLL (getModuleHandle)
 import qualified Graphics.Win32
 
@@ -45,19 +45,20 @@ onPaint (_,_,w,h) hdc = do
    return ()
 \end{code}
 
-Simple window procedure - one way to improve and generalise
-it would be to pass it a message map (represented as a
-finite map from WindowMessages to actions, perhaps).
+Simple window procedure - one way to improve and generalise it would be to pass
+it a message map (represented as a finite map from WindowMessages to actions,
+perhaps). Note we use defWindowProcSafe to ensure the closure is correctly
+freed; otherwise, lpps and onPaint action would be kept in memory.
 
 \begin{code}
 
 wndProc :: Graphics.Win32.LPPAINTSTRUCT
-	-> (Graphics.Win32.RECT -> Graphics.Win32.HDC -> IO ()) -- on paint action
+        -> (Graphics.Win32.RECT -> Graphics.Win32.HDC -> IO ()) -- on paint action
         -> Graphics.Win32.HWND
         -> Graphics.Win32.WindowMessage
-	-> Graphics.Win32.WPARAM
-	-> Graphics.Win32.LPARAM
-	-> IO Graphics.Win32.LRESULT
+        -> Graphics.Win32.WPARAM
+        -> Graphics.Win32.LPARAM
+        -> IO Graphics.Win32.LRESULT
 wndProc lpps onPaint hwnd wmsg wParam lParam
  | wmsg == Graphics.Win32.wM_DESTROY = do
      Graphics.Win32.sendMessage hwnd Graphics.Win32.wM_QUIT 1 0
@@ -67,7 +68,7 @@ wndProc lpps onPaint hwnd wmsg wParam lParam
      paintWith lpps hwnd (onPaint r)
      return 0
  | otherwise =
-     Graphics.Win32.defWindowProc (Just hwnd) wmsg wParam lParam
+     Graphics.Win32.defWindowProcSafe (Just hwnd) wmsg wParam lParam
 
 createWindow :: Int -> Int -> Graphics.Win32.WindowClosure -> IO Graphics.Win32.HWND
 createWindow width height wndProc = do
@@ -77,38 +78,39 @@ createWindow width height wndProc = do
   bgBrush      <- Graphics.Win32.createSolidBrush (Graphics.Win32.rgb 0 0 255)
   mainInstance <- getModuleHandle Nothing
   Graphics.Win32.registerClass
-  	  ( Graphics.Win32.cS_VREDRAW + Graphics.Win32.cS_HREDRAW
-	  , mainInstance
-	  , Just icon
-	  , Just cursor
-	  , Just bgBrush
-	  , Nothing
-	  , winClass
-	  )
+          ( Graphics.Win32.cS_VREDRAW + Graphics.Win32.cS_HREDRAW
+          , mainInstance
+          , Just icon
+          , Just cursor
+          , Just bgBrush
+          , Nothing
+          , winClass
+          )
   w <- Graphics.Win32.createWindow
-  		 winClass
-		 "Hello, World example"
-		 Graphics.Win32.wS_OVERLAPPEDWINDOW
-		 Nothing Nothing -- leave it to the shell to decide the position
-		 		 -- at where to put the window initially
+                 winClass
+                 "Hello, World example"
+                 Graphics.Win32.wS_OVERLAPPEDWINDOW
+                 Nothing Nothing -- leave it to the shell to decide the position
+                                 -- at where to put the window initially
                  (Just width)
-		 (Just height)
-		 Nothing      -- no parent, i.e, root window is the parent.
-		 Nothing      -- no menu handle
-		 mainInstance
-		 wndProc
+                 (Just height)
+                 Nothing      -- no parent, i.e, root window is the parent.
+                 Nothing      -- no menu handle
+                 mainInstance
+                 wndProc
   Graphics.Win32.showWindow w Graphics.Win32.sW_SHOWNORMAL
   Graphics.Win32.updateWindow w
   return w
 
 messagePump :: Graphics.Win32.HWND -> IO ()
-messagePump hwnd = Graphics.Win32.allocaMessage $ \ msg ->
+messagePump hwnd = Graphics.Win32.allocaMessage $ \msg ->
   let pump = do
-        Graphics.Win32.getMessage msg (Just hwnd)
-		`catch` \ (_::SomeException) -> exitWith ExitSuccess
-	Graphics.Win32.translateMessage msg
-	Graphics.Win32.dispatchMessage msg
-	pump
+       r :: Either SomeException Bool
+         <- Control.Exception.try $ Graphics.Win32.getMessage msg (Just hwnd)
+       when (either (const False) id r) $ do
+          () <$ Graphics.Win32.translateMessage msg
+          () <$ Graphics.Win32.dispatchMessage msg
+          pump
   in pump
 
 paintWith :: Graphics.Win32.LPPAINTSTRUCT -> Graphics.Win32.HWND -> (Graphics.Win32.HDC -> IO a) -> IO a

@@ -16,7 +16,7 @@
 
 module Graphics.Win32.Window where
 
-import Control.Monad (liftM)
+import Control.Monad (liftM, when, unless)
 import Data.Maybe (fromMaybe)
 import Data.Int (Int32)
 import Foreign.ForeignPtr (withForeignPtr)
@@ -24,6 +24,7 @@ import Foreign.Marshal.Utils (maybeWith)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (allocaArray)
 import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, castPtr, nullPtr)
+import Foreign.Ptr (intPtrToPtr, castPtrToFunPtr, freeHaskellFunPtr)
 import Foreign.Storable (pokeByteOff)
 import Foreign.C.Types (CIntPtr(..))
 import Graphics.Win32.GDI.Types (HBITMAP, HCURSOR, HDC, HDWP, HRGN, HWND, PRGN)
@@ -31,11 +32,12 @@ import Graphics.Win32.GDI.Types (HBRUSH, HICON, HMENU, prim_ChildWindowFromPoint
 import Graphics.Win32.GDI.Types (LPRECT, RECT, allocaRECT, peekRECT, withRECT)
 import Graphics.Win32.GDI.Types (POINT, allocaPOINT, peekPOINT, withPOINT)
 import Graphics.Win32.GDI.Types (prim_ChildWindowFromPointEx)
-import Graphics.Win32.Message (WindowMessage)
+import Graphics.Win32.Message (WindowMessage, wM_NCDESTROY)
 import System.IO.Unsafe (unsafePerformIO)
 import System.Win32.Types (ATOM, maybePtr, newTString, ptrToMaybe, numToMaybe)
 import System.Win32.Types (Addr, BOOL, DWORD, INT, LONG, LRESULT, UINT, WPARAM)
-import System.Win32.Types (HINSTANCE, LPARAM, LPCTSTR, LPTSTR, LPVOID, withTString, peekTString)
+import System.Win32.Types (HANDLE, HINSTANCE, LONG_PTR, LPARAM, LPCTSTR)
+import System.Win32.Types (LPTSTR, LPVOID, withTString, peekTString)
 import System.Win32.Types (failIf, failIf_, failIfFalse_, failIfNull, maybeNum, failUnlessSuccess, getLastError, errorWin)
 
 ##include "windows_cconv.h"
@@ -202,12 +204,24 @@ type WindowClosure = HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 foreign import WINDOWS_CCONV "wrapper"
   mkWindowClosure :: WindowClosure -> IO (FunPtr WindowClosure)
 
-setWindowClosure :: HWND -> WindowClosure -> IO ()
+-- | The standard C wndproc for every window class registered by
+-- 'registerClass' is a C function pointer provided with this library. It in
+-- turn delegates to a Haskell function pointer stored in 'gWLP_USERDATA'.
+-- This action creates that function pointer. All Haskell function pointers
+-- must be freed in order to allow the objects they close over to be garbage
+-- collected. Consequently, if you are replacing a window closure previously
+-- set via this method or indirectly with 'createWindow' or 'createWindowEx'
+-- you must free it. This action returns a function pointer to the old window
+-- closure for you to free. The current window closure is freed automatically
+-- by 'defWindowProc' when it receives 'wM_NCDESTROY'.
+setWindowClosure :: HWND -> WindowClosure -> IO (Maybe (FunPtr WindowClosure))
 setWindowClosure wnd closure = do
   fp <- mkWindowClosure closure
-  _ <- c_SetWindowLongPtr wnd (#{const GWLP_USERDATA})
+  fpOld <- c_SetWindowLongPtr wnd (#{const GWLP_USERDATA})
                               (castPtr (castFunPtrToPtr fp))
-  return ()
+  if fpOld == nullPtr 
+     then return Nothing
+     else return $ Just $ castPtrToFunPtr fpOld
 
 {- Note [SetWindowLongPtrW]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -228,6 +242,20 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongPtrW"
 #endif
   c_SetWindowLongPtr :: HWND -> INT -> Ptr LONG -> IO (Ptr LONG)
 
+#if defined(i386_HOST_ARCH)
+foreign import WINDOWS_CCONV unsafe "windows.h GetWindowLongW"
+#elif defined(x86_64_HOST_ARCH)
+foreign import WINDOWS_CCONV unsafe "windows.h GetWindowLongPtrW"
+#else
+# error Unknown mingw32 arch
+#endif
+  c_GetWindowLongPtr :: HANDLE -> INT -> IO LONG_PTR
+
+
+-- | Creates a window with a default extended window style. If you create many
+-- windows over the life of your program, WindowClosure may leak memory. Be
+-- sure to delegate to 'defWindowProc' for 'wM_NCDESTROY' and see
+-- 'defWindowProc' and 'setWindowClosure' for details.
 createWindow
   :: ClassName -> String -> WindowStyle ->
      Maybe Pos -> Maybe Pos -> Maybe Pos -> Maybe Pos ->
@@ -236,6 +264,10 @@ createWindow
 createWindow = createWindowEx 0
 -- apparently CreateWindowA/W are just macros for CreateWindowExA/W
 
+-- | Creates a window and allows your to specify the  extended window style. If
+-- you create many windows over the life of your program, WindowClosure may
+-- leak memory. Be sure to delegate to 'defWindowProc' for 'wM_NCDESTROY' and see
+-- 'defWindowProc' and 'setWindowClosure' for details.
 createWindowEx
   :: WindowStyle -> ClassName -> String -> WindowStyle
   -> Maybe Pos -> Maybe Pos -> Maybe Pos -> Maybe Pos
@@ -250,7 +282,7 @@ createWindowEx estyle cname wname wstyle mb_x mb_y mb_w mb_h mb_parent mb_menu i
     c_CreateWindowEx estyle cname c_wname wstyle
       (maybePos mb_x) (maybePos mb_y) (maybePos mb_w) (maybePos mb_h)
       (maybePtr mb_parent) (maybePtr mb_menu) inst nullPtr
-  setWindowClosure wnd closure
+  _ <- setWindowClosure wnd closure
   return wnd
 foreign import WINDOWS_CCONV "windows.h CreateWindowExW"
   c_CreateWindowEx
@@ -261,11 +293,42 @@ foreign import WINDOWS_CCONV "windows.h CreateWindowExW"
 
 ----------------------------------------------------------------
 
+-- | Delegates to the Win32 default window procedure. If you are using a
+-- window created by 'createWindow', 'createWindowEx' or on which you have
+-- called 'setWindowClosure', please note that the window will leak memory once
+-- it is destroyed unless you call 'freeWindowProc' when it receives
+-- 'wM_NCDESTROY'. If you wish to do this, instead of using this function
+-- directly, you can delegate to 'defWindowProcSafe' which will handle it for
+-- you. As an alternative, you can manually retrieve the window closure
+-- function pointer and free it after the window has been destroyed. Check the
+-- implementation of 'freeWindowProc' for a guide.
 defWindowProc :: Maybe HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 defWindowProc mb_wnd msg w l =
   c_DefWindowProc (maybePtr mb_wnd) msg w l
+
+-- | Delegates to the standard default window procedure, but if it receives the
+-- 'wM_NCDESTROY' message it first frees the window closure to allow the
+-- closure and any objects it closes over to be garbage collected. 'wM_NCDESTROY' is
+-- the last message a window receives prior to being deleted.
+defWindowProcSafe :: Maybe HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
+defWindowProcSafe mb_wnd msg w l = do
+  when (msg == wM_NCDESTROY) (maybe (return ()) freeWindowProc mb_wnd)
+  defWindowProc mb_wnd msg w l
+
 foreign import WINDOWS_CCONV "windows.h DefWindowProcW"
   c_DefWindowProc :: HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
+
+-- | Frees a function pointer to the window closure which has been set
+-- directly by 'setWindowClosure' or indirectly by 'createWindowEx'. You
+-- should call this function in your window closure's 'wM_NCDESTROY' case
+-- unless you delegate that case to 'defWindowProc' (e.g. as part of the
+-- default).
+freeWindowProc :: HWND -> IO ()
+freeWindowProc hwnd = do
+   fp <- c_GetWindowLongPtr hwnd (#{const GWLP_USERDATA})
+   unless (fp == 0) $ 
+      freeHaskellFunPtr $ castPtrToFunPtr . intPtrToPtr . fromIntegral $ fp
+
 
 ----------------------------------------------------------------
 
