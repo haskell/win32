@@ -8,6 +8,7 @@
   the supplied C `genericWndProc`)
 * `defWindowProc` now frees the window closure 
 * `getMessage` and `peekMessage` test for -1 to identify the error condition
+* Support creating symbolic links without Administrator privilege (See #147)
 
 ## 2.8.5.0 Dec 2019
 
