@@ -58,6 +58,15 @@ finiteBitSize :: (Bits a) => a -> Int
 finiteBitSize = bitSize
 #endif
 
+##if defined(__IO_MANAGER_WINIO__)
+import GHC.IO.SubSystem ((<!>))
+import GHC.IO.Handle.Windows
+import GHC.IO.Windows.Handle (fromHANDLE, Io(), NativeHandle(),
+                              handleToMode, optimizeFileAccess)
+import qualified GHC.Event.Windows as Mgr
+import GHC.IO.Device (IODeviceType(..))
+##endif
+
 #include <fcntl.h>
 #include <windows.h>
 ##include "windows_cconv.h"
@@ -243,8 +252,24 @@ foreign import ccall "_open_osfhandle"
 -- Then although you can use @stdout2@ to write to standard output, it is not
 -- the case that @'IO.stdout' == stdout2@.
 hANDLEToHandle :: HANDLE -> IO Handle
-hANDLEToHandle handle =
-  _open_osfhandle (fromIntegral (ptrToIntPtr handle)) (#const _O_BINARY) >>= fdToHandle
+hANDLEToHandle handle = posix
+##if defined(__IO_MANAGER_WINIO__)
+     <!> native
+##endif
+  where
+##if defined(__IO_MANAGER_WINIO__)
+    native = do
+      -- Attach the handle to the I/O manager's CompletionPort.  This allows the
+      -- I/O manager to service requests for this Handle.
+      Mgr.associateHandle' handle
+      optimizeFileAccess handle
+      let hwnd = fromHANDLE handle :: Io NativeHandle
+      -- Not sure if I need to use devType here..
+      mode <- handleToMode handle
+      mkHandleFromHANDLE hwnd Stream ("hwnd:" ++ show handle) mode Nothing
+##endif
+    posix = _open_osfhandle (fromIntegral (ptrToIntPtr handle))
+                            (#const _O_BINARY) >>= fdToHandle
 
 foreign import ccall unsafe "_get_osfhandle"
   c_get_osfhandle :: CInt -> IO HANDLE
@@ -254,7 +279,26 @@ foreign import ccall unsafe "_get_osfhandle"
 
 -- Originally authored by Max Bolingbroke in the ansi-terminal library
 withHandleToHANDLE :: Handle -> (HANDLE -> IO a) -> IO a
-withHandleToHANDLE haskell_handle action =
+#if defined(__IO_MANAGER_WINIO__)
+withHandleToHANDLE = withHandleToHANDLEPosix <!> withHandleToHANDLENative
+#else
+withHandleToHANDLE = withHandleToHANDLEPosix
+#endif
+
+#if defined(__IO_MANAGER_WINIO__)
+withHandleToHANDLENative :: Handle -> (HANDLE -> IO a) -> IO a
+withHandleToHANDLENative haskell_handle action =
+    -- Create a stable pointer to the Handle. This prevents the garbage collector
+    -- getting to it while we are doing horrible manipulations with it, and hence
+    -- stops it being finalized (and closed).
+    withStablePtr haskell_handle $ const $ do
+        windows_handle <- handleToHANDLE haskell_handle
+        -- Do what the user originally wanted
+        action windows_handle
+#endif
+
+withHandleToHANDLEPosix :: Handle -> (HANDLE -> IO a) -> IO a
+withHandleToHANDLEPosix haskell_handle action =
     -- Create a stable pointer to the Handle. This prevents the garbage collector
     -- getting to it while we are doing horrible manipulations with it, and hence
     -- stops it being finalized (and closed).
@@ -271,7 +315,6 @@ withHandleToHANDLE haskell_handle action =
 
         -- Finally, turn that (C-land) FD into a HANDLE using msvcrt
         windows_handle <- c_get_osfhandle fd
-
         -- Do what the user originally wanted
         action windows_handle
 
