@@ -10,17 +10,25 @@
 
    Handling symbolic link using Win32 API. [Vista of later and desktop app only]
 
-   Note: You should worry about UAC (User Account Control) when use this module's function in your application:
+   Note: When using the createSymbolicLink* functions without the
+   SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE flag, you should worry about UAC
+   (User Account Control) when use this module's function in your application:
 
      * require to use 'Run As Administrator' to run your application.
 
      * or modify your application's manifect file to add
        \<requestedExecutionLevel level='requireAdministrator' uiAccess='false'/\>.
+
+   Starting from Windows 10 version 1703 (Creators Update), after enabling
+   Developer Mode, users can create symbolic links without requiring the
+   Administrator privilege in the current process. Supply a 'True' flag in
+   addition to the target and link name to enable this behavior.
 -}
 module System.Win32.SymbolicLink
   ( module System.Win32.SymbolicLink
   ) where
 
+import Data.Bits ((.|.))
 import System.Win32.Types
 import System.Win32.File ( failIfFalseWithRetry_ )
 
@@ -31,24 +39,47 @@ type SymbolicLinkFlags = DWORD
 #{enum SymbolicLinkFlags,
  , sYMBOLIC_LINK_FLAG_FILE      = 0x0
  , sYMBOLIC_LINK_FLAG_DIRECTORY = 0x1
+ , sYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE = 0x2
 }
 
 -- | createSymbolicLink* functions don't check that file is exist or not.
 --
 -- NOTE: createSymbolicLink* functions are /flipped arguments/ to provide compatibility for Unix,
 -- except 'createSymbolicLink''.
--- 
+--
 -- If you want to create symbolic link by Windows way, use 'createSymbolicLink'' instead.
 createSymbolicLink :: FilePath -- ^ Target file path
                    -> FilePath -- ^ Symbolic link name
                    -> SymbolicLinkFlags -> IO ()
 createSymbolicLink = flip createSymbolicLink'
 
-createSymbolicLinkFile :: FilePath -> FilePath -> IO ()
-createSymbolicLinkFile target link = createSymbolicLink' link target sYMBOLIC_LINK_FLAG_FILE
+createSymbolicLinkFile :: FilePath -- ^ Target file path
+                       -> FilePath -- ^ Symbolic link name
+                       -> Bool -- ^ Create the symbolic link with the unprivileged mode
+                       -> IO ()
+createSymbolicLinkFile target link unprivileged =
+  createSymbolicLink'
+    link
+    target
+    ( if unprivileged
+        then sYMBOLIC_LINK_FLAG_FILE .|. sYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+        else sYMBOLIC_LINK_FLAG_FILE
+    )
 
-createSymbolicLinkDirectory :: FilePath -> FilePath -> IO ()
-createSymbolicLinkDirectory target link = createSymbolicLink' link target sYMBOLIC_LINK_FLAG_DIRECTORY
+createSymbolicLinkDirectory :: FilePath -- ^ Target file path
+                            -> FilePath -- ^ Symbolic link name
+                            -> Bool -- ^ Create the symbolic link with the unprivileged mode
+                            -> IO ()
+createSymbolicLinkDirectory target link unprivileged =
+  createSymbolicLink'
+    link
+    target
+    ( if unprivileged
+        then
+          sYMBOLIC_LINK_FLAG_DIRECTORY
+            .|. sYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+        else sYMBOLIC_LINK_FLAG_DIRECTORY
+    )
 
 createSymbolicLink' :: FilePath -- ^ Symbolic link name
                     -> FilePath -- ^ Target file path
