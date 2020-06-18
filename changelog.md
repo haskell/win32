@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## *Unreleased version*
+## 2.9.0.0 June 2020
 
 * `setWindowClosure` now returns the old window closure.
 * `defWindowProc` now assumes the data stored in `GWLP\_USERDATA` 
@@ -9,6 +9,7 @@
 * `defWindowProc` now frees the window closure 
 * `getMessage` and `peekMessage` test for -1 to identify the error condition
 * Support creating symbolic links without Administrator privilege (See #147)
+* Support for `winio` the new Windows I/O manager.
 
 ## 2.8.5.0 Dec 2019
 
