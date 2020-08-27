@@ -18,9 +18,12 @@
 -----------------------------------------------------------------------------
 module System.Win32.Time where
 
-import System.Win32.Types   ( UINT, DWORD, WORD, LONG, BOOL, failIf, failIf_, failIfFalse_, HANDLE
-                            , peekTStringLen, LCID, LPTSTR, LPCTSTR, DDWORD
-                            , LARGE_INTEGER, ddwordToDwords, dwordsToDdword )
+import System.Win32.String  ( peekTStringLen, withTString )
+import System.Win32.Types   ( BOOL, DDWORD, DWORD, HANDLE, LARGE_INTEGER, LCID
+                            , LONG, LPCTSTR, LPCWSTR, LPTSTR, LPWSTR, UINT, WORD
+                            , dwordsToDdword, ddwordToDwords, failIf
+                            , failIfFalse_, failIf_ )
+import System.Win32.Utils   ( trySized )
 
 import Control.Monad    ( when, liftM3, liftM )
 import Data.Word        ( Word8 )
@@ -35,6 +38,7 @@ import Foreign.Marshal.Utils (with, maybeWith)
 ##include "windows_cconv.h"
 #include <windows.h>
 #include "alignment.h"
+#include "winnls_compat.h"
 
 ----------------------------------------------------------------
 -- data types
@@ -192,7 +196,7 @@ foreign import WINDOWS_CCONV "windows.h GetTickCount" getTickCount :: IO DWORD
 foreign import WINDOWS_CCONV unsafe "windows.h GetLastInputInfo"
   c_GetLastInputInfo :: Ptr LASTINPUTINFO -> IO Bool
 getLastInputInfo :: IO DWORD
-getLastInputInfo = 
+getLastInputInfo =
   with (LASTINPUTINFO 0) $ \lii_p -> do
   failIfFalse_ "GetLastInputInfo" $ c_GetLastInputInfo lii_p
   LASTINPUTINFO lii <- peek lii_p
@@ -200,7 +204,7 @@ getLastInputInfo =
 
 getIdleTime :: IO Integer
 getIdleTime = do
-  lii <- getLastInputInfo 
+  lii <- getLastInputInfo
   now <- getTickCount
   return $ fromIntegral $ now - lii
 
@@ -330,6 +334,26 @@ type GetTimeFormatFlags = DWORD
     , tIME_NOTIMEMARKER     = TIME_NOTIMEMARKER
     , tIME_FORCE24HOURFORMAT= TIME_FORCE24HOURFORMAT
     }
+
+getTimeFormatEx :: Maybe String
+                -> GetTimeFormatFlags
+                -> Maybe SYSTEMTIME
+                -> Maybe String
+                -> IO String
+getTimeFormatEx locale flags st fmt =
+    maybeWith withTString locale $ \c_locale ->
+        maybeWith with st $ \c_st ->
+            maybeWith withTString fmt $ \c_fmt -> do
+                let c_func = c_GetTimeFormatEx c_locale flags c_st c_fmt
+                trySized "GetTimeFormatEx" c_func
+foreign import WINDOWS_CCONV "windows.h GetTimeFormatEx"
+    c_GetTimeFormatEx :: LPCWSTR
+                      -> GetTimeFormatFlags
+                      -> Ptr SYSTEMTIME
+                      -> LPCWSTR
+                      -> LPWSTR
+                      -> CInt
+                      -> IO CInt
 
 foreign import WINDOWS_CCONV "windows.h GetTimeFormatW"
     c_GetTimeFormat :: LCID -> GetTimeFormatFlags -> Ptr SYSTEMTIME -> LPCTSTR -> LPTSTR -> CInt -> IO CInt
