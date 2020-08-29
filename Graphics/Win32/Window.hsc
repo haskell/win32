@@ -20,12 +20,12 @@ import Control.Monad (liftM, when, unless)
 import Data.Maybe (fromMaybe)
 import Data.Int (Int32)
 import Foreign.ForeignPtr (withForeignPtr)
-import Foreign.Marshal.Utils (maybeWith)
+import Foreign.Marshal.Utils (with, maybeWith)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (allocaArray)
 import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, castPtr, nullPtr)
 import Foreign.Ptr (intPtrToPtr, castPtrToFunPtr, freeHaskellFunPtr)
-import Foreign.Storable (pokeByteOff)
+import Foreign.Storable (Storable(..), pokeByteOff)
 import Foreign.C.Types (CIntPtr(..))
 import Graphics.Win32.GDI.Types (HBITMAP, HCURSOR, HDC, HDWP, HRGN, HWND, PRGN)
 import Graphics.Win32.GDI.Types (HBRUSH, HICON, HMENU, prim_ChildWindowFromPoint)
@@ -419,7 +419,7 @@ getWindowTextLength wnd = do
   return size'
 foreign import WINDOWS_CCONV "windows.h GetWindowTextLengthW"
   c_GetWindowTextLength :: HWND -> IO Int
-
+  
 ----------------------------------------------------------------
 -- Paint struct
 ----------------------------------------------------------------
@@ -470,6 +470,9 @@ type ShowWindowControl   = DWORD
 
 foreign import WINDOWS_CCONV "windows.h ShowWindow"
   showWindow :: HWND  -> ShowWindowControl  -> IO Bool
+
+foreign import WINDOWS_CCONV "windows.h IsWindowVisible"
+  isWindowVisible :: HWND -> IO Bool
 
 ----------------------------------------------------------------
 -- Misc
@@ -607,7 +610,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetDesktopWindow"
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetForegroundWindow"
   getForegroundWindow :: IO HWND
-
+  
 getParent :: HWND -> IO HWND
 getParent wnd =
   failIfNull "GetParent" $ c_GetParent wnd
@@ -638,6 +641,40 @@ type SetWindowPosFlags = UINT
  , sWP_DRAWFRAME        = SWP_DRAWFRAME
  , sWP_NOREPOSITION     = SWP_NOREPOSITION
  }
+
+----------------------------------------------------------------
+-- Time
+----------------------------------------------------------------
+
+data LASTINPUTINFO = LASTINPUTINFO DWORD deriving (Show)
+
+instance Storable LASTINPUTINFO where
+  sizeOf = const (#size LASTINPUTINFO)
+  alignment = sizeOf
+  poke buf (LASTINPUTINFO t) = do
+    (#poke LASTINPUTINFO, cbSize) buf ((#size LASTINPUTINFO) :: UINT)
+    (#poke LASTINPUTINFO, dwTime) buf t
+  peek buf = do
+    t <- (#peek LASTINPUTINFO, dwTime) buf
+    return $ LASTINPUTINFO t
+
+getLastInputInfo :: IO DWORD
+getLastInputInfo = 
+  with (LASTINPUTINFO 0) $ \lii_p -> do
+  failIfFalse_ "GetLastInputInfo" $ c_GetLastInputInfo lii_p
+  LASTINPUTINFO lii <- peek lii_p
+  return lii
+foreign import WINDOWS_CCONV unsafe "windows.h GetLastInputInfo"
+  c_GetLastInputInfo :: Ptr LASTINPUTINFO -> IO Bool
+
+foreign import WINDOWS_CCONV unsafe "windows.h GetTickCount"
+  getTickCount :: IO DWORD
+  
+getIdleTime :: IO Integer
+getIdleTime = do
+  lii <- getLastInputInfo 
+  now <- getTickCount
+  return $ fromIntegral $ now - lii
 
 ----------------------------------------------------------------
 -- HDCs
