@@ -18,7 +18,7 @@
 -----------------------------------------------------------------------------
 module System.Win32.Time where
 
-import System.Win32.Types   ( DWORD, WORD, LONG, BOOL, failIf, failIf_, HANDLE
+import System.Win32.Types   ( UINT, DWORD, WORD, LONG, BOOL, failIf, failIf_, failIfFalse_, HANDLE
                             , peekTStringLen, LCID, LPTSTR, LPCTSTR, DDWORD
                             , LARGE_INTEGER, ddwordToDwords, dwordsToDdword )
 
@@ -30,7 +30,7 @@ import Foreign          ( Storable(sizeOf, alignment, peekByteOff, peek,
                         , with, alloca, allocaBytes, copyArray )
 import Foreign.C        ( CInt(..), CWchar(..)
                         , peekCWString, withCWStringLen, withCWString )
-import Foreign.Marshal.Utils (maybeWith)
+import Foreign.Marshal.Utils (with, maybeWith)
 
 ##include "windows_cconv.h"
 #include <windows.h>
@@ -58,6 +58,8 @@ data TIME_ZONE_INFORMATION = TIME_ZONE_INFORMATION
 
 data TimeZoneId = TzIdUnknown | TzIdStandard | TzIdDaylight
     deriving (Show, Eq, Ord)
+
+data LASTINPUTINFO = LASTINPUTINFO DWORD deriving (Show)
 
 ----------------------------------------------------------------
 -- Instances
@@ -128,6 +130,16 @@ instance Storable TIME_ZONE_INFORMATION where
         dnam <- peekCWString (plusPtr buf (#offset TIME_ZONE_INFORMATION, DaylightName))
         return $ TIME_ZONE_INFORMATION bias snam sdat sbia dnam ddat dbia
 
+instance Storable LASTINPUTINFO where
+    sizeOf = const (#size LASTINPUTINFO)
+    alignment = sizeOf
+    poke buf (LASTINPUTINFO t) = do
+        (#poke LASTINPUTINFO, cbSize) buf ((#size LASTINPUTINFO) :: UINT)
+        (#poke LASTINPUTINFO, dwTime) buf t
+    peek buf = do
+        t <- (#peek LASTINPUTINFO, dwTime) buf
+        return $ LASTINPUTINFO t
+
 foreign import WINDOWS_CCONV "windows.h GetSystemTime"
     c_GetSystemTime :: Ptr SYSTEMTIME -> IO ()
 getSystemTime :: IO SYSTEMTIME
@@ -176,6 +188,21 @@ getSystemTimeAdjustment = alloca $ \ta -> alloca $ \ti -> alloca $ \enabled -> d
         else return Nothing
 
 foreign import WINDOWS_CCONV "windows.h GetTickCount" getTickCount :: IO DWORD
+
+foreign import WINDOWS_CCONV unsafe "windows.h GetLastInputInfo"
+  c_GetLastInputInfo :: Ptr LASTINPUTINFO -> IO Bool
+getLastInputInfo :: IO DWORD
+getLastInputInfo = 
+  with (LASTINPUTINFO 0) $ \lii_p -> do
+  failIfFalse_ "GetLastInputInfo" $ c_GetLastInputInfo lii_p
+  LASTINPUTINFO lii <- peek lii_p
+  return lii
+
+getIdleTime :: IO Integer
+getIdleTime = do
+  lii <- getLastInputInfo 
+  now <- getTickCount
+  return $ fromIntegral $ now - lii
 
 foreign import WINDOWS_CCONV "windows.h SetSystemTimeAdjustment"
     c_SetSystemTimeAdjustment :: DWORD -> BOOL -> IO BOOL
