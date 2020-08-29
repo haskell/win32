@@ -2,10 +2,10 @@
 
 ## 2.9.1.0 August 2020
 
-* Add function isWindowVisible
-* Add function getLastInputInfo
-* Add function getTickCount
-* Add function getIdleTime
+* Add function `isWindowVisible`
+* Add function `getLastInputInfo`
+* Add function `getTickCount`
+* Add function `getIdleTime`
 
 ## 2.9.0.0 June 2020
 
