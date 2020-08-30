@@ -33,9 +33,7 @@ The best way to get started is using `cabal new-build` and `cabal sandboxes`:
 ```
 git clone git@github.com:haskell/win32.git
 cd win32
-cabal sandbox init
-cabal install
-cabal repl
+cabal v2-repl
 ```
 
 Testsuite
