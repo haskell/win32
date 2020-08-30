@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.9.1.0 August 2020
+## 2.9.1.0 September 2020
 
 * Add function `isWindowVisible`
 * Add function `getLastInputInfo`
