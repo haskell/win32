@@ -419,7 +419,7 @@ getWindowTextLength wnd = do
   return size'
 foreign import WINDOWS_CCONV "windows.h GetWindowTextLengthW"
   c_GetWindowTextLength :: HWND -> IO Int
-
+  
 ----------------------------------------------------------------
 -- Paint struct
 ----------------------------------------------------------------
@@ -470,6 +470,9 @@ type ShowWindowControl   = DWORD
 
 foreign import WINDOWS_CCONV "windows.h ShowWindow"
   showWindow :: HWND  -> ShowWindowControl  -> IO Bool
+
+foreign import WINDOWS_CCONV "windows.h IsWindowVisible"
+  isWindowVisible :: HWND -> IO Bool
 
 ----------------------------------------------------------------
 -- Misc
@@ -607,7 +610,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetDesktopWindow"
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetForegroundWindow"
   getForegroundWindow :: IO HWND
-
+  
 getParent :: HWND -> IO HWND
 getParent wnd =
   failIfNull "GetParent" $ c_GetParent wnd

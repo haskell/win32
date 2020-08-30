@@ -1,5 +1,12 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.9.1.0 August 2020
+
+* Add function `isWindowVisible`
+* Add function `getLastInputInfo`
+* Add function `getTickCount`
+* Add function `getIdleTime`
+
 ## 2.9.0.0 June 2020
 
 * `setWindowClosure` now returns the old window closure.
