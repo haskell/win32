@@ -13,7 +13,9 @@ environment:
     CABOPTS:  --http-transport=plain-http
     CHOCOCMD: ghc --version %GHCVER%
   matrix:
-    - GHCVER: 8.6.2
+    - GHCVER: 8.10.2
+    - GHCVER: 8.8.4
+    - GHCVER: 8.6.5
     - GHCVER: 8.4.2
     - GHCVER: 8.2.2
     - GHCVER: 8.0.2
@@ -28,6 +30,8 @@ matrix:
   exclude:
     - platform: x86
       GHCVER: head
+      GHCVER: 8.8.4
+      GHCVER: 8.10.2
       
 for:
   -
@@ -60,4 +64,4 @@ before_build:
 
 build_script:
  - echo packages:. > cabal.project
- - cabal %CABOPTS% new-build -j all
+ - cabal %CABOPTS% v2-build -j all
