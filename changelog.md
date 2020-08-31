@@ -1,19 +1,15 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## Not yet released
-
-* Add `getSystemDefaultLocaleName`, `getUserDefaultLocaleName`,
-  `isValidLocaleName`, `getLocaleInfoEx`, `getTimeFormatEx` and `lCMapStringEx`
-
-* Add `trySized` - similar to `try` but for API calls that return the required size
-  of the buffer when passed a buffer size of zero.
-
 ## 2.9.1.0 September 2020
 
 * Add function `isWindowVisible`
 * Add function `getLastInputInfo`
 * Add function `getTickCount`
 * Add function `getIdleTime`
+* Add `getSystemDefaultLocaleName`, `getUserDefaultLocaleName`,
+  `isValidLocaleName`, `getLocaleInfoEx`, `getTimeFormatEx` and `lCMapStringEx`
+* Add `trySized` - similar to `try` but for API calls that return the required size
+  of the buffer when passed a buffer size of zero.
 
 ## 2.9.0.0 June 2020
 
