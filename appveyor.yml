@@ -30,7 +30,9 @@ matrix:
   exclude:
     - platform: x86
       GHCVER: head
+    - platform: x86
       GHCVER: 8.8.4
+    - platform: x86
       GHCVER: 8.10.2
       
 for:
