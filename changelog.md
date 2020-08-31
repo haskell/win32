@@ -1,5 +1,13 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## Not yet released
+
+* Add `getSystemDefaultLocaleName`, `getUserDefaultLocaleName`,
+  `isValidLocaleName`, `getLocaleInfoEx`, `getTimeFormatEx` and `lCMapStringEx`
+
+* Add `trySized` - similar to `try` but for API calls that return the required size
+  of the buffer when passed a buffer size of zero.
+
 ## 2.9.1.0 September 2020
 
 * Add function `isWindowVisible`
@@ -10,10 +18,10 @@
 ## 2.9.0.0 June 2020
 
 * `setWindowClosure` now returns the old window closure.
-* `defWindowProc` now assumes the data stored in `GWLP\_USERDATA` 
+* `defWindowProc` now assumes the data stored in `GWLP\_USERDATA`
   is the window closure (in line with `setWindowClosure` and
   the supplied C `genericWndProc`)
-* `defWindowProc` now frees the window closure 
+* `defWindowProc` now frees the window closure
 * `getMessage` and `peekMessage` test for -1 to identify the error condition
 * Support creating symbolic links without Administrator privilege (See #147)
 * Support for `winio` the new Windows I/O manager.

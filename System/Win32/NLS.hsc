@@ -22,16 +22,39 @@ module System.Win32.NLS  (
         mAKELANGID, pRIMARYLANGID, sUBLANGID
         ) where
 
+import System.Win32.String (withTStringBufferLen)
 import System.Win32.Types
+import System.Win32.Utils (trySized)
 
+#if !MIN_VERSION_base(4,8,0)
+import Control.Applicative ((<$>), (<*>))
+#endif
 import Foreign
 import Foreign.C
+import Text.Printf (printf)
 
 ##include "windows_cconv.h"
 
+-- Somewhere, WINVER and _WIN32_WINNT are being defined as less than 0x0600 -
+-- that is, before Windows Vista. Support for Windows XP was dropped in
+-- GHC 8.0.1 of May 2016. This forces them to be at least 0x0600.
+#if WINVER < 0x0600
+#undef WINVER
+#define WINVER 0x0600
+#endif
+#if _WIN32_WINNT < 0x0600
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
+
 #include <windows.h>
+#include "alignment.h"
 #include "errors.h"
 #include "win32debug.h"
+#include "winnls_compat.h"
+#include "winnt_compat.h"
+
+type NLS_FUNCTION = DWORD
 
 #{enum LCID,
  , lOCALE_SYSTEM_DEFAULT = LOCALE_SYSTEM_DEFAULT
@@ -60,36 +83,236 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetThreadLocale"
 
 type LCTYPE = UINT
 
+-- The following locale information constants are excluded from the `enum` list
+-- below, for the reason indicated:
+-- LOCALE_IDIALINGCODE -- Introduced in Windows 10 but not supported. Synonym
+                       -- for LOCALE_ICOUNTRY.
+-- LOCALE_INEGATIVEPERCENT -- Introduced in Windows 7 but not supported.
+-- LOCALE_IPOSITIVEPERCENT -- Introduced in Windows 7 but not supported.
+-- LOCALE_IREADINGLAYOUT -- Introduced in Windows 7 but not supported.
+-- LOCALE_SAM -- Introduced by Windows 10 but not supported. Synonyn for
+              -- LOCALE_S1159.
+-- LOCALE_SENGLISHDISPLAYNAME -- Introduced in Windows 7 but not supported.
+-- LOCALE_SIETFLANGUAGE -- Not supported (deprecated from Windows Vista).
+-- LOCALE_SNATIVEDISPLAYNAME -- Introduced in Windows 7 but not supported.
+-- LOCALE_SNATIVELANGUAGENAME -- Introduced in Windows 7 but not supported.
+-- LOCALE_SPERCENT -- Introduced in Windows 7 but not supported.
+-- LOCALE_SPM -- Introduced in Windows 10 but not supported. Synonym for
+              -- LOCALE_S2359.
+-- LOCALE_SSHORTESTAM -- Not supported.
+-- LOCALE_SSHORTESTPM -- Not supported.
+-- LOCALE_SSHORTTIME -- Introduced in Windows 7 but not supported.
+
+-- The following locale information constant is included in the list below, but
+-- note:
+-- LOCALE_IINTLCURRDIGITS -- Not supported by Windows 10, use
+                          -- LOCALE_ICURRDIGITS.
+
 #{enum LCTYPE,
+ , lOCALE_FONTSIGNATURE = LOCALE_FONTSIGNATURE
  , lOCALE_ICALENDARTYPE = LOCALE_ICALENDARTYPE
- , lOCALE_SDATE         = LOCALE_SDATE
+ , lOCALE_ICENTURY      = LOCALE_ICENTURY
+ , lOCALE_ICOUNTRY      = LOCALE_ICOUNTRY
  , lOCALE_ICURRDIGITS   = LOCALE_ICURRDIGITS
- , lOCALE_SDECIMAL      = LOCALE_SDECIMAL
  , lOCALE_ICURRENCY     = LOCALE_ICURRENCY
- , lOCALE_SGROUPING     = LOCALE_SGROUPING
+ , lOCALE_IDATE         = LOCALE_IDATE
+ , lOCALE_IDAYLZERO     = LOCALE_IDAYLZERO
+ , lOCALE_IDEFAULTANSICODEPAGE = LOCALE_IDEFAULTANSICODEPAGE
+ , lOCALE_IDEFAULTCODEPAGE = LOCALE_IDEFAULTCODEPAGE
+ , lOCALE_IDEFAULTCOUNTRY = LOCALE_IDEFAULTCOUNTRY
+ , lOCALE_IDEFAULTEBCDICCODEPAGE = LOCALE_IDEFAULTEBCDICCODEPAGE
+ , lOCALE_IDEFAULTLANGUAGE = LOCALE_IDEFAULTLANGUAGE
+ , lOCALE_IDEFAULTMACCODEPAGE = LOCALE_IDEFAULTMACCODEPAGE
  , lOCALE_IDIGITS       = LOCALE_IDIGITS
- , lOCALE_SLIST         = LOCALE_SLIST
+ , lOCALE_IDIGITSUBSTITUTION = LOCALE_IDIGITSUBSTITUTION
  , lOCALE_IFIRSTDAYOFWEEK = LOCALE_IFIRSTDAYOFWEEK
- , lOCALE_SLONGDATE     = LOCALE_SLONGDATE
  , lOCALE_IFIRSTWEEKOFYEAR = LOCALE_IFIRSTWEEKOFYEAR
- , lOCALE_SMONDECIMALSEP = LOCALE_SMONDECIMALSEP
+ , lOCALE_IGEOID        = LOCALE_IGEOID
+ , lOCALE_IINTLCURRDIGITS = LOCALE_IINTLCURRDIGITS
+ , lOCALE_ILANGUAGE     = LOCALE_ILANGUAGE
+ , lOCALE_ILDATE        = LOCALE_ILDATE
  , lOCALE_ILZERO        = LOCALE_ILZERO
- , lOCALE_SMONGROUPING  = LOCALE_SMONGROUPING
  , lOCALE_IMEASURE      = LOCALE_IMEASURE
- , lOCALE_SMONTHOUSANDSEP = LOCALE_SMONTHOUSANDSEP
+ , lOCALE_IMONLZERO     = LOCALE_IMONLZERO
  , lOCALE_INEGCURR      = LOCALE_INEGCURR
- , lOCALE_SNEGATIVESIGN = LOCALE_SNEGATIVESIGN
  , lOCALE_INEGNUMBER    = LOCALE_INEGNUMBER
- , lOCALE_SPOSITIVESIGN = LOCALE_SPOSITIVESIGN
- , lOCALE_SSHORTDATE    = LOCALE_SSHORTDATE
+ , lOCALE_INEGSEPBYSPACE = LOCALE_INEGSEPBYSPACE
+ , lOCALE_INEGSIGNPOSN   = LOCALE_INEGSIGNPOSN
+ , lOCALE_INEGSYMPRECEDES = LOCALE_INEGSYMPRECEDES
+ , lOCALE_IOPTIONALCALENDAR = LOCALE_IOPTIONALCALENDAR
+ , lOCALE_PAPERSIZE     = LOCALE_IPAPERSIZE
+ , lOCALE_IPOSSEPBYSPACE = LOCALE_IPOSSEPBYSPACE
+ , lOCALE_IPOSSIGNPOSN  = LOCALE_IPOSSIGNPOSN
+ , lOCALE_IPSSYMPRECEDES = LOCALE_IPOSSYMPRECEDES
  , lOCALE_ITIME         = LOCALE_ITIME
- , lOCALE_STHOUSAND     = LOCALE_STHOUSAND
+ , lOCALE_ITIMEMARKPOSN = LOCALE_ITIMEMARKPOSN
+ , lOCALE_ITLZERO       = LOCALE_ITLZERO
+ , lOCALE_RETURN_NUMBER = LOCALE_RETURN_NUMBER
  , lOCALE_S1159         = LOCALE_S1159
- , lOCALE_STIME         = LOCALE_STIME
  , lOCALE_S2359         = LOCALE_S2359
- , lOCALE_STIMEFORMAT   = LOCALE_STIMEFORMAT
+ , lOCALE_SABBREVCTRYNAME = LOCALE_SABBREVCTRYNAME
+ , lOCALE_SABBREVDAYNAME1 = LOCALE_SABBREVDAYNAME1
+ , lOCALE_SABBREVDAYNAME2 = LOCALE_SABBREVDAYNAME2
+ , lOCALE_SABBREVDAYNAME3 = LOCALE_SABBREVDAYNAME3
+ , lOCALE_SABBREVDAYNAME4 = LOCALE_SABBREVDAYNAME4
+ , lOCALE_SABBREVDAYNAME5 = LOCALE_SABBREVDAYNAME5
+ , lOCALE_SABBREVDAYNAME6 = LOCALE_SABBREVDAYNAME6
+ , lOCALE_SABBREVDAYNAME7 = LOCALE_SABBREVDAYNAME7
+ , lOCALE_SABBREVLANGNAME = LOCALE_SABBREVLANGNAME
+ , lOCALE_SABBREVMONTHNAME1 = LOCALE_SABBREVMONTHNAME1
+ , lOCALE_SABBREVMONTHNAME2 = LOCALE_SABBREVMONTHNAME2
+ , lOCALE_SABBREVMONTHNAME3 = LOCALE_SABBREVMONTHNAME3
+ , lOCALE_SABBREVMONTHNAME4 = LOCALE_SABBREVMONTHNAME4
+ , lOCALE_SABBREVMONTHNAME5 = LOCALE_SABBREVMONTHNAME5
+ , lOCALE_SABBREVMONTHNAME6 = LOCALE_SABBREVMONTHNAME6
+ , lOCALE_SABBREVMONTHNAME7 = LOCALE_SABBREVMONTHNAME7
+ , lOCALE_SABBREVMONTHNAME8 = LOCALE_SABBREVMONTHNAME8
+ , lOCALE_SABBREVMONTHNAME9 = LOCALE_SABBREVMONTHNAME9
+ , lOCALE_SABBREVMONTHNAME10 = LOCALE_SABBREVMONTHNAME10
+ , lOCALE_SABBREVMONTHNAME11 = LOCALE_SABBREVMONTHNAME11
+ , lOCALE_SABBREVMONTHNAME12 = LOCALE_SABBREVMONTHNAME12
+ , lOCALE_SABBREVMONTHNAME13 = LOCALE_SABBREVMONTHNAME13
+ , lOCALE_SCONSOLEFALLBACKNAME = LOCALE_SCONSOLEFALLBACKNAME
  , lOCALE_SCURRENCY     = LOCALE_SCURRENCY
+ , lOCALE_SDATE         = LOCALE_SDATE
+ , lOCALE_SDAYNAME1     = LOCALE_SDAYNAME1
+ , lOCALE_SDAYNAME2     = LOCALE_SDAYNAME2
+ , lOCALE_SDAYNAME3     = LOCALE_SDAYNAME3
+ , lOCALE_SDAYNAME4     = LOCALE_SDAYNAME4
+ , lOCALE_SDAYNAME5     = LOCALE_SDAYNAME5
+ , lOCALE_SDAYNAME6     = LOCALE_SDAYNAME6
+ , lOCALE_SDAYNAME7     = LOCALE_SDAYNAME7
+ , lOCALE_SDECIMAL      = LOCALE_SDECIMAL
+ , lOCALE_SDURATION     = LOCALE_SDURATION
+ , lOCALE_SENGCURRNAME  = LOCALE_SENGCURRNAME
+ , lOCALE_SENGLISHCOUNTRYNAME = LOCALE_SENGLISHCOUNTRYNAME
+ , lOCALE_SENGLISHLANGUAGENAME = LOCALE_SENGLISHLANGUAGENAME
+ , lOCALE_SGROUPING     = LOCALE_SGROUPING
+ , lOCALE_SINTLSYMBOL   = LOCALE_SINTLSYMBOL
+ , lOCALE_SISO3166CTRYNAME = LOCALE_SISO3166CTRYNAME
+ , lOCALE_SISO3166CTRYNAME2 = LOCALE_SISO3166CTRYNAME2
+ , lOCALE_SISO639LANGNAME = LOCALE_SISO639LANGNAME
+ , lOCALE_SISO639LANGNAME2 = LOCALE_SISO639LANGNAME2
+ , lOCALE_SKEYBOARDSTOINSTALL = LOCALE_SKEYBOARDSTOINSTALL
+ , lOCALE_SLIST         = LOCALE_SLIST
+ , lOCALE_SLONGDATE     = LOCALE_SLONGDATE
+ , lOCALE_SMONDECIMALSEP = LOCALE_SMONDECIMALSEP
+ , lOCALE_SMONGROUPING  = LOCALE_SMONGROUPING
+ , lOCALE_SMONTHNAME1   = LOCALE_SMONTHNAME1
+ , lOCALE_SMONTHNAME2   = LOCALE_SMONTHNAME2
+ , lOCALE_SMONTHNAME3   = LOCALE_SMONTHNAME3
+ , lOCALE_SMONTHNAME4   = LOCALE_SMONTHNAME4
+ , lOCALE_SMONTHNAME5   = LOCALE_SMONTHNAME5
+ , lOCALE_SMONTHNAME6   = LOCALE_SMONTHNAME6
+ , lOCALE_SMONTHNAME7   = LOCALE_SMONTHNAME7
+ , lOCALE_SMONTHNAME8   = LOCALE_SMONTHNAME8
+ , lOCALE_SMONTHNAME9   = LOCALE_SMONTHNAME9
+ , lOCALE_SMONTHNAME10  = LOCALE_SMONTHNAME10
+ , lOCALE_SMONTHNAME11  = LOCALE_SMONTHNAME11
+ , lOCALE_SMONTHNAME12  = LOCALE_SMONTHNAME12
+ , lOCALE_SMONTHNAME13  = LOCALE_SMONTHNAME13
+ , lOCALE_SMONTHOUSANDSEP = LOCALE_SMONTHOUSANDSEP
+ , lOCALE_SNAME         = LOCALE_SNAME
+ , lOCALE_SNAN          = LOCALE_SNAN
+ , lOCALE_SNATIVECOUNTRYNAME = LOCALE_SNATIVECOUNTRYNAME
+ , lOCALE_SNATIVECURRNAME = LOCALE_SNATIVECURRNAME
+ , lOCALE_SNATIVEDIGITS = LOCALE_SNATIVEDIGITS
+ , lOCALE_SNEGATIVESIGN = LOCALE_SNEGATIVESIGN
+ , lOCALE_SNEGINFINITY  = LOCALE_SNEGINFINITY
+ , lOCALE_SPARENT       = LOCALE_SPARENT
+ , lOCALE_SPOSINFINITY  = LOCALE_SPOSINFINITY
+ , lOCALE_SPOSITIVESIGN = LOCALE_SPOSITIVESIGN
+ , lOCALE_SSCRIPTS      = LOCALE_SSCRIPTS
+ , lOCALE_SSHORTDATE    = LOCALE_SSHORTDATE
+ , lOCALE_SSHORTESTDAYNAME1 = LOCALE_SSHORTESTDAYNAME1
+ , lOCALE_SSHORTESTDAYNAME2 = LOCALE_SSHORTESTDAYNAME2
+ , lOCALE_SSHORTESTDAYNAME3 = LOCALE_SSHORTESTDAYNAME3
+ , lOCALE_SSHORTESTDAYNAME4 = LOCALE_SSHORTESTDAYNAME4
+ , lOCALE_SSHORTESTDAYNAME5 = LOCALE_SSHORTESTDAYNAME5
+ , lOCALE_SSHORTESTDAYNAME6 = LOCALE_SSHORTESTDAYNAME6
+ , lOCALE_SSHORTESTDAYNAME7 = LOCALE_SSHORTESTDAYNAME7
+ , lOCALE_SSORTNAME     = LOCALE_SSORTNAME
+ , lOCALE_STHOUSAND     = LOCALE_STHOUSAND
+ , lOCALE_STIME         = LOCALE_STIME
+ , lOCALE_STIMEFORMAT   = LOCALE_STIMEFORMAT
+ , lOCALE_SYEARMONTH    = LOCALE_SYEARMONTH
  }
+
+-- |Type representing locale data
+data LCData
+  -- | Data in the form of a Unicode string.
+  = LCTextualData !String
+  -- | Data in the form of a number. See 'lOCAL_RETURN_NUMBER' and @LOCAL_I*@
+  -- locate information constants.
+  | LCNumericData !DWORD
+  -- | Data in the fomr of a 'LOCALESIGNATURE'. See 'lOCAL_FONTSIGNATURE' locale
+  -- information constant.
+  | LCSignatureData !LOCALESIGNATURE
+  deriving (Eq, Show)
+
+data LOCALESIGNATURE = LOCALESIGNATURE
+  { lsUsb :: !UnicodeSubsetBitfield
+  , lsCsbDefault :: !DDWORD
+  , lsCsbSupported :: !DDWORD
+  } deriving (Eq, Show)
+
+instance Storable LOCALESIGNATURE where
+  sizeOf = const #{size LOCALESIGNATURE}
+  alignment _ = #alignment LOCALESIGNATURE
+  peek buf = do
+    lsUsb'          <- (#peek LOCALESIGNATURE, lsUsb) buf
+    lsCsbDefault'   <- (#peek LOCALESIGNATURE, lsCsbDefault) buf
+    lsCsbSupported' <- (#peek LOCALESIGNATURE, lsCsbSupported) buf
+    return $ LOCALESIGNATURE lsUsb' lsCsbDefault' lsCsbSupported'
+  poke buf info = do
+    (#poke LOCALESIGNATURE, lsUsb) buf (lsUsb info)
+    (#poke LOCALESIGNATURE, lsCsbDefault) buf (lsCsbDefault info)
+    (#poke LOCALESIGNATURE, lsCsbSupported) buf (lsCsbSupported info)
+
+-- | Type representing 128-bit Unicode subset bitfields, as the @base@ package
+-- does include a module exporting a 128-bit unsigned integer type.
+data UnicodeSubsetBitfield = UnicodeSubsetBitfield
+  { usbLow :: !DDWORD
+  , usbHigh :: !DDWORD
+  } deriving (Eq, Show)
+
+instance Storable UnicodeSubsetBitfield where
+  sizeOf _ = 2 * sizeOf (undefined :: DDWORD)
+  alignment _ = alignment (undefined :: DWORD)
+  peek buf = do
+    usbLow'  <- (peekByteOff buf 0 :: IO DDWORD)
+    usbHigh' <- (peekByteOff buf (sizeOf (undefined :: DDWORD)) :: IO DDWORD)
+    return $ UnicodeSubsetBitfield usbLow' usbHigh'
+  poke buf info = do
+    pokeByteOff buf 0 (usbLow info)
+    pokeByteOff buf (sizeOf (undefined :: DDWORD)) (usbHigh info)
+
+getLocaleInfoEx :: Maybe String -> LCTYPE -> IO LCData
+getLocaleInfoEx locale ty
+  | ty == lOCALE_FONTSIGNATURE =
+      getLocaleInfoEx' LCSignatureData localSigCharCount
+
+  | ty .&. lOCALE_RETURN_NUMBER /= 0 =
+      getLocaleInfoEx' LCNumericData dWORDCharCount
+
+  | otherwise = maybeWith withTString locale $ \c_locale ->
+      LCTextualData <$> trySized cFuncName (c_GetLocaleInfoEx c_locale ty)
+ where
+  cFuncName = "GetLocaleInfoEx"
+  -- See https://docs.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-getlocaleinfoex
+  localSigCharCount = (#size LOCALESIGNATURE) `div` (#size WCHAR)
+  dWORDCharCount = (#size DWORD) `div` (#size WCHAR)
+
+  getLocaleInfoEx' constructor bufSize = maybeWith withTString locale $
+    \c_locale -> do
+      value <- alloca $ \buf -> do
+        _ <- failIfZero cFuncName
+          $ c_GetLocaleInfoEx c_locale ty (castPtr buf) bufSize
+        peek buf
+      return $ constructor value
+
+foreign import WINDOWS_CCONV unsafe "windows.h GetLocaleInfoEx"
+  c_GetLocaleInfoEx :: LPCWSTR -> LCTYPE -> LPWSTR -> CInt -> IO CInt
 
 setLocaleInfo :: LCID -> LCTYPE -> String -> IO ()
 setLocaleInfo locale ty info =
@@ -101,24 +324,152 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetLocaleInfoW"
 type LCMapFlags = DWORD
 
 #{enum LCMapFlags,
- , lCMAP_BYTEREV        = LCMAP_BYTEREV
- , lCMAP_FULLWIDTH      = LCMAP_FULLWIDTH
- , lCMAP_HALFWIDTH      = LCMAP_HALFWIDTH
- , lCMAP_HIRAGANA       = LCMAP_HIRAGANA
- , lCMAP_KATAKANA       = LCMAP_KATAKANA
- , lCMAP_LOWERCASE      = LCMAP_LOWERCASE
- , lCMAP_SORTKEY        = LCMAP_SORTKEY
- , lCMAP_UPPERCASE      = LCMAP_UPPERCASE
- , nORM_IGNORECASE      = NORM_IGNORECASE
- , nORM_IGNORENONSPACE  = NORM_IGNORENONSPACE
- , nORM_IGNOREKANATYPE  = NORM_IGNOREKANATYPE
- , nORM_IGNORESYMBOLS   = NORM_IGNORESYMBOLS
- , nORM_IGNOREWIDTH     = NORM_IGNOREWIDTH
- , sORT_STRINGSORT      = SORT_STRINGSORT
- , lCMAP_LINGUISTIC_CASING      = LCMAP_LINGUISTIC_CASING
- , lCMAP_SIMPLIFIED_CHINESE     = LCMAP_SIMPLIFIED_CHINESE
- , lCMAP_TRADITIONAL_CHINESE    = LCMAP_TRADITIONAL_CHINESE
+ , lCMAP_BYTEREV              = LCMAP_BYTEREV
+ , lCMAP_FULLWIDTH            = LCMAP_FULLWIDTH
+ , lCMAP_HALFWIDTH            = LCMAP_HALFWIDTH
+ , lCMAP_HIRAGANA             = LCMAP_HIRAGANA
+ , lCMAP_KATAKANA             = LCMAP_KATAKANA
+ , lCMAP_LINGUISTIC_CASING    = LCMAP_LINGUISTIC_CASING
+ , lCMAP_LOWERCASE            = LCMAP_LOWERCASE
+ , lCMAP_SIMPLIFIED_CHINESE   = LCMAP_SIMPLIFIED_CHINESE
+ , lCMAP_SORTKEY              = LCMAP_SORTKEY
+ , lCMAP_TRADITIONAL_CHINESE  = LCMAP_TRADITIONAL_CHINESE
+ , lCMAP_UPPERCASE            = LCMAP_UPPERCASE
+ , lINGUISTIC_IGNORECASE      = LINGUISTIC_IGNORECASE
+ , lINGUISTIC_IGNOREDIACRITIC = LINGUISTIC_IGNOREDIACRITIC
+ , nORM_IGNORECASE            = NORM_IGNORECASE
+ , nORM_IGNORENONSPACE        = NORM_IGNORENONSPACE
+ , nORM_IGNOREKANATYPE        = NORM_IGNOREKANATYPE
+ , nORM_IGNORESYMBOLS         = NORM_IGNORESYMBOLS
+ , nORM_IGNOREWIDTH           = NORM_IGNOREWIDTH
+ , nORM_LINGUISTIC_CASING     = NORM_LINGUISTIC_CASING
+ , sORT_STRINGSORT            = SORT_STRINGSORT
  }
+
+data NLSVERSIONINFOEX = NLSVERSIONINFOEX
+  { dwNLSVersionInfoSize :: DWORD
+  , dwNLSVersion :: DWORD
+  , dwDefinedVersion :: DWORD
+  , dwEffectiveId :: DWORD
+  , guidCustomVersion :: GUID
+  } deriving (Eq, Show)
+
+instance Storable NLSVERSIONINFOEX where
+  sizeOf = const #{size NLSVERSIONINFOEX}
+  alignment _ = #alignment NLSVERSIONINFOEX
+  peek buf = do
+    dwNLSVersionInfoSize' <- (#peek NLSVERSIONINFOEX, dwNLSVersionInfoSize) buf
+    dwNLSVersion' <- (#peek NLSVERSIONINFOEX, dwNLSVersion) buf
+    dwDefinedVersion' <- (#peek NLSVERSIONINFOEX, dwDefinedVersion) buf
+    dwEffectiveId' <- (#peek NLSVERSIONINFOEX, dwEffectiveId) buf
+    guidCustomVersion' <- (#peek NLSVERSIONINFOEX, guidCustomVersion) buf
+    return $ NLSVERSIONINFOEX dwNLSVersionInfoSize' dwNLSVersion'
+               dwDefinedVersion' dwEffectiveId' guidCustomVersion'
+  poke buf info = do
+    (#poke NLSVERSIONINFOEX, dwNLSVersionInfoSize) buf
+      (dwNLSVersionInfoSize info)
+    (#poke NLSVERSIONINFOEX, dwNLSVersion) buf (dwNLSVersion info)
+    (#poke NLSVERSIONINFOEX, dwDefinedVersion) buf (dwDefinedVersion info)
+    (#poke NLSVERSIONINFOEX, dwEffectiveId) buf (dwEffectiveId info)
+    (#poke NLSVERSIONINFOEX, guidCustomVersion) buf (guidCustomVersion info)
+
+-- Based on the `UnpackedUUID` type of package `uuid-types`.
+data GUID = GUID
+  !Word32
+  !Word16
+  !Word16
+  !Word8
+  !Word8
+  !Word8
+  !Word8
+  !Word8
+  !Word8
+  !Word8
+  !Word8
+  deriving (Eq)
+
+instance Show GUID where
+  show (GUID data1 data2 data3 b1 b2 b3 b4 b5 b6 b7 b8) =
+    printf "{%.8x-%.4x-%.4x-%.2x%2x-%.2x%.2x%.2x%.2x%.2x%.2x}" data1 data2 data3 b1 b2 b3 b4 b5 b6 b7 b8
+
+instance Storable GUID where
+  sizeOf _ = 16
+  alignment _ = 4
+  peekByteOff p off = GUID
+    <$> peekByteOff p off
+    <*> peekByteOff p (off + 4)
+    <*> peekByteOff p (off + 6)
+    <*> peekByteOff p (off + 8)
+    <*> peekByteOff p (off + 9)
+    <*> peekByteOff p (off + 10)
+    <*> peekByteOff p (off + 11)
+    <*> peekByteOff p (off + 12)
+    <*> peekByteOff p (off + 13)
+    <*> peekByteOff p (off + 14)
+    <*> peekByteOff p (off + 15)
+  pokeByteOff p off (GUID data1 data2 data3 b1 b2 b3 b4 b5 b6 b7 b8) = do
+    pokeByteOff p off data1
+    pokeByteOff p (off + 4) data2
+    pokeByteOff p (off + 6) data3
+    pokeByteOff p (off + 8) b1
+    pokeByteOff p (off + 9) b2
+    pokeByteOff p (off + 10) b3
+    pokeByteOff p (off + 11) b4
+    pokeByteOff p (off + 12) b5
+    pokeByteOff p (off + 13) b6
+    pokeByteOff p (off + 14) b7
+    pokeByteOff p (off + 15) b8
+
+getNLSVersionEx :: Maybe String -> IO NLSVERSIONINFOEX
+getNLSVersionEx locale = maybeWith withTString locale $ \c_locale ->
+  with defaultVersionInfo $ \c_versionInfo -> do
+    failIfFalse_ "GetNLSVersionEx" $
+      c_GetNLSVersionEx function c_locale c_versionInfo
+    peek c_versionInfo
+ where
+  function = #{const COMPARE_STRING}
+  defaultVersionInfo = NLSVERSIONINFOEX
+    { dwNLSVersionInfoSize = #{size NLSVERSIONINFOEX}
+    , dwNLSVersion = 0
+    , dwDefinedVersion = 0
+    , dwEffectiveId = 0
+    , guidCustomVersion = GUID 0 0 0 0 0 0 0 0 0 0 0
+    }
+foreign import WINDOWS_CCONV unsafe "windows.h GetNLSVersionEx"
+  c_GetNLSVersionEx :: NLS_FUNCTION
+                    -> LPCWSTR
+                    -> Ptr NLSVERSIONINFOEX
+                    -> IO Bool
+
+lCMapStringEx :: Maybe String
+              -> LCMapFlags
+              -> String
+              -> NLSVERSIONINFOEX
+              -> IO String
+lCMapStringEx locale flags src versionInfo =
+  maybeWith withTString locale $ \c_locale ->
+    withTStringLen src $ \(c_src, src_len) ->
+      with versionInfo $ \c_versionInfo -> do
+        let c_src_len = fromIntegral src_len
+            c_func s l = c_LCMapStringEx c_locale
+                                         flags
+                                         c_src c_src_len
+                                         s l
+                                         c_versionInfo
+                                         nullPtr -- Reserved, must be NULL
+                                         0 -- Reserved, must be 0
+        trySized "LCMapStringEx" c_func
+foreign import WINDOWS_CCONV unsafe "windows.h LCMapStringEx"
+  c_LCMapStringEx :: LPCWSTR
+                  -> LCMapFlags
+                  -> LPCWSTR
+                  -> CInt
+                  -> LPWSTR
+                  -> CInt
+                  -> Ptr NLSVERSIONINFOEX
+                  -> LPVOID
+                  -> LPARAM
+                  -> IO CInt
 
 lCMapString :: LCID -> LCMapFlags -> String -> Int -> IO String
 lCMapString locale flags src dest_size =
@@ -137,6 +488,12 @@ type LocaleTestFlags = DWORD
  , lCID_SUPPORTED       = LCID_SUPPORTED
  }
 
+isValidLocalName :: Maybe String -> IO Bool
+isValidLocalName lpLocaleName =
+  maybeWith withTString lpLocaleName c_IsValidLocaleName
+foreign import WINDOWS_CCONV unsafe "windows.h IsValidLocaleName"
+  c_IsValidLocaleName :: LPCWSTR -> IO Bool
+
 foreign import WINDOWS_CCONV unsafe "windows.h IsValidLocale"
   isValidLocale :: LCID -> LocaleTestFlags -> IO Bool
 
@@ -149,6 +506,42 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetUserDefaultLCID"
 foreign import WINDOWS_CCONV unsafe "windows.h GetUserDefaultLangID"
   getUserDefaultLangID :: LANGID
 
+-- #define LOCALE_NAME_INVARIANT L""
+lOCALE_NAME_INVARIANT :: Maybe String
+lOCALE_NAME_INVARIANT = Just ""
+
+ -- #define LOCALE_NAME_SYSTEM_DEFAULT L"!x-sys-default-locale"
+lOCALE_NAME_SYSTEM_DEFAULT :: Maybe String
+lOCALE_NAME_SYSTEM_DEFAULT = Just "!x-sys-default-locale"
+
+ -- #define LOCALE_NAME_USER_DEFAULT NULL
+lOCALE_NAME_USER_DEFAULT :: Maybe String
+lOCALE_NAME_USER_DEFAULT = Nothing
+
+getUserDefaultLocaleName :: IO String
+getUserDefaultLocaleName =
+  getDefaultLocaleName "GetUserDefaultLocaleName" c_GetUserDefaultLocaleName
+foreign import WINDOWS_CCONV unsafe "windows.h GetUserDefaultLocaleName"
+  c_GetUserDefaultLocaleName :: LPWSTR -> CInt -> IO CInt
+
+#{enum CInt,
+ , lOCALE_NAME_MAX_LENGTH = LOCALE_NAME_MAX_LENGTH
+ }
+
+-- |Helper function for use with 'c_GetUserDefaultLocaleName' or
+-- 'c_GetSystemDefaultLocaleName'. See 'getUserDefaultLocaleName' and
+-- 'getSystemUserDefaultLocaleName'.
+getDefaultLocaleName :: String -> (LPWSTR -> CInt -> IO CInt) -> IO String
+getDefaultLocaleName cDefaultLocaleFuncName cDefaultLocaleFunc =
+  withTStringBufferLen maxLength $ \(buf, len) -> do
+    let c_len = fromIntegral len
+    c_len' <- failIfZero cDefaultLocaleFuncName $
+      cDefaultLocaleFunc buf c_len
+    let len' = fromIntegral c_len'
+    peekTStringLen (buf, len' - 1) -- Drop final null character
+ where
+  maxLength = fromIntegral lOCALE_NAME_MAX_LENGTH
+
 foreign import WINDOWS_CCONV unsafe "windows.h GetThreadLocale"
   getThreadLocale :: IO LCID
 
@@ -157,6 +550,12 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetSystemDefaultLCID"
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetSystemDefaultLangID"
   getSystemDefaultLangID :: LANGID
+
+getSystemDefaultLocaleName :: IO String
+getSystemDefaultLocaleName =
+  getDefaultLocaleName "GetSystemDefaultLocaleName" c_GetSystemDefaultLocaleName
+foreign import WINDOWS_CCONV unsafe "windows.h GetSystemDefaultLocaleName"
+  c_GetSystemDefaultLocaleName :: LPWSTR -> CInt -> IO CInt
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetOEMCP"
   getOEMCP :: CodePage

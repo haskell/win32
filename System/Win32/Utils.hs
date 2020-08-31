@@ -10,12 +10,13 @@
    Utilities for calling Win32 API
 -}
 module System.Win32.Utils
-  ( try, tryWithoutNull, try'
+  ( try, tryWithoutNull, trySized, try'
   -- * Maybe values
   , maybePtr, ptrToMaybe, maybeNum, numToMaybe
   , peekMaybe, withMaybe
   ) where
 import Control.Monad               ( unless )
+import Foreign.C.Types             ( CInt )
 import Foreign.Marshal.Array       ( allocaArray, peekArray )
 import Foreign.Marshal.Utils       ( with )
 import Foreign.Ptr                 ( Ptr, nullPtr )
@@ -23,7 +24,8 @@ import Foreign.Storable            ( Storable(..) )
 import System.Win32.Types          ( failIfZero
                                    , failWith, getLastError, eRROR_INSUFFICIENT_BUFFER )
 import qualified System.Win32.Types ( try )
-import System.Win32.String         ( LPTSTR, peekTString )
+import System.Win32.String         ( LPTSTR, peekTString, peekTStringLen
+                                   , withTStringBufferLen )
 import System.Win32.Types          ( BOOL, UINT, maybePtr, ptrToMaybe, maybeNum, numToMaybe )
 import System.Win32.Word           ( DWORD, PDWORD )
 
@@ -63,9 +65,21 @@ try' loc f n =
         Left r'   -> try' loc f r'
         Right str -> return str
 
+-- | Support for API calls that return the required size, in characters
+-- including a null character, of the buffer when passed a buffer size of zero.
+trySized :: String -> (LPTSTR -> CInt -> IO CInt) -> IO String
+trySized wh f = do
+    c_len <- failIfZero wh $ f nullPtr 0
+    let len = fromIntegral c_len
+    withTStringBufferLen len $ \(buf', len') -> do
+        let c_len' = fromIntegral len'
+        c_len'' <- failIfZero wh $ f buf' c_len'
+        let len'' = fromIntegral c_len''
+        peekTStringLen (buf', len'' - 1) -- Drop final null character
+
 -- | See also: 'Foreign.Marshal.Utils.maybePeek' function.
 peekMaybe :: Storable a => Ptr a -> IO (Maybe a)
-peekMaybe p = 
+peekMaybe p =
   if p == nullPtr
     then return Nothing
     else Just `fmap` peek p
