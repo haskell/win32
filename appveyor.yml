@@ -34,7 +34,9 @@ matrix:
       GHCVER: 8.8.4
     - platform: x86
       GHCVER: 8.10.2
-      
+    - platform: x86_64
+      GHCVER: 8.10.2
+
 for:
   -
     matrix:
