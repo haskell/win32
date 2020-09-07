@@ -34,6 +34,12 @@
 #define LINGUISTIC_IGNORECASE 0x00000010
 #define LINGUISTIC_IGNOREDIACRITIC 0x00000020
 #define NORM_LINGUISTIC_CASING 0x08000000
+// Locale enumeration flag constants
+#define LOCALE_ALL                  0
+#define LOCALE_ALTERNATE_SORTS      0x00000004
+#define LOCALE_REPLACEMENT          0x00000008
+#define LOCALE_SUPPLEMENTAL         0x00000002
+#define LOCALE_WINDOWS              0x00000001
 // Other
 WINBASEAPI WINBOOL WINAPI IsValidLocaleName (LPCWSTR lpLocaleName);
 #endif

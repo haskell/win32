@@ -29,6 +29,8 @@ import System.Win32.Utils (trySized)
 #if !MIN_VERSION_base(4,8,0)
 import Control.Applicative ((<$>), (<*>))
 #endif
+import Control.Monad (when)
+import Data.IORef (modifyIORef, newIORef, readIORef)
 import Foreign
 import Foreign.C
 import Text.Printf (printf)
@@ -496,6 +498,54 @@ foreign import WINDOWS_CCONV unsafe "windows.h IsValidLocaleName"
 
 foreign import WINDOWS_CCONV unsafe "windows.h IsValidLocale"
   isValidLocale :: LCID -> LocaleTestFlags -> IO Bool
+
+type EnumLocalesFlag = DWORD
+
+-- The following locale enumeration flag constants are excluded from the `enum`
+-- list below, for the reason indicated:
+-- LOCALE_NEUTRALDATA -- Introduced in Windows 7 but not supported.
+
+#{enum EnumLocalesFlag,
+ , lOCALE_ALL             = LOCALE_ALL
+ , lOCALE_ALTERNATE_SORTS = LOCALE_ALTERNATE_SORTS
+ , lOCALE_REPLACEMENT     = LOCALE_REPLACEMENT
+ , lOCALE_SUPPLEMENTAL    = LOCALE_SUPPLEMENTAL
+ , lOCALE_WINDOWS         = LOCALE_WINDOWS
+ }
+
+type LOCALE_ENUMPROCEX = LPWSTR -> EnumLocalesFlag -> LPARAM -> IO BOOL
+foreign import WINDOWS_CCONV "wrapper"
+  mkLOCALE_ENUMPROCEX :: LOCALE_ENUMPROCEX -> IO (FunPtr LOCALE_ENUMPROCEX)
+
+enumSystemLocalesEx :: LOCALE_ENUMPROCEX -> EnumLocalesFlag -> LPARAM -> IO ()
+enumSystemLocalesEx callback dwFlags lParam = do
+  c_callback <- mkLOCALE_ENUMPROCEX callback
+  failIfFalse_ "EnumSystemLocalesEx" $
+    c_EnumSystemLocalesEx c_callback dwFlags lParam nullPtr
+  freeHaskellFunPtr c_callback
+foreign import WINDOWS_CCONV safe "windows.h EnumSystemLocalesEx"
+  c_EnumSystemLocalesEx :: (FunPtr LOCALE_ENUMPROCEX)
+                        -> DWORD
+                        -> LPARAM
+                        -> LPVOID
+                        -> IO Bool
+
+enumSystemLocalesEx' :: EnumLocalesFlag
+                     -> Maybe Bool
+                     -- ^ Maybe include (or exclude) replacement locales?
+                     -> IO [String]
+enumSystemLocalesEx' dwFlags mIsReplacement = do
+  store <- newIORef []
+  let localeEnumProcEx c_locale arg2 _ = do
+        locale <- peekTString c_locale
+        case mIsReplacement of
+          Nothing -> modifyIORef store (locale:)
+          Just isReplacement ->
+            when (isReplacement == (arg2 .&. lOCALE_REPLACEMENT /= 0)) $
+              modifyIORef store (locale:)
+        return True
+  enumSystemLocalesEx localeEnumProcEx dwFlags 0
+  reverse <$> readIORef store
 
 foreign import WINDOWS_CCONV unsafe "windows.h IsValidCodePage"
   isValidCodePage :: CodePage -> IO Bool

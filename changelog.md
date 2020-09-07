@@ -6,10 +6,11 @@
 * Add function `getLastInputInfo`
 * Add function `getTickCount`
 * Add function `getIdleTime`
-* Add `getSystemDefaultLocaleName`, `getUserDefaultLocaleName`,
-  `isValidLocaleName`, `getLocaleInfoEx`, `getTimeFormatEx` and `lCMapStringEx`
-* Add `trySized` - similar to `try` but for API calls that return the required size
-  of the buffer when passed a buffer size of zero.
+* Add `enumSystemLocalesEx`, `enumSystemLocalesEx'`,
+  `getSystemDefaultLocaleName`, `getUserDefaultLocaleName`, `isValidLocaleName`,
+  `getLocaleInfoEx`, `getTimeFormatEx` and `lCMapStringEx`
+* Add `trySized` - similar to `try` but for API calls that return the required
+  size of the buffer when passed a buffer size of zero.
 
 ## 2.9.0.0 June 2020
 
