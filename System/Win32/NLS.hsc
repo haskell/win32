@@ -490,8 +490,8 @@ type LocaleTestFlags = DWORD
  , lCID_SUPPORTED       = LCID_SUPPORTED
  }
 
-isValidLocalName :: Maybe String -> IO Bool
-isValidLocalName lpLocaleName =
+isValidLocaleName :: Maybe String -> IO Bool
+isValidLocaleName lpLocaleName =
   maybeWith withTString lpLocaleName c_IsValidLocaleName
 foreign import WINDOWS_CCONV unsafe "windows.h IsValidLocaleName"
   c_IsValidLocaleName :: LPCWSTR -> IO Bool
