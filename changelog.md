@@ -11,6 +11,9 @@
   `getLocaleInfoEx`, `getTimeFormatEx` and `lCMapStringEx`
 * Add `trySized` - similar to `try` but for API calls that return the required
   size of the buffer when passed a buffer size of zero.
+* Add `fromDateFormatPciture` and `fromTimeFormatPicture`, to translate from
+  Windows date and time format pictures to format strings used by the `time`
+  package.
 
 ## 2.9.0.0 June 2020
 
