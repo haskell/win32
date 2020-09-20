@@ -33,7 +33,7 @@ import Foreign          ( Storable(sizeOf, alignment, peekByteOff, peek,
                         , with, alloca, allocaBytes, copyArray )
 import Foreign.C        ( CInt(..), CWchar(..)
                         , peekCWString, withCWStringLen, withCWString )
-import Foreign.Marshal.Utils (with, maybeWith)
+import Foreign.Marshal.Utils (maybeWith)
 
 ##include "windows_cconv.h"
 #include <windows.h>

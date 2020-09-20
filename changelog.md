@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.9.1.0 September 2020
+## 2.10.0.0 September 2020
 
 * Add function `isWindowVisible`
 * Add function `getLastInputInfo`
@@ -14,6 +14,7 @@
 * Add `fromDateFormatPciture` and `fromTimeFormatPicture`, to translate from
   Windows date and time format pictures to format strings used by the `time`
   package.
+* Renamed fields of `COORD` and `SMALL_RECT` to avoid name clashes. (See #157)
 
 ## 2.9.0.0 June 2020
 
