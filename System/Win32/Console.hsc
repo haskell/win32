@@ -170,8 +170,8 @@ instance Storable CONSOLE_SCREEN_BUFFER_INFO where
         (#poke CONSOLE_SCREEN_BUFFER_INFO, dwMaximumWindowSize) buf (dwMaximumWindowSize info)
 
 data COORD = COORD
-    { x :: SHORT
-    , y :: SHORT
+    { xPos :: SHORT
+    , yPos :: SHORT
     } deriving (Show, Eq)
 
 instance Storable COORD where
@@ -182,14 +182,14 @@ instance Storable COORD where
         y' <- (#peek COORD, Y) buf
         return $ COORD x' y'
     poke buf coord = do
-        (#poke COORD, X) buf (x coord)
-        (#poke COORD, Y) buf (y coord)
+        (#poke COORD, X) buf (xPos coord)
+        (#poke COORD, Y) buf (yPos coord)
 
 data SMALL_RECT = SMALL_RECT
-    { left   :: SHORT
-    , top    :: SHORT
-    , right  :: SHORT
-    , bottom :: SHORT
+    { leftPos   :: SHORT
+    , topPos    :: SHORT
+    , rightPos  :: SHORT
+    , bottomPos :: SHORT
     } deriving (Show, Eq)
 
 instance Storable SMALL_RECT where
@@ -202,10 +202,10 @@ instance Storable SMALL_RECT where
         bottom' <- (#peek SMALL_RECT, Bottom) buf
         return $ SMALL_RECT left' top' right' bottom'
     poke buf small_rect = do
-        (#poke SMALL_RECT, Left) buf (left small_rect)
-        (#poke SMALL_RECT, Top) buf (top small_rect)
-        (#poke SMALL_RECT, Right) buf (right small_rect)
-        (#poke SMALL_RECT, Bottom) buf (bottom small_rect)
+        (#poke SMALL_RECT, Left) buf (leftPos small_rect)
+        (#poke SMALL_RECT, Top) buf (topPos small_rect)
+        (#poke SMALL_RECT, Right) buf (rightPos small_rect)
+        (#poke SMALL_RECT, Bottom) buf (bottomPos small_rect)
 
 foreign import WINDOWS_CCONV safe "windows.h GetConsoleScreenBufferInfo"
     c_GetConsoleScreenBufferInfo :: HANDLE -> Ptr CONSOLE_SCREEN_BUFFER_INFO -> IO BOOL
