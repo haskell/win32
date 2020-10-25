@@ -24,8 +24,8 @@ import Foreign.Marshal.Utils     ( maybeWith, with )
 import Foreign.Ptr               ( Ptr, nullPtr )
 import Foreign.Storable          ( Storable(..) )
 import Graphics.Win32.Misc       ( MilliSeconds )
-import System.Win32.File         ( AccessMode )
-import System.Win32.Types        ( LPCTSTR, HANDLE, BOOL, LPVOID, withTString, failIf, failIfFalse_  )
+import System.Win32.File         ( AccessMode, LPSECURITY_ATTRIBUTES, SECURITY_ATTRIBUTES )
+import System.Win32.Types        ( LPCTSTR, HANDLE, BOOL, withTString, failIf, failIfFalse_  )
 import System.Win32.Word         ( DWORD )
 
 import qualified Data.Vector.Storable as V
@@ -58,31 +58,6 @@ type WaitResult = DWORD
     , wAIT_TIMEOUT       = WAIT_TIMEOUT
     , wAIT_FAILED        = WAIT_FAILED
     }
-
----------------------------------------------------------------------------
--- Data
----------------------------------------------------------------------------
-data SECURITY_ATTRIBUTES = SECURITY_ATTRIBUTES
-    { nLength              :: !DWORD
-    , lpSecurityDescriptor :: !LPVOID
-    , bInheritHandle       :: !BOOL
-    } deriving Show
-
-type PSECURITY_ATTRIBUTES = Ptr SECURITY_ATTRIBUTES
-type LPSECURITY_ATTRIBUTES = Ptr SECURITY_ATTRIBUTES
-
-instance Storable SECURITY_ATTRIBUTES where
-    sizeOf = const #{size SECURITY_ATTRIBUTES}
-    alignment _ = #alignment SECURITY_ATTRIBUTES
-    poke buf input = do
-        (#poke SECURITY_ATTRIBUTES, nLength)              buf (nLength input)
-        (#poke SECURITY_ATTRIBUTES, lpSecurityDescriptor) buf (lpSecurityDescriptor input)
-        (#poke SECURITY_ATTRIBUTES, bInheritHandle)       buf (bInheritHandle input)
-    peek buf = do
-        nLength              <- (#peek SECURITY_ATTRIBUTES, nLength)              buf
-        lpSecurityDescriptor <- (#peek SECURITY_ATTRIBUTES, lpSecurityDescriptor) buf
-        bInheritHandle       <- (#peek SECURITY_ATTRIBUTES, bInheritHandle)       buf
-        return SECURITY_ATTRIBUTES{..}
 
 ---------------------------------------------------------------------------
 -- API in Haskell

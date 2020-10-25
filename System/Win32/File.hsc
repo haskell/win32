@@ -239,8 +239,28 @@ newtype GET_FILEEX_INFO_LEVELS = GET_FILEEX_INFO_LEVELS (#type GET_FILEEX_INFO_L
 
 ----------------------------------------------------------------
 
-type LPSECURITY_ATTRIBUTES = Ptr ()
+data SECURITY_ATTRIBUTES = SECURITY_ATTRIBUTES
+    { nLength              :: !DWORD
+    , lpSecurityDescriptor :: !LPVOID
+    , bInheritHandle       :: !BOOL
+    } deriving Show
+
+type PSECURITY_ATTRIBUTES = Ptr SECURITY_ATTRIBUTES
+type LPSECURITY_ATTRIBUTES = Ptr SECURITY_ATTRIBUTES
 type MbLPSECURITY_ATTRIBUTES = Maybe LPSECURITY_ATTRIBUTES
+
+instance Storable SECURITY_ATTRIBUTES where
+    sizeOf = const #{size SECURITY_ATTRIBUTES}
+    alignment _ = #alignment SECURITY_ATTRIBUTES
+    poke buf input = do
+        (#poke SECURITY_ATTRIBUTES, nLength)              buf (nLength input)
+        (#poke SECURITY_ATTRIBUTES, lpSecurityDescriptor) buf (lpSecurityDescriptor input)
+        (#poke SECURITY_ATTRIBUTES, bInheritHandle)       buf (bInheritHandle input)
+    peek buf = do
+        nLength'              <- (#peek SECURITY_ATTRIBUTES, nLength)              buf
+        lpSecurityDescriptor' <- (#peek SECURITY_ATTRIBUTES, lpSecurityDescriptor) buf
+        bInheritHandle'       <- (#peek SECURITY_ATTRIBUTES, bInheritHandle)       buf
+        return $ SECURITY_ATTRIBUTES nLength' lpSecurityDescriptor' bInheritHandle'
 
 ----------------------------------------------------------------
 -- Other types
