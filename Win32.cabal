@@ -28,7 +28,7 @@ Library
         build-depends: unbuildable<0
         buildable: False
 
-    build-depends:      base >= 4.5 && < 5, bytestring, filepath
+    build-depends:      base >= 4.5 && < 5, bytestring, filepath, vector
     -- Black list hsc2hs 0.68.6 which is horribly broken.
     build-tool-depends: hsc2hs:hsc2hs > 0 && < 0.68.6 || > 0.68.6
     ghc-options:        -Wall -fno-warn-name-shadowing
@@ -69,6 +69,7 @@ Library
         System.Win32
         System.Win32.DebugApi
         System.Win32.DLL
+        System.Win32.Event
         System.Win32.File
         System.Win32.FileMapping
         System.Win32.Info
