@@ -1,5 +1,24 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## unreleased
+
+* Add `System.Win32.Event` module
+* Add function `openEvent`
+* Add function `createEvent`
+* Add function `duplicateHandle`
+* Add function `setEvent`
+* Add function `resetEvent`
+* Add function `pulseEvent`
+* Add function `signalObjectAndWait`
+* Add function `waitForSingleObject`
+* Add function `waitForSingleObjectEx`
+* Add function `waitForMultipleObjects`
+* Add function `waitForMultipleObjectsEx`
+* Add enums `DUPLICATE_CLOSE_SOURCE`, `DUPLICATE_SAME_ACCESS`,
+  `EVENT_ALL_ACCESS`, `EVENT_MODIFY_STATE`, `WAIT_ABANDONED`,
+  `WAIT_IO_COMPLETION`, `WAIT_OBJECT_0`, `WAIT_TIMEOUT` and `WAIT_FAILED`.
+* Add struct `SECURITY_ATTRIBUTES`
+
 ## 2.10.0.0 September 2020
 
 * Add function `isWindowVisible`
