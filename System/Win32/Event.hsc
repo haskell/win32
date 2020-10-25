@@ -1,5 +1,3 @@
-{-# LINE 1 "System\\Win32\\Event.hsc" #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE Trustworthy #-}
 -----------------------------------------------------------------------------
 -- |
