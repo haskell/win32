@@ -1,4 +1,3 @@
-{-# LANGUAGE Trustworthy #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  System.Win32.Event
@@ -15,9 +14,8 @@
 -----------------------------------------------------------------------------
 module System.Win32.Event where
 
-import Data.Vector.Storable      ( Vector )
-import Foreign.ForeignPtr        ( withForeignPtr )
 import Foreign.Marshal.Alloc     ( alloca )
+import Foreign.Marshal.Array     ( withArrayLen )
 import Foreign.Marshal.Utils     ( maybeWith, with )
 import Foreign.Ptr               ( Ptr, nullPtr )
 import Foreign.Storable          ( Storable(..) )
@@ -25,8 +23,6 @@ import Graphics.Win32.Misc       ( MilliSeconds )
 import System.Win32.File         ( AccessMode, LPSECURITY_ATTRIBUTES, SECURITY_ATTRIBUTES )
 import System.Win32.Types        ( LPCTSTR, HANDLE, BOOL, withTString, failIf, failIfFalse_  )
 import System.Win32.Word         ( DWORD )
-
-import qualified Data.Vector.Storable as V
 
 ##include "windows_cconv.h"
 
@@ -92,15 +88,13 @@ waitForSingleObject toWaitOn millis = c_WaitForSingleObject toWaitOn millis
 waitForSingleObjectEx :: HANDLE -> MilliSeconds -> Bool -> IO WaitResult
 waitForSingleObjectEx toWaitOn millis alterable = c_WaitForSingleObjectEx toWaitOn millis alterable
 
-waitForMultipleObjects :: Vector HANDLE -> Bool -> MilliSeconds -> IO WaitResult
-waitForMultipleObjects v waitAll millis = do
-  let (fvp, n) = V.unsafeToForeignPtr0 v
-  withForeignPtr fvp $ \vp -> c_WaitForMultipleObjects (fromIntegral n) vp waitAll millis
+waitForMultipleObjects :: [HANDLE] -> Bool -> MilliSeconds -> IO WaitResult
+waitForMultipleObjects hs waitAll millis = withArrayLen hs $ \n hsp ->
+  c_WaitForMultipleObjects (fromIntegral n) hsp waitAll millis
 
-waitForMultipleObjectsEx :: Vector HANDLE -> Bool -> MilliSeconds -> Bool -> IO WaitResult
-waitForMultipleObjectsEx v waitAll millis alterable = do
-  let (fvp, n) = V.unsafeToForeignPtr0 v
-  withForeignPtr fvp $ \vp -> c_WaitForMultipleObjectsEx (fromIntegral n) vp waitAll millis alterable
+waitForMultipleObjectsEx :: [HANDLE] -> Bool -> MilliSeconds -> Bool -> IO WaitResult
+waitForMultipleObjectsEx hs waitAll millis alterable = withArrayLen hs $ \n hsp ->
+  c_WaitForMultipleObjectsEx (fromIntegral n) hsp waitAll millis alterable
 
 ---------------------------------------------------------------------------
 -- Imports
