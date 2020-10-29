@@ -13,7 +13,7 @@ environment:
     CABOPTS:  --http-transport=plain-http
     CHOCOCMD: ghc --version %GHCVER%
   matrix:
-    - GHCVER: 8.10.2
+    - GHCVER: 8.10.2.1
     - GHCVER: 8.8.4
     - GHCVER: 8.6.5
     - GHCVER: 8.4.2
@@ -33,9 +33,7 @@ matrix:
     - platform: x86
       GHCVER: 8.8.4
     - platform: x86
-      GHCVER: 8.10.2
-    - platform: x86_64
-      GHCVER: 8.10.2
+      GHCVER: 8.10.2.1
 
 for:
   -
