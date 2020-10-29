@@ -69,6 +69,7 @@ Library
         System.Win32
         System.Win32.DebugApi
         System.Win32.DLL
+        System.Win32.Event
         System.Win32.File
         System.Win32.FileMapping
         System.Win32.Info
