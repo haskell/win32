@@ -70,4 +70,4 @@ build_script:
  - cabal sdist
  - echo packages: dist-newstyle/sdist/*.tar.gz > cabal.project
  # unfortunately the package name have to be here
- - cabal %CABOPTS% build -j win32
+ - cabal %CABOPTS% build -j pkg:Win32
