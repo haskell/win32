@@ -76,10 +76,10 @@ build_script:
  - echo packages:. > cabal.project
  - cabal %CABOPTS% build -j all
  # Build from sdist if required.
- - IF "%PKG_TEST%" == "yes" (
- cabal sdist
- echo packages: dist-newstyle/sdist/*.tar.gz > cabal.project
- type cabal.project
- # unfortunately the package name have to be here
- cabal %CABOPTS% build -j pkg:Win32
- )
+ - ps: >-
+    If ($env:PKG_TEST -Match "yes") {
+       cabal sdist
+       echo packages: dist-newstyle/sdist/*.tar.gz | Out-File cabal.project
+       cat cabal.project
+       cabal $env:CABOPTS build -j pkg:Win32
+    }
