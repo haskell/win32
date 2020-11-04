@@ -63,7 +63,11 @@ before_build:
  - ghc --version
  - cabal %CABOPTS% new-update
  - IF EXIST configure.ac bash -c "autoreconf -i"
+ - rmdir /Q /S dist-newstyle
 
 build_script:
- - echo packages:. > cabal.project
- - cabal %CABOPTS% v2-build -j all
+ # Build from sdist
+ - cabal sdist
+ - echo packages: dist-newstyle/sdist/*.tar.gz > cabal.project
+ # unfortunately the package name have to be here
+ - cabal %CABOPTS% build -j win32
