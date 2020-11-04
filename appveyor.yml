@@ -51,6 +51,13 @@ for:
       global:
         GHC_OPTS: --pre
         CHOCOCMD: ghc-head
+  -
+    matrix:
+      only:
+        - GHCVER: 8.10.2.1
+    environment:
+      global:
+        PKG_TEST: yes
 
 install:
  - choco source add -n mistuke -s https://www.myget.org/F/mistuke/api/v2
@@ -66,9 +73,13 @@ before_build:
  - rmdir /Q /S dist-newstyle
 
 build_script:
- # Build from sdist
- - cabal sdist
- - "echo packages: dist-newstyle/sdist/*.tar.gz > cabal.project"
- - type cabal.project
+ - echo packages:. > cabal.project
+ - cabal %CABOPTS% build -j all
+ # Build from sdist if required.
+ - IF "%PKG_TEST%" == "yes" (
+ cabal sdist
+ echo packages: dist-newstyle/sdist/*.tar.gz > cabal.project
+ type cabal.project
  # unfortunately the package name have to be here
- - cabal %CABOPTS% build -j pkg:Win32
+ cabal %CABOPTS% build -j pkg:Win32
+ )
