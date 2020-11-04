@@ -79,7 +79,7 @@ build_script:
  - ps: >-
     If ($env:PKG_TEST -Match "yes") {
        cabal sdist
-       echo packages: dist-newstyle/sdist/*.tar.gz | Out-File cabal.project
+       echo "packages: dist-newstyle/sdist/*.tar.gz" | Out-File -Encoding ASCII cabal.project
        cat cabal.project
        cabal $env:CABOPTS build -j pkg:Win32
     }
