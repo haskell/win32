@@ -68,7 +68,7 @@ before_build:
 build_script:
  # Build from sdist
  - cabal sdist
- - echo 'packages: dist-newstyle/sdist/*.tar.gz' > cabal.project
+ - "echo packages: dist-newstyle/sdist/*.tar.gz > cabal.project"
  - type cabal.project
  # unfortunately the package name have to be here
  - cabal %CABOPTS% build -j pkg:Win32
