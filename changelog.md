@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## unreleased
+
+* Remove function `mapFileBs`.
+
 ## 2.10.1.0 October 2020
 
 * Add `System.Win32.Event` module
