@@ -1,4 +1,8 @@
+#if __GLASGOW_HASKELL__ >= 709
+{-# LANGUAGE Safe #-}
+#else
 {-# LANGUAGE Trustworthy #-}
+#endif
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  System.Win32.FileMapping
@@ -22,8 +26,6 @@ import System.Win32.File
 import System.Win32.Info
 
 import Control.Exception        ( mask_, bracket )
-import Data.ByteString          ( ByteString )
-import Data.ByteString.Internal ( fromForeignPtr )
 import Foreign                  ( Ptr, nullPtr, plusPtr, maybeWith, FunPtr
                                 , ForeignPtr, newForeignPtr )
 import Foreign.C.Types (CUIntPtr(..))
@@ -52,12 +54,6 @@ mapFile path = do
                     ptr <- mapViewOfFile fm fILE_MAP_READ 0 0
                     newForeignPtr c_UnmapViewOfFileFinaliser ptr
                 return (fp, fromIntegral $ bhfiSize fi)
-
--- | As mapFile, but returns ByteString
-mapFileBs :: FilePath -> IO ByteString
-mapFileBs p = do
-    (fp,i) <- mapFile p
-    return $ fromForeignPtr fp 0 i
 
 data MappedObject = MappedObject HANDLE HANDLE FileMapAccess
 
