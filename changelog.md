@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## unreleased
+## 2.11.0.0 January 2021
 
 * Remove function `mapFileBs`.
 
