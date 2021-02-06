@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE Trustworthy #-}
 -----------------------------------------------------------------------------
 -- |
@@ -15,6 +16,9 @@
 
 module System.Win32.NLS  (
         module System.Win32.NLS,
+#if MIN_VERSION_base(4,15,0)
+        CodePage,
+#endif
 
         -- defined in System.Win32.Types
         LCID, LANGID, SortID, SubLANGID, PrimaryLANGID,
@@ -33,6 +37,9 @@ import Control.Monad (when)
 import Data.IORef (modifyIORef, newIORef, readIORef)
 import Foreign
 import Foreign.C
+#if MIN_VERSION_base(4,15,0)
+import GHC.IO.Encoding.CodePage (CodePage)
+#endif
 import Text.Printf (printf)
 
 ##include "windows_cconv.h"
@@ -69,7 +76,9 @@ foreign import WINDOWS_CCONV unsafe "windows.h ConvertDefaultLocale"
 
 -- ToDo: various enum functions.
 
+#if !MIN_VERSION_base(4,15,0)
 type CodePage = UINT
+#endif
 
 #{enum CodePage,
  , cP_ACP       = CP_ACP
