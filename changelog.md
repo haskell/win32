@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## next
+* Make `System.Win32.NLS` re-export `CodePage` from `GHC.IO.Encoding.CodePage`
+  in `base` when compiled with `base-4.15` or later.
+
 ## 2.11.0.0 January 2021
 
 * Remove function `mapFileBs`.
