@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## *Unreleased*
+
+* Fix Alignment of LASTINPUTINFO (See #172)
+
 ## 2.11.1.0 February 2021
 
 * Win32 for GHC 9.2.x

@@ -136,7 +136,7 @@ instance Storable TIME_ZONE_INFORMATION where
 
 instance Storable LASTINPUTINFO where
     sizeOf = const (#size LASTINPUTINFO)
-    alignment = sizeOf
+    alignment _ = #alignment LASTINPUTINFO
     poke buf (LASTINPUTINFO t) = do
         (#poke LASTINPUTINFO, cbSize) buf ((#size LASTINPUTINFO) :: UINT)
         (#poke LASTINPUTINFO, dwTime) buf t
