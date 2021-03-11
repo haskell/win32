@@ -11,6 +11,6 @@ main = do
   k2 <- regCreateKey k1 "Haskell"
   k3 <- regCreateKey k2 "GHC"
   flip finally (regDeleteValue k3 name) $ do
-  regSetStringValue k3 name x
-  r <- regQueryDefaultValue k3 name
-  print r
+    regSetStringValue k3 name x
+    r <- regQueryDefaultValue k3 name
+    print r
