@@ -16,7 +16,40 @@
 -- A collection of FFI declarations for interfacing with Win32 Time API.
 --
 -----------------------------------------------------------------------------
-module System.Win32.Time where
+module System.Win32.Time
+    ( FILETIME(..)
+    , SYSTEMTIME(..)
+    , TIME_ZONE_INFORMATION(..)
+    , TimeZoneId(..)
+    , getSystemTime
+    , setSystemTime
+    , getSystemTimeAsFileTime
+    , getLocalTime
+    , setLocalTime
+    , getSystemTimeAdjustment
+    , getTickCount
+    , getLastInputInfo
+    , getIdleTime
+    , setSystemTimeAdjustment
+    , getTimeZoneInformation
+    , systemTimeToFileTime
+    , fileTimeToSystemTime
+    , getFileTime
+    , setFileTime
+    , fileTimeToLocalFileTime
+    , localFileTimeToFileTime
+    , queryPerformanceFrequency
+    , queryPerformanceCounter
+    , GetTimeFormatFlags
+    , lOCALE_NOUSEROVERRIDE
+    , lOCALE_USE_CP_ACP
+    , tIME_NOMINUTESORSECONDS
+    , tIME_NOSECONDS
+    , tIME_NOTIMEMARKER
+    , tIME_FORCE24HOURFORMAT
+    , getTimeFormatEx
+    , getTimeFormat
+    ) where
 
 import System.Win32.String  ( peekTStringLen, withTString )
 import System.Win32.Types   ( BOOL, DDWORD, DWORD, HANDLE, LARGE_INTEGER, LCID

@@ -16,7 +16,33 @@
 -- A collection of FFI declarations for interfacing with Win32 mapped files.
 --
 -----------------------------------------------------------------------------
-module System.Win32.FileMapping where
+module System.Win32.FileMapping
+    ( mapFile
+    , MappedObject(..)
+    , withMappedFile
+    , withMappedArea
+      -- * Enums
+      -- ** Section protection flags
+    , ProtectSectionFlags
+    , sEC_COMMIT
+    , sEC_IMAGE
+    , sEC_NOCACHE
+    , sEC_RESERVE
+      -- ** Access falgs
+    , FileMapAccess
+    , fILE_MAP_ALL_ACCESS
+    , fILE_MAP_COPY
+    , fILE_MAP_READ
+    , fILE_MAP_WRITE
+    , fILE_SHARE_WRITE
+
+      -- * Mapping files
+    , createFileMapping
+    , openFileMapping
+    , mapViewOfFileEx
+    , mapViewOfFile
+    , unmapViewOfFile
+    ) where
 
 import System.Win32.Types   ( HANDLE, DWORD, BOOL, SIZE_T, LPCTSTR, withTString
                             , failIf, failIfNull, DDWORD, ddwordToDwords

@@ -17,7 +17,19 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.DLL where
+module System.Win32.DLL
+    ( disableThreadLibraryCalls
+    , freeLibrary
+    , getModuleFileName
+    , getModuleHandle
+    , getProcAddress
+    , loadLibrary
+    , loadLibraryEx
+    , setDllDirectory
+    , LoadLibraryFlags
+    , lOAD_LIBRARY_AS_DATAFILE
+    , lOAD_WITH_ALTERED_SEARCH_PATH
+    ) where
 
 import System.Win32.Types
 
@@ -41,10 +53,6 @@ freeLibrary hmod =
 foreign import WINDOWS_CCONV unsafe "windows.h FreeLibrary"
   c_FreeLibrary :: HMODULE -> IO Bool
 
-{-# CFILES cbits/HsWin32.c #-}
-foreign import ccall "HsWin32.h &FreeLibraryFinaliser"
-    c_FreeLibraryFinaliser :: FunPtr (HMODULE -> IO ())
-
 getModuleFileName :: HMODULE -> IO String
 getModuleFileName hmod =
   allocaArray 512 $ \ c_str -> do
@@ -64,6 +72,7 @@ getProcAddress :: HMODULE -> String -> IO Addr
 getProcAddress hmod procname =
   withCAString procname $ \ c_procname ->
   failIfNull "GetProcAddress" $ c_GetProcAddress hmod c_procname
+
 foreign import WINDOWS_CCONV unsafe "windows.h GetProcAddress"
   c_GetProcAddress :: HMODULE -> LPCSTR -> IO Addr
 

@@ -19,6 +19,7 @@ module System.Win32.Info.Version
     -- * Verify OS version
   , isVistaOrLater, is7OrLater
   ) where
+
 import Foreign.Ptr           ( Ptr, plusPtr )
 import Foreign.Marshal.Alloc ( alloca )
 import Foreign.Storable      ( Storable(..) )

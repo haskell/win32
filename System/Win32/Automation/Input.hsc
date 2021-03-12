@@ -11,7 +11,16 @@
    Provide sendInput function and INPUT types.
 -}
 module System.Win32.Automation.Input
-  ( module System.Win32.Automation.Input
+  ( sendInput
+  , sendInputPtr
+  , makeKeyboardInput
+  , PINPUT
+  , LPINPUT
+  , INPUT(..)
+  , PHARDWAREINPUT
+  , HARDWAREINPUT(..)
+  , getMessageExtraInfo
+  , setMessageExtraInfo
   , module System.Win32.Automation.Input.Key
   , module System.Win32.Automation.Input.Mouse
   ) where

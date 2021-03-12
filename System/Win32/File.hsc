@@ -17,7 +17,226 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.File where
+module System.Win32.File
+    ( -- * Access modes
+      AccessMode
+    , gENERIC_NONE
+    , gENERIC_READ
+    , gENERIC_WRITE
+    , gENERIC_EXECUTE
+    , gENERIC_ALL
+    , dELETE
+    , rEAD_CONTROL
+    , wRITE_DAC
+    , wRITE_OWNER
+    , sYNCHRONIZE
+    , sTANDARD_RIGHTS_REQUIRED
+    , sTANDARD_RIGHTS_READ
+    , sTANDARD_RIGHTS_WRITE
+    , sTANDARD_RIGHTS_EXECUTE
+    , sTANDARD_RIGHTS_ALL
+    , sPECIFIC_RIGHTS_ALL
+    , aCCESS_SYSTEM_SECURITY
+    , mAXIMUM_ALLOWED
+    , fILE_ADD_FILE
+    , fILE_ADD_SUBDIRECTORY
+    , fILE_ALL_ACCESS
+    , fILE_APPEND_DATA
+    , fILE_CREATE_PIPE_INSTANCE
+    , fILE_DELETE_CHILD
+    , fILE_EXECUTE
+    , fILE_LIST_DIRECTORY
+    , fILE_READ_ATTRIBUTES
+    , fILE_READ_DATA
+    , fILE_READ_EA
+    , fILE_TRAVERSE
+    , fILE_WRITE_ATTRIBUTES
+    , fILE_WRITE_DATA
+    , fILE_WRITE_EA
+
+      -- * Sharing modes
+    , ShareMode
+    , fILE_SHARE_NONE
+    , fILE_SHARE_READ
+    , fILE_SHARE_WRITE
+    , fILE_SHARE_DELETE
+
+      -- * Creation modes
+    , CreateMode
+    , cREATE_NEW
+    , cREATE_ALWAYS
+    , oPEN_EXISTING
+    , oPEN_ALWAYS
+    , tRUNCATE_EXISTING
+
+      -- * File attributes and flags
+    , FileAttributeOrFlag
+    , fILE_ATTRIBUTE_READONLY
+    , fILE_ATTRIBUTE_HIDDEN
+    , fILE_ATTRIBUTE_SYSTEM
+    , fILE_ATTRIBUTE_DIRECTORY
+    , fILE_ATTRIBUTE_ARCHIVE
+    , fILE_ATTRIBUTE_NORMAL
+    , fILE_ATTRIBUTE_TEMPORARY
+    , fILE_ATTRIBUTE_COMPRESSED
+    , fILE_ATTRIBUTE_REPARSE_POINT
+    , fILE_FLAG_WRITE_THROUGH
+    , fILE_FLAG_OVERLAPPED
+    , fILE_FLAG_NO_BUFFERING
+    , fILE_FLAG_RANDOM_ACCESS
+    , fILE_FLAG_SEQUENTIAL_SCAN
+    , fILE_FLAG_DELETE_ON_CLOSE
+    , fILE_FLAG_BACKUP_SEMANTICS
+    , fILE_FLAG_POSIX_SEMANTICS
+#ifndef __WINE_WINDOWS_H
+    , sECURITY_ANONYMOUS
+    , sECURITY_IDENTIFICATION
+    , sECURITY_IMPERSONATION
+    , sECURITY_DELEGATION
+    , sECURITY_CONTEXT_TRACKING
+    , sECURITY_EFFECTIVE_ONLY
+    , sECURITY_SQOS_PRESENT
+    , sECURITY_VALID_SQOS_FLAGS
+#endif
+
+      -- * Move file flags
+    , MoveFileFlag
+    , mOVEFILE_REPLACE_EXISTING
+    , mOVEFILE_COPY_ALLOWED
+    , mOVEFILE_DELAY_UNTIL_REBOOT
+
+      -- * File pointer directions
+    , FilePtrDirection
+    , fILE_BEGIN
+    , fILE_CURRENT
+    , fILE_END
+
+      -- * Drive types
+    , DriveType
+    , dRIVE_UNKNOWN
+    , dRIVE_NO_ROOT_DIR
+    , dRIVE_REMOVABLE
+    , dRIVE_FIXED
+    , dRIVE_REMOTE
+    , dRIVE_CDROM
+    , dRIVE_RAMDISK
+
+      -- * Define DOS device flags
+    , DefineDosDeviceFlags
+    , dDD_RAW_TARGET_PATH
+    , dDD_REMOVE_DEFINITION
+    , dDD_EXACT_MATCH_ON_REMOVE
+
+      -- * Binary types
+    , BinaryType
+    , sCS_32BIT_BINARY
+    , sCS_DOS_BINARY
+    , sCS_WOW_BINARY
+    , sCS_PIF_BINARY
+    , sCS_POSIX_BINARY
+    , sCS_OS216_BINARY
+
+      -- * File notification flags
+    , FileNotificationFlag
+    , fILE_NOTIFY_CHANGE_FILE_NAME
+    , fILE_NOTIFY_CHANGE_DIR_NAME
+    , fILE_NOTIFY_CHANGE_ATTRIBUTES
+    , fILE_NOTIFY_CHANGE_SIZE
+    , fILE_NOTIFY_CHANGE_LAST_WRITE
+    , fILE_NOTIFY_CHANGE_SECURITY
+
+      -- * File types
+    , FileType
+    , fILE_TYPE_UNKNOWN
+    , fILE_TYPE_DISK
+    , fILE_TYPE_CHAR
+    , fILE_TYPE_PIPE
+    , fILE_TYPE_REMOTE
+
+      -- * Lock modes
+    , LockMode
+    , lOCKFILE_EXCLUSIVE_LOCK
+    , lOCKFILE_FAIL_IMMEDIATELY
+
+      -- * GetFileEx information levels
+    , GET_FILEEX_INFO_LEVELS
+    , getFileExInfoStandard
+    , getFileExMaxInfoLevel
+
+      -- * Security attributes
+    , SECURITY_ATTRIBUTES(..)
+    , PSECURITY_ATTRIBUTES
+    , LPSECURITY_ATTRIBUTES
+    , MbLPSECURITY_ATTRIBUTES
+
+      -- * BY_HANDLE file information
+    , BY_HANDLE_FILE_INFORMATION(..)
+
+      -- * Win32 file attribute data
+    , WIN32_FILE_ATTRIBUTE_DATA(..)
+
+      -- * Helpers
+    , failIfWithRetry
+    , failIfWithRetry_
+    , failIfFalseWithRetry_
+      -- * File operations
+    , deleteFile
+    , copyFile
+    , moveFile
+    , moveFileEx
+    , setCurrentDirectory
+    , createDirectory
+    , createDirectoryEx
+    , removeDirectory
+    , getBinaryType
+
+      -- * HANDLE operations
+    , createFile
+    , closeHandle
+    , getFileType
+    , flushFileBuffers
+    , setEndOfFile
+    , setFileAttributes
+    , getFileAttributes
+    , getFileAttributesExStandard
+    , getFileInformationByHandle
+
+      -- ** Reading/writing
+      -- | Some operations below bear the @win32_@ prefix to avoid shadowing
+      -- operations from "Prelude".
+    , OVERLAPPED(..)
+    , LPOVERLAPPED
+    , MbLPOVERLAPPED
+    , win32_ReadFile
+    , win32_WriteFile
+    , setFilePointerEx
+
+      -- * File notifications
+    , findFirstChangeNotification
+    , findNextChangeNotification
+    , findCloseChangeNotification
+
+      -- * Directories
+    , FindData
+    , getFindDataFileName
+    , findFirstFile
+    , findNextFile
+    , findClose
+
+      -- * DOS device flags
+    , defineDosDevice
+    , areFileApisANSI
+    , setFileApisToOEM
+    , setFileApisToANSI
+    , setHandleCount
+    , getLogicalDrives
+    , getDiskFreeSpace
+    , setVolumeLabel
+
+      -- * File locks
+    , lockFile
+    , unlockFile
+    ) where
 
 import System.Win32.Types
 import System.Win32.Time
