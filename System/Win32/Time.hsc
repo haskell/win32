@@ -36,6 +36,7 @@ module System.Win32.Time
     , fileTimeToSystemTime
     , getFileTime
     , setFileTime
+    , invalidFileTime
     , fileTimeToLocalFileTime
     , localFileTimeToFileTime
     , queryPerformanceFrequency
@@ -288,14 +289,21 @@ getFileTime h = alloca $ \crt -> alloca $ \acc -> alloca $ \wrt -> do
     failIf_ not "getFileTime: GetFileTime" $ c_GetFileTime h crt acc wrt
     liftM3 (,,) (peek crt) (peek acc) (peek wrt)
 
+invalidFileTime :: FILETIME
+invalidFileTime = FILETIME 0
+
 foreign import WINDOWS_CCONV "windows.h SetFileTime"
     c_SetFileTime :: HANDLE -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO BOOL
-setFileTime :: HANDLE -> FILETIME -> FILETIME -> FILETIME -> IO ()
-setFileTime h crt acc wrt = with crt $
-    \c_crt -> with acc $
-    \c_acc -> with wrt $
+setFileTime :: HANDLE -> Maybe FILETIME -> Maybe FILETIME -> Maybe FILETIME -> IO ()
+setFileTime h crt acc wrt = withTime crt $
+    \c_crt -> withTime acc $
+    \c_acc -> withTime wrt $
     \c_wrt -> do
       failIf_ not "setFileTime: SetFileTime" $ c_SetFileTime h c_crt c_acc c_wrt
+  where
+    withTime :: Maybe FILETIME -> (Ptr FILETIME -> IO a) -> IO a
+    withTime Nothing k  = k nullPtr
+    withTime (Just t) k = with t k
 
 foreign import WINDOWS_CCONV "windows.h FileTimeToLocalFileTime"
     c_FileTimeToLocalFileTime :: Ptr FILETIME -> Ptr FILETIME -> IO BOOL
