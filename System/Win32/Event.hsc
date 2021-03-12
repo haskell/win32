@@ -12,7 +12,37 @@
 -- processes.
 --
 -----------------------------------------------------------------------------
-module System.Win32.Event where
+module System.Win32.Event
+    ( -- * Duplicate options
+      DuplicateOption
+    , dUPLICATE_CLOSE_SOURCE
+    , dUPLICATE_SAME_ACCESS
+      -- * Access modes
+    , AccessMode
+    , eVENT_ALL_ACCESS
+    , eVENT_MODIFY_STATE
+      -- * Wait results
+    , WaitResult
+    , wAIT_ABANDONED
+    , wAIT_IO_COMPLETION
+    , wAIT_OBJECT_0
+    , wAIT_TIMEOUT
+    , wAIT_FAILED
+      -- * Managing events
+    , openEvent
+    , createEvent
+    , duplicateHandle
+    , setEvent
+    , resetEvent
+    , pulseEvent
+      -- * Signalling objects
+    , signalObjectAndWait
+      -- * Waiting on objects
+    , waitForSingleObject
+    , waitForSingleObjectEx
+    , waitForMultipleObjects
+    , waitForMultipleObjectsEx
+    ) where
 
 import Foreign.Marshal.Alloc     ( alloca )
 import Foreign.Marshal.Array     ( withArrayLen )
