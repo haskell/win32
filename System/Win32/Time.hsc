@@ -16,7 +16,41 @@
 -- A collection of FFI declarations for interfacing with Win32 Time API.
 --
 -----------------------------------------------------------------------------
-module System.Win32.Time where
+module System.Win32.Time
+    ( FILETIME(..)
+    , SYSTEMTIME(..)
+    , TIME_ZONE_INFORMATION(..)
+    , TimeZoneId(..)
+    , getSystemTime
+    , setSystemTime
+    , getSystemTimeAsFileTime
+    , getLocalTime
+    , setLocalTime
+    , getSystemTimeAdjustment
+    , getTickCount
+    , getLastInputInfo
+    , getIdleTime
+    , setSystemTimeAdjustment
+    , getTimeZoneInformation
+    , systemTimeToFileTime
+    , fileTimeToSystemTime
+    , getFileTime
+    , setFileTime
+    , invalidFileTime
+    , fileTimeToLocalFileTime
+    , localFileTimeToFileTime
+    , queryPerformanceFrequency
+    , queryPerformanceCounter
+    , GetTimeFormatFlags
+    , lOCALE_NOUSEROVERRIDE
+    , lOCALE_USE_CP_ACP
+    , tIME_NOMINUTESORSECONDS
+    , tIME_NOSECONDS
+    , tIME_NOTIMEMARKER
+    , tIME_FORCE24HOURFORMAT
+    , getTimeFormatEx
+    , getTimeFormat
+    ) where
 
 import System.Win32.String  ( peekTStringLen, withTString )
 import System.Win32.Types   ( BOOL, DDWORD, DWORD, HANDLE, LARGE_INTEGER, LCID
@@ -255,14 +289,21 @@ getFileTime h = alloca $ \crt -> alloca $ \acc -> alloca $ \wrt -> do
     failIf_ not "getFileTime: GetFileTime" $ c_GetFileTime h crt acc wrt
     liftM3 (,,) (peek crt) (peek acc) (peek wrt)
 
+invalidFileTime :: FILETIME
+invalidFileTime = FILETIME 0
+
 foreign import WINDOWS_CCONV "windows.h SetFileTime"
     c_SetFileTime :: HANDLE -> Ptr FILETIME -> Ptr FILETIME -> Ptr FILETIME -> IO BOOL
-setFileTime :: HANDLE -> FILETIME -> FILETIME -> FILETIME -> IO ()
-setFileTime h crt acc wrt = with crt $
-    \c_crt -> with acc $
-    \c_acc -> with wrt $
+setFileTime :: HANDLE -> Maybe FILETIME -> Maybe FILETIME -> Maybe FILETIME -> IO ()
+setFileTime h crt acc wrt = withTime crt $
+    \c_crt -> withTime acc $
+    \c_acc -> withTime wrt $
     \c_wrt -> do
       failIf_ not "setFileTime: SetFileTime" $ c_SetFileTime h c_crt c_acc c_wrt
+  where
+    withTime :: Maybe FILETIME -> (Ptr FILETIME -> IO a) -> IO a
+    withTime Nothing k  = k nullPtr
+    withTime (Just t) k = with t k
 
 foreign import WINDOWS_CCONV "windows.h FileTimeToLocalFileTime"
     c_FileTimeToLocalFileTime :: Ptr FILETIME -> Ptr FILETIME -> IO BOOL

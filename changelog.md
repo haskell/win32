@@ -1,8 +1,14 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.11.1.0 February 2021
+## 2.12.0.0 March 2021
 
 * Win32 for GHC 9.2.x
+* Add export lists to all modules, hiding numerous internal `c_` bindings.
+* Update the type of `setFileTime` to reflect the fact that the `FILETIME`
+  arguments are in fact `Maybe`s.
+
+## 2.11.1.0 February 2021
+
 * Make `System.Win32.NLS` re-export `CodePage` from `GHC.IO.Encoding.CodePage`
   in `base` when compiled with `base-4.15` or later.
 

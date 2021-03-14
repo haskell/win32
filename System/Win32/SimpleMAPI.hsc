@@ -35,8 +35,7 @@ import Foreign.C            ( withCAString, withCAStringLen )
   -- Apparently, simple MAPI does not support unicode and probably never will,
   -- so this module will just mangle any Unicode in your strings
 import Graphics.Win32.GDI.Types     ( HWND)
-import System.Win32.DLL     ( loadLibrary, c_GetProcAddress, freeLibrary
-                            , c_FreeLibraryFinaliser )
+import System.Win32.DLL     ( loadLibrary, freeLibrary, getProcAddress )
 import System.Win32.Types   ( DWORD, LPSTR, HMODULE, failIfNull )
 
 ##include "windows_cconv.h"
@@ -171,9 +170,9 @@ loadMapiFuncs dllname dll =  liftM5 MapiFuncs
     (loadProc "MAPISendMail"    dll mkMapiSendMail)
     where
        loadProc :: String -> HMODULE -> (FunPtr a -> a) -> IO a
-       loadProc name dll' conv = withCAString name $ \name' -> do
+       loadProc name dll' conv = do
             proc <- failIfNull ("loadMapiDll: " ++ dllname ++ ": " ++ name)
-                        $ c_GetProcAddress dll' name'
+                        $ getProcAddress dll' name
             return $ conv $ castPtrToFunPtr proc
 -- |
 loadMapiDll :: String -> IO (MapiFuncs, HMODULE)
@@ -203,6 +202,11 @@ loadMapi dlls = do
         loadOne l = case l of
             []  -> fail $ "loadMapi: Failed to load any of DLLs: " ++ show dlls
             x:y -> handleIOException (const $ loadOne y) (loadMapiDll x)
+
+
+{-# CFILES cbits/HsWin32.c #-}
+foreign import ccall "HsWin32.h &FreeLibraryFinaliser"
+    c_FreeLibraryFinaliser :: FunPtr (HMODULE -> IO ())
 
 -- |
 withMapiLoaded :: MapiLoaded -> (MapiFuncs -> IO a) -> IO a

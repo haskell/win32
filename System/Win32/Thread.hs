@@ -15,14 +15,10 @@ module System.Win32.Thread
   ( THANDLE, TID
   , getCurrentThread
   , suspendThread
-  , c_SuspendThread
   , resumeThread
-  , c_ResumeThread
   , withSuspendedThread
   , getThreadId
-  , c_GetThreadId
   , getCurrentThreadId
-  , c_GetCurrentThreadId
   ) where
 
 import System.Win32.DebugApi

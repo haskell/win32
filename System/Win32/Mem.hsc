@@ -17,7 +17,90 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.Mem where
+module System.Win32.Mem
+    ( MEMORY_BASIC_INFORMATION(..)
+    , copyMemory
+    , moveMemory
+    , fillMemory
+    , zeroMemory
+    , memset
+    , getProcessHeap
+#ifndef __WINE_WINDOWS_H
+    , getProcessHeaps
+#endif
+    , HGLOBAL
+      -- * Global allocation
+    , GlobalAllocFlags
+    , gMEM_INVALID_HANDLE
+    , gMEM_FIXED
+    , gMEM_MOVEABLE
+    , gPTR
+    , gHND
+    , gMEM_DDESHARE
+    , gMEM_SHARE
+    , gMEM_LOWER
+    , gMEM_NOCOMPACT
+    , gMEM_NODISCARD
+    , gMEM_NOT_BANKED
+    , gMEM_NOTIFY
+    , gMEM_ZEROINIT
+    , globalAlloc
+    , globalFlags
+    , globalFree
+    , globalHandle
+    , globalLock
+    , globalReAlloc
+    , globalSize
+    , globalUnlock
+
+      -- * Heap allocation
+    , HeapAllocFlags
+    , hEAP_GENERATE_EXCEPTIONS
+    , hEAP_NO_SERIALIZE
+    , hEAP_ZERO_MEMORY
+    , heapAlloc
+    , heapCompact
+    , heapCreate
+    , heapDestroy
+    , heapFree
+    , heapLock
+    , heapReAlloc
+    , heapSize
+    , heapUnlock
+    , heapValidate
+
+      -- * Virtual allocation
+      -- ** Allocation
+    , virtualAlloc
+    , virtualAllocEx
+    , VirtualAllocFlags
+    , mEM_COMMIT
+    , mEM_RESERVE
+      -- ** Locking
+    , virtualLock
+    , virtualUnlock
+      -- ** Protection
+    , virtualProtect
+    , virtualProtectEx
+    , virtualQueryEx
+    , ProtectFlags
+    , pAGE_READONLY
+    , pAGE_READWRITE
+    , pAGE_EXECUTE
+    , pAGE_EXECUTE_READ
+    , pAGE_EXECUTE_READWRITE
+    , pAGE_GUARD
+    , pAGE_NOACCESS
+    , pAGE_NOCACHE
+      -- ** Freeing
+    , virtualFree
+    , virtualFreeEx
+    , FreeFlags
+    , mEM_DECOMMIT
+    , mEM_RELEASE
+
+
+    ) where
 
 import System.Win32.Types
 

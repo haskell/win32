@@ -17,7 +17,49 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.Process where
+module System.Win32.Process
+    ( -- * Sleeping
+      iNFINITE
+    , sleep
+      -- * Processes pperations
+    , ProcessId
+    , ProcessHandle
+    , ProcessAccessRights
+    , pROCESS_ALL_ACCESS
+    , pROCESS_CREATE_PROCESS
+    , pROCESS_CREATE_THREAD
+    , pROCESS_DUP_HANDLE
+    , pROCESS_QUERY_INFORMATION
+    , pROCESS_SET_QUOTA
+    , pROCESS_SET_INFORMATION
+    , pROCESS_TERMINATE
+    , pROCESS_VM_OPERATION
+    , pROCESS_VM_READ
+    , pROCESS_VM_WRITE
+    , openProcess
+    , getProcessId
+    , getCurrentProcessId
+    , getCurrentProcess
+      -- * Terminating
+    , terminateProcessById
+      -- * Toolhelp32
+    , Th32SnapHandle
+    , Th32SnapFlags
+    , tH32CS_SNAPALL
+    , tH32CS_SNAPHEAPLIST
+    , tH32CS_SNAPMODULE
+    , tH32CS_SNAPMODULE32
+    , tH32CS_SNAPMODULE64
+    , tH32CS_SNAPPROCESS
+    , tH32CS_SNAPTHREAD
+    , ProcessEntry32
+    , ModuleEntry32
+    , createToolhelp32Snapshot
+    , withTh32Snap
+    , th32SnapEnumProcesses
+    , th32SnapEnumModules
+    ) where
+
 import Control.Exception     ( bracket )
 import Control.Monad         ( liftM5 )
 import Foreign               ( Ptr, peekByteOff, allocaBytes, pokeByteOff

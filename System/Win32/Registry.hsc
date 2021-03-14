@@ -14,43 +14,102 @@
 -----------------------------------------------------------------------------
 
 module System.Win32.Registry
-                ( module System.Win32.Registry
-                ) where
-{- What's really on offer:
-        (
-          regCloseKey        -- :: HKEY -> IO ()
-        , regConnectRegistry -- :: Maybe String -> HKEY -> IO HKEY
-        , regCreateKey       -- :: HKEY -> String -> IO HKEY
-        , regCreateKeyEx     -- :: HKEY -> String -> Maybe String
-                             -- -> RegCreateOptions -> REGSAM
-                             -- -> Maybe LPSECURITY_ATTRIBUTES
-                             -- -> IO (HKEY, Bool)
-        , regDeleteKey       -- :: HKEY -> String -> IO ()
-        , regDeleteValue     -- :: HKEY -> String -> IO ()
-        , regEnumKeys        -- :: HKEY -> IO [String]
-        , regEnumKey         -- :: HKEY -> DWORD -> Addr -> DWORD -> IO String
-        , regEnumKeyValue    -- :: HKEY -> DWORD -> Addr -> DWORD -> Addr -> DWORD -> IO String
-        , regFlushKey        -- :: HKEY -> IO ()
-        , regLoadKey         -- :: HKEY -> String -> String -> IO ()
-        , regNotifyChangeKeyValue -- :: HKEY -> Bool -> RegNotifyOptions
-                                  -- -> HANDLE -> Bool -> IO ()
-        , regOpenKey         -- :: HKEY -> String -> IO HKEY
-        , regOpenKeyEx       -- :: HKEY -> String -> REGSAM -> IO HKEY
-        , regQueryInfoKey    -- :: HKEY -> IO RegInfoKey
-        , regQueryValue      -- :: HKEY -> Maybe String -> IO String
-        , regQueryDefaultValue -- :: HKEY -> String -> IO String
-        , regQueryValueEx    -- :: HKEY -> String -> Addr -> Int -> IO RegValueType
-        , regReplaceKey      -- :: HKEY -> Maybe String -> String -> String -> IO ()
-        , regRestoreKey      -- :: HKEY -> String -> RegRestoreFlags -> IO ()
-        , regSaveKey         -- :: HKEY -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
-        , regGetValue        -- :: HKEY -> Maybe String -> Maybe String -> RegTypeRestriction
-                             -- -> Maybe LPDWORD -> Maybe LPVOID -> Maybe LPDWORD -> IO ()
-        , regSetValue        -- :: HKEY -> String -> String -> IO ()
-        , regSetValueEx      -- :: HKEY -> String -> RegValueType -> LPTSTR -> Int -> IO ()
-        , regSetStringValue  -- :: HKEY -> String -> String -> IO ()
-        , regUnloadKey       -- :: HKEY -> String -> IO ()
-        ) where
--}
+    (
+      -- * HKEY
+      HKEY
+    , hKEY_CLASSES_ROOT
+    , hKEY_CURRENT_CONFIG
+    , hKEY_CURRENT_USER
+    , hKEY_LOCAL_MACHINE
+    , hKEY_USERS
+
+      -- * Creation options
+    , RegCreateOptions
+    , rEG_OPTION_NON_VOLATILE
+    , rEG_OPTION_VOLATILE
+
+      -- * REGSAM
+    , REGSAM
+    , kEY_ALL_ACCESS
+    , kEY_CREATE_LINK
+    , kEY_CREATE_SUB_KEY
+    , kEY_ENUMERATE_SUB_KEYS
+    , kEY_EXECUTE
+    , kEY_NOTIFY
+    , kEY_QUERY_VALUE
+    , kEY_READ
+    , kEY_SET_VALUE
+    , kEY_WRITE
+
+      -- * Registry operations
+    , regCloseKey
+    , regConnectRegistry
+    , regCreateKey
+    , regCreateKeyEx
+    , regDeleteKey
+    , regDeleteValue
+    , regEnumKeys
+    , regEnumKeyVals
+    , regEnumKey
+    , regEnumValue
+    , regFlushKey
+    , regLoadKey
+    , regUnLoadKey
+    , regNotifyChangeKeyValue
+    , RegNotifyOptions
+    , rEG_NOTIFY_CHANGE_NAME
+    , rEG_NOTIFY_CHANGE_ATTRIBUTES
+    , rEG_NOTIFY_CHANGE_LAST_SET
+    , rEG_NOTIFY_CHANGE_SECURITY
+
+    , regOpenKey
+    , regOpenKeyEx
+    , regQueryInfoKey
+    , RegInfoKey(..)
+    , regQueryValue
+    , regQueryValueKey
+    , regQueryDefaultValue
+    , regQueryValueEx
+    , regReplaceKey
+    , RegRestoreFlags
+    , rEG_WHOLE_HIVE_VOLATILE
+    , rEG_REFRESH_HIVE
+    , rEG_NO_LAZY_FLUSH
+    , regRestoreKey
+    , regSaveKey
+    , regGetValue
+    , RegTypeRestriction
+    , rRF_RT_ANY
+    , rRF_RT_DWORD
+    , rRF_RT_QWORD
+    , rRF_RT_REG_BINARY
+    , rRF_RT_REG_DWORD
+    , rRF_RT_REG_EXPAND_SZ
+    , rRF_RT_REG_MULTI_SZ
+    , rRF_RT_REG_NONE
+    , rRF_RT_REG_QWORD
+    , rRF_RT_REG_SZ
+    , rRF_NOEXPAND
+    , rRF_ZEROONFAILURE
+    , rRF_SUBKEY_WOW6464KEY
+    , rRF_SUBKEY_WOW6432KEY
+
+    , regSetValue
+    , regSetValueEx
+    , RegValueType
+    , rEG_BINARY
+    , rEG_DWORD
+    , rEG_DWORD_LITTLE_ENDIAN
+    , rEG_DWORD_BIG_ENDIAN
+    , rEG_EXPAND_SZ
+    , rEG_LINK
+    , rEG_MULTI_SZ
+    , rEG_NONE
+    , rEG_RESOURCE_LIST
+    , rEG_SZ
+
+    , regSetStringValue  -- :: HKEY -> String -> String -> IO ()
+    ) where
 
 {-
  Registry API omissions:

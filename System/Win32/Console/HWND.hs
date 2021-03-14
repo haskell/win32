@@ -9,7 +9,7 @@
 
    Get the handle of the current console window.
 -}
-module System.Win32.Console.HWND where
+module System.Win32.Console.HWND (getConsoleHWND) where
 import Control.Concurrent           ( threadDelay )
 import Control.Exception            ( bracket )
 import Foreign.Ptr                  ( nullPtr )

@@ -17,7 +17,117 @@
 --
 -----------------------------------------------------------------------------
 
-module System.Win32.Info where
+module System.Win32.Info
+    ( SystemColor
+    , cOLOR_SCROLLBAR
+    , cOLOR_BACKGROUND
+    , cOLOR_ACTIVECAPTION
+    , cOLOR_INACTIVECAPTION
+    , cOLOR_MENU
+    , cOLOR_WINDOW
+    , cOLOR_WINDOWFRAME
+    , cOLOR_MENUTEXT
+    , cOLOR_WINDOWTEXT
+    , cOLOR_CAPTIONTEXT
+    , cOLOR_ACTIVEBORDER
+    , cOLOR_INACTIVEBORDER
+    , cOLOR_APPWORKSPACE
+    , cOLOR_HIGHLIGHT
+    , cOLOR_HIGHLIGHTTEXT
+    , cOLOR_BTNFACE
+    , cOLOR_BTNSHADOW
+    , cOLOR_GRAYTEXT
+    , cOLOR_BTNTEXT
+    , cOLOR_INACTIVECAPTIONTEXT
+    , cOLOR_BTNHIGHLIGHT
+
+      -- * Standard directories
+    , getSystemDirectory
+    , getWindowsDirectory
+    , getCurrentDirectory
+    , getTemporaryDirectory
+    , getFullPathName
+    , getLongPathName
+    , getShortPathName
+    , searchPath
+
+      -- * System information
+    , ProcessorArchitecture(..)
+    , SYSTEM_INFO(..)
+    , getSystemInfo
+
+      -- * System metrics
+    , SMSetting
+    , sM_ARRANGE
+    , sM_CLEANBOOT
+    , sM_CMETRICS
+    , sM_CMOUSEBUTTONS
+    , sM_CXBORDER
+    , sM_CYBORDER
+    , sM_CXCURSOR
+    , sM_CYCURSOR
+    , sM_CXDLGFRAME
+    , sM_CYDLGFRAME
+    , sM_CXDOUBLECLK
+    , sM_CYDOUBLECLK
+    , sM_CXDRAG
+    , sM_CYDRAG
+    , sM_CXEDGE
+    , sM_CYEDGE
+    , sM_CXFRAME
+    , sM_CYFRAME
+    , sM_CXFULLSCREEN
+    , sM_CYFULLSCREEN
+    , sM_CXHSCROLL
+    , sM_CYVSCROLL
+    , sM_CXICON
+    , sM_CYICON
+    , sM_CXICONSPACING
+    , sM_CYICONSPACING
+    , sM_CXMAXIMIZED
+    , sM_CYMAXIMIZED
+    , sM_CXMENUCHECK
+    , sM_CYMENUCHECK
+    , sM_CXMENUSIZE
+    , sM_CYMENUSIZE
+    , sM_CXMIN
+    , sM_CYMIN
+    , sM_CXMINIMIZED
+    , sM_CYMINIMIZED
+    , sM_CXMINTRACK
+    , sM_CYMINTRACK
+    , sM_CXSCREEN
+    , sM_CYSCREEN
+    , sM_CXSIZE
+    , sM_CYSIZE
+    , sM_CXSIZEFRAME
+    , sM_CYSIZEFRAME
+    , sM_CXSMICON
+    , sM_CYSMICON
+    , sM_CXSMSIZE
+    , sM_CYSMSIZE
+    , sM_CXVSCROLL
+    , sM_CYHSCROLL
+    , sM_CYVTHUMB
+    , sM_CYCAPTION
+    , sM_CYKANJIWINDOW
+    , sM_CYMENU
+    , sM_CYSMCAPTION
+    , sM_DBCSENABLED
+    , sM_DEBUG
+    , sM_MENUDROPALIGNMENT
+    , sM_MIDEASTENABLED
+    , sM_MOUSEPRESENT
+    , sM_NETWORK
+    , sM_PENWINDOWS
+    , sM_SECURE
+    , sM_SHOWSOUNDS
+    , sM_SLOWMACHINE
+    , sM_SWAPBUTTON
+
+      -- * User name
+    , getUserName
+    ) where
 
 import Control.Exception (catch)
 import Foreign.Marshal.Alloc (alloca)
@@ -111,6 +221,7 @@ getWindowsDirectory = try "GetWindowsDirectory" c_getWindowsDirectory 512
 
 getCurrentDirectory :: IO String
 getCurrentDirectory = try "GetCurrentDirectory" (flip c_getCurrentDirectory) 512
+
 getTemporaryDirectory :: IO String
 getTemporaryDirectory = try "GetTempPath" (flip c_getTempPath) 512
 

@@ -17,8 +17,10 @@
      * ReFS doesn't support hard link currently.
 -}
 module System.Win32.HardLink
-  ( module System.Win32.HardLink
+  ( createHardLink
+  , createHardLink'
   ) where
+
 import System.Win32.File   ( LPSECURITY_ATTRIBUTES, failIfFalseWithRetry_ )
 import System.Win32.String ( LPCTSTR, withTString )
 import System.Win32.Types  ( BOOL, nullPtr )

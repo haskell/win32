@@ -16,7 +16,59 @@
 -- A collection of FFI declarations for using Windows DebugApi.
 --
 -----------------------------------------------------------------------------
-module System.Win32.DebugApi where
+module System.Win32.DebugApi
+    ( PID, TID, DebugEventId, ForeignAddress
+    , PHANDLE, THANDLE
+    , ThreadInfo
+    , ImageInfo
+    , ExceptionInfo
+    , Exception(..)
+    , DebugEventInfo(..)
+    , DebugEvent
+
+    , debugBreak
+    , isDebuggerPresent
+
+      -- * Debug events
+    , waitForDebugEvent
+    , getDebugEvents
+    , continueDebugEvent
+
+      -- * Debugging another process
+    , debugActiveProcess
+    , peekProcessMemory
+    , readProcessMemory
+    , pokeProcessMemory
+    , withProcessMemory
+    , peekP
+    , pokeP
+
+      -- * Thread control
+    , suspendThread
+    , resumeThread
+    , withSuspendedThread
+
+      -- * Thread register control
+    , getThreadContext
+    , setThreadContext
+    , useAllRegs
+    , withThreadContext
+
+#if __i386__
+    , eax, ebx, ecx, edx, esi, edi, ebp, eip, esp
+#elif __x86_64__
+    , rax, rbx, rcx, rdx, rsi, rdi, rbp, rip, rsp
+#endif
+    , segCs, segDs, segEs, segFs, segGs
+    , eFlags
+    , dr
+    , setReg, getReg, modReg
+    , makeModThreadContext
+    , modifyThreadContext
+
+      -- * Sending debug output to another process
+    , outputDebugString
+    ) where
 
 import Control.Exception( bracket_ )
 import Data.Word        ( Word8, Word32 )

@@ -10,7 +10,10 @@
 
    Get/Set the title for the current console window.
 -}
-module System.Win32.Console.Title where
+module System.Win32.Console.Title
+    ( getConsoleTitle
+    , setConsoleTitle
+    ) where
 
 import System.Win32.String ( LPTSTR, LPCTSTR
                            , withTStringBufferLen, withTString, peekTStringLen )

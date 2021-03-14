@@ -25,7 +25,14 @@
    addition to the target and link name to enable this behavior.
 -}
 module System.Win32.SymbolicLink
-  ( module System.Win32.SymbolicLink
+  ( SymbolicLinkFlags
+  , sYMBOLIC_LINK_FLAG_FILE
+  , sYMBOLIC_LINK_FLAG_DIRECTORY
+  , sYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+  , createSymbolicLink
+  , createSymbolicLink'
+  , createSymbolicLinkFile
+  , createSymbolicLinkDirectory
   ) where
 
 import Data.Bits ((.|.))
