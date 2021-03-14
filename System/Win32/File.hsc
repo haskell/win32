@@ -687,10 +687,6 @@ closeHandle h =
 foreign import WINDOWS_CCONV unsafe "windows.h CloseHandle"
   c_CloseHandle :: HANDLE -> IO Bool
 
-{-# CFILES cbits/HsWin32.c #-}
-foreign import ccall "HsWin32.h &CloseHandleFinaliser"
-    c_CloseHandleFinaliser :: FunPtr (Ptr a -> IO ())
-
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileType"
   getFileType :: HANDLE -> IO FileType
 --Apparently no error code
