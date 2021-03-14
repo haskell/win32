@@ -71,18 +71,18 @@ install:
 before_build:
  - cabal --version
  - ghc --version
- - cabal %CABOPTS% new-update
+ - cabal %CABOPTS% update
  - IF EXIST configure.ac bash -c "autoreconf -i"
  - rmdir /Q /S dist-newstyle
 
 build_script:
  - echo packages:. > cabal.project
- - cabal %CABOPTS% build -j all
+ - cabal %CABOPTS% build -j all --ghc-options="-Werror"
  # Build from sdist if required.
  - ps: >-
     If ($env:PKG_TEST -Match "yes") {
        cabal sdist
        echo "packages: dist-newstyle/sdist/*.tar.gz" | Out-File -Encoding ASCII cabal.project
        cat cabal.project
-       cabal $env:CABOPTS build -j pkg:Win32
+       cabal $env:CABOPTS build -j pkg:Win32 --ghc-options="-Werror"
     }
