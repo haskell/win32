@@ -277,13 +277,13 @@ foreign import ccall unsafe "_get_osfhandle"
 
 -- Originally authored by Max Bolingbroke in the ansi-terminal library
 withHandleToHANDLE :: Handle -> (HANDLE -> IO a) -> IO a
-#if defined(__IO_MANAGER_WINIO__)
+##if defined(__IO_MANAGER_WINIO__)
 withHandleToHANDLE = withHandleToHANDLEPosix <!> withHandleToHANDLENative
-#else
+##else
 withHandleToHANDLE = withHandleToHANDLEPosix
-#endif
+##endif
 
-#if defined(__IO_MANAGER_WINIO__)
+##if defined(__IO_MANAGER_WINIO__)
 withHandleToHANDLENative :: Handle -> (HANDLE -> IO a) -> IO a
 withHandleToHANDLENative haskell_handle action =
     -- Create a stable pointer to the Handle. This prevents the garbage collector
@@ -293,7 +293,7 @@ withHandleToHANDLENative haskell_handle action =
         windows_handle <- handleToHANDLE haskell_handle
         -- Do what the user originally wanted
         action windows_handle
-#endif
+##endif
 
 withHandleToHANDLEPosix :: Handle -> (HANDLE -> IO a) -> IO a
 withHandleToHANDLEPosix haskell_handle action =
