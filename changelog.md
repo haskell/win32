@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.12.0.1 June 2021
+
+* A small fix for WinIO usage. See #177
+
 ## 2.12.0.0 March 2021
 
 * Win32 for GHC 9.2.x
