@@ -1,4 +1,4 @@
-import System.Win32
+import System.Win32 hiding ( COORD(..) )
 import Control.Exception
 import Control.Monad
 

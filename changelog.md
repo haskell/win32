@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.6.2.1 *August 2021*
+
+* Fix `registery001` test (See #181)
+
 ## 2.6.2.0 *December 2017*
 
 * Add `setFilePointerEx` (See #94)
