@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.13.0.0 August 2021
+
+* Fix type of c_SetWindowLongPtr. See #180
+
 ## 2.12.0.1 June 2021
 
 * A small fix for WinIO usage. See #177

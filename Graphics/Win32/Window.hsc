@@ -23,8 +23,8 @@ import Foreign.ForeignPtr (withForeignPtr)
 import Foreign.Marshal.Utils (maybeWith)
 import Foreign.Marshal.Alloc (allocaBytes)
 import Foreign.Marshal.Array (allocaArray)
-import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, castPtr, nullPtr)
-import Foreign.Ptr (intPtrToPtr, castPtrToFunPtr, freeHaskellFunPtr)
+import Foreign.Ptr (FunPtr, Ptr, castFunPtrToPtr, nullPtr)
+import Foreign.Ptr (intPtrToPtr, castPtrToFunPtr, freeHaskellFunPtr,ptrToIntPtr)
 import Foreign.Storable (pokeByteOff)
 import Foreign.C.Types (CIntPtr(..))
 import Graphics.Win32.GDI.Types (HBITMAP, HCURSOR, HDC, HDWP, HRGN, HWND, PRGN)
@@ -204,6 +204,9 @@ type WindowClosure = HWND -> WindowMessage -> WPARAM -> LPARAM -> IO LRESULT
 foreign import WINDOWS_CCONV "wrapper"
   mkWindowClosure :: WindowClosure -> IO (FunPtr WindowClosure)
 
+mkCIntPtr :: FunPtr a -> CIntPtr
+mkCIntPtr = fromIntegral . ptrToIntPtr . castFunPtrToPtr
+
 -- | The standard C wndproc for every window class registered by
 -- 'registerClass' is a C function pointer provided with this library. It in
 -- turn delegates to a Haskell function pointer stored in 'gWLP_USERDATA'.
@@ -218,10 +221,10 @@ setWindowClosure :: HWND -> WindowClosure -> IO (Maybe (FunPtr WindowClosure))
 setWindowClosure wnd closure = do
   fp <- mkWindowClosure closure
   fpOld <- c_SetWindowLongPtr wnd (#{const GWLP_USERDATA})
-                              (castPtr (castFunPtrToPtr fp))
-  if fpOld == nullPtr 
+                              (mkCIntPtr fp)
+  if fpOld == 0
      then return Nothing
-     else return $ Just $ castPtrToFunPtr fpOld
+     else return $ Just $ castPtrToFunPtr $ intPtrToPtr $ fromIntegral fpOld
 
 {- Note [SetWindowLongPtrW]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -240,7 +243,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongPtrW"
 #else
 # error Unknown mingw32 arch
 #endif
-  c_SetWindowLongPtr :: HWND -> INT -> Ptr LONG -> IO (Ptr LONG)
+  c_SetWindowLongPtr :: HWND -> INT -> LONG_PTR -> IO (LONG_PTR)
 
 #if defined(i386_HOST_ARCH)
 foreign import WINDOWS_CCONV unsafe "windows.h GetWindowLongW"

@@ -14,7 +14,6 @@ module Graphics.Win32.LayeredWindow (module Graphics.Win32.LayeredWindow, Graphi
 import Control.Monad   ( void )
 import Data.Bits       ( (.|.) )
 import Foreign.Ptr     ( Ptr )
-import Foreign.Marshal.Utils ( with )
 import Graphics.Win32.GDI.AlphaBlend ( BLENDFUNCTION )
 import Graphics.Win32.GDI.Types      ( COLORREF, HDC, SIZE, SIZE, POINT )
 import Graphics.Win32.Window         ( WindowStyleEx, c_GetWindowLongPtr, c_SetWindowLongPtr )
@@ -27,7 +26,7 @@ import System.Win32.Types ( DWORD, HANDLE, BYTE, BOOL, INT )
 toLayeredWindow :: HANDLE -> IO ()
 toLayeredWindow w = do
   flg <- c_GetWindowLongPtr w gWL_EXSTYLE
-  void $ with (fromIntegral $ flg .|. (fromIntegral wS_EX_LAYERED)) $ c_SetWindowLongPtr w gWL_EXSTYLE
+  void $ c_SetWindowLongPtr w gWL_EXSTYLE (flg .|. (fromIntegral wS_EX_LAYERED))
 
 -- test w =  c_SetLayeredWindowAttributes w 0 128 lWA_ALPHA
 
