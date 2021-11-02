@@ -1,5 +1,10 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## next
+
+* Fix a bug in which `System.Win32.MinTTY.isMinTTY` would incorrectly return
+  `False` on recent versions of MinTTY.
+
 ## 2.13.0.0 August 2021
 
 * Fix type of c_SetWindowLongPtr. See #180
