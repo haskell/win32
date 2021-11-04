@@ -1,9 +1,10 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## next
+## 2.13.1.0 November 2021
 
 * Fix a bug in which `System.Win32.MinTTY.isMinTTY` would incorrectly return
-  `False` on recent versions of MinTTY.
+  `False` on recent versions of MinTTY. (See #187)
+* Add all flags for CreateToolhelp32Snapshot.  (See #185)
 
 ## 2.13.0.0 August 2021
 
