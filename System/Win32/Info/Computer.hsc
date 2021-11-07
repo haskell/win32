@@ -94,7 +94,7 @@ getComputerName =
       len' <- peek len
       peekTStringLen (buf, (fromIntegral len'))
   where
-    maxLength = #const MAX_COMPUTERNAME_LENGTH
+    maxLength = #const MAX_PATH
 
 foreign import WINDOWS_CCONV unsafe "GetComputerNameW"
   c_GetComputerName :: LPTSTR -> LPDWORD -> IO Bool
