@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## New - Unreleased
+
+* Set maximum string size for getComputerName. (See #190)
+
 ## 2.13.1.0 November 2021
 
 * Fix a bug in which `System.Win32.MinTTY.isMinTTY` would incorrectly return
