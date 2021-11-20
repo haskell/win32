@@ -3,6 +3,7 @@
 ## New - Unreleased
 
 * Set maximum string size for getComputerName. (See #190)
+* Update withHandleToHANDLENative to handle duplex and console handles (See #191)
 
 ## 2.13.1.0 November 2021
 
