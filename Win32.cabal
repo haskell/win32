@@ -1,5 +1,5 @@
 name:           Win32
-version:        2.13.1.0
+version:        2.13.2.0
 license:        BSD3
 license-file:   LICENSE
 author:         Alastair Reid, shelarcy, Tamar Christina
@@ -11,7 +11,7 @@ category:       System, Graphics
 synopsis:       A binding to Windows Win32 API.
 description:    This library contains direct bindings to the Windows Win32 APIs for Haskell.
 build-type:     Simple
-cabal-version:  >= 2.0
+cabal-version:  2.0
 extra-source-files:
     include/diatemp.h include/dumpBMP.h include/ellipse.h include/errors.h
     include/Win32Aux.h include/win32debug.h include/alignment.h

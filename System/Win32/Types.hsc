@@ -57,10 +57,11 @@ finiteBitSize = bitSize
 #endif
 
 ##if defined(__IO_MANAGER_WINIO__)
+import GHC.IO.Exception (ioException, IOException(..), IOErrorType(InappropriateType))
 import GHC.IO.SubSystem ((<!>))
 import GHC.IO.Handle.Windows
-import GHC.IO.Windows.Handle (fromHANDLE, Io(), NativeHandle(),
-                              handleToMode, optimizeFileAccess)
+import GHC.IO.Windows.Handle (fromHANDLE, Io(), NativeHandle(), ConsoleHandle(),
+                              toHANDLE, handleToMode, optimizeFileAccess)
 import qualified GHC.Event.Windows as Mgr
 import GHC.IO.Device (IODeviceType(..))
 ##endif
@@ -290,9 +291,28 @@ withHandleToHANDLENative haskell_handle action =
     -- getting to it while we are doing horrible manipulations with it, and hence
     -- stops it being finalized (and closed).
     withStablePtr haskell_handle $ const $ do
-        windows_handle <- handleToHANDLE haskell_handle
+        -- Grab the write handle variable from the Handle
+        let write_handle_mvar = case haskell_handle of
+                FileHandle _ handle_mvar     -> handle_mvar
+                DuplexHandle _ _ handle_mvar -> handle_mvar
+
+        -- This is "write" MVar, we could also take the "read" one
+        windows_handle <- readMVar write_handle_mvar >>= handle_ToHANDLE
+
         -- Do what the user originally wanted
         action windows_handle
+  where
+    -- | Turn an existing Handle into a Win32 HANDLE. This function throws an
+    -- IOError if the Handle does not reference a HANDLE
+    handle_ToHANDLE :: Handle__ -> IO HANDLE
+    handle_ToHANDLE (Handle__{haDevice = dev}) =
+        case (cast dev :: Maybe (Io NativeHandle), cast dev :: Maybe (Io ConsoleHandle)) of
+          (Just hwnd, Nothing) -> return $ toHANDLE hwnd
+          (Nothing, Just hwnd) -> return $ toHANDLE hwnd
+          _                    -> throwErr "not a known HANDLE"
+
+    throwErr msg = ioException $ IOError (Just haskell_handle)
+      InappropriateType "withHandleToHANDLENative" msg Nothing Nothing
 ##endif
 
 withHandleToHANDLEPosix :: Handle -> (HANDLE -> IO a) -> IO a
