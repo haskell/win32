@@ -173,6 +173,8 @@ foreign import WINDOWS_CCONV unsafe "windows.h RegisterWindowMessageW"
  , sIZE_MAXIMIZED       = SIZE_MAXIMIZED
  , sIZE_MAXSHOW         = SIZE_MAXSHOW
  , sIZE_MAXHIDE         = SIZE_MAXHIDE
+ , iCON_SMALL           = ICON_SMALL
+ , iCON_BIG             = ICON_BIG
  }
 
 ----------------------------------------------------------------
