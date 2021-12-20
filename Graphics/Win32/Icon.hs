@@ -19,6 +19,7 @@
 
 module Graphics.Win32.Icon where
 
+import Foreign (Ptr)
 import Graphics.Win32.GDI.Types
 import System.Win32.Types
 
@@ -27,6 +28,12 @@ import System.Win32.Types
 ----------------------------------------------------------------
 -- Icons
 ----------------------------------------------------------------
+
+createIcon :: HINSTANCE -> Int -> Int -> BYTE -> BYTE -> Ptr BYTE -> Ptr BYTE -> IO HICON
+createIcon instance_ width height planes bitsPixel andBits xorBits =
+    failIfNull "CreateIcon" $ c_CreateIcon instance_ width height planes bitsPixel andBits xorBits
+foreign import WINDOWS_CCONV unsafe "windows.h CreateIcon"
+    c_CreateIcon :: HINSTANCE -> Int -> Int -> BYTE -> BYTE -> Ptr BYTE -> Ptr BYTE -> IO HICON
 
 copyIcon :: HICON -> IO HICON
 copyIcon icon =
