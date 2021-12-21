@@ -4,6 +4,9 @@
 
 * Set maximum string size for getComputerName. (See #190)
 * Update withHandleToHANDLENative to handle duplex and console handles (See #191)
+* Add function `createIcon` (see #194)
+* Add `WindowMessage` value `wM_SETICON` (see #194)
+* Add `WPARAM` values `iCON_SMALL`, `iCON_BIG` (see #194)
 
 ## 2.13.1.0 November 2021
 
