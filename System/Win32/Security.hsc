@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -w #-}
--- The above warning supression flag is a temporary kludge.
+-- The above warning suppression flag is a temporary kludge.
 -- While working on this module you are encouraged to remove it and fix
 -- any warnings in the module. See
 --     https://ghc.haskell.org/trac/ghc/wiki/Commentary/CodingStyle#Warnings

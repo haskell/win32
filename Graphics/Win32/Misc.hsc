@@ -268,7 +268,7 @@ type TimerId   = UINT
 
 type TIMERPROC = FunPtr (HWND -> UINT -> TimerId -> DWORD -> IO ())
 
--- ToDo: support the other two forms of timer initialisation
+-- TODO: support the other two forms of timer initialisation
 
 -- Cause WM_TIMER events to be sent to window callback
 

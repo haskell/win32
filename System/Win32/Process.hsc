@@ -210,7 +210,7 @@ th32SnapEnumProcesses h = allocaBytes (#size PROCESSENTRY32W) $ \pe -> do
                 ok' <- c_Process32Next h pe
                 readAndNext ok' pe (entry:res)
 
--- | Enumerate moduless using Module32First and Module32Next
+-- | Enumerate modules using Module32First and Module32Next
 th32SnapEnumModules :: Th32SnapHandle -> IO [ModuleEntry32]
 th32SnapEnumModules h = allocaBytes (#size MODULEENTRY32W) $ \pe -> do
     (#poke MODULEENTRY32W, dwSize) pe ((#size MODULEENTRY32W)::DWORD)
