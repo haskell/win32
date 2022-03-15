@@ -131,7 +131,7 @@ foreign import WINDOWS_CCONV safe "windows.h GenerateConsoleCtrlEvent"
 foreign import WINDOWS_CCONV unsafe "Shellapi.h CommandLineToArgvW"
      c_CommandLineToArgvW :: CWString -> Ptr CInt -> IO (Ptr CWString)
 
--- | This function can be used to parse commandline arguments and return
+-- | This function can be used to parse command line arguments and return
 --   the split up arguments as elements in a list.
 commandLineToArgv :: String -> IO [String]
 commandLineToArgv []  = return []

@@ -74,7 +74,7 @@ type NLS_FUNCTION = DWORD
 foreign import WINDOWS_CCONV unsafe "windows.h ConvertDefaultLocale"
   convertDefaultLocale :: LCID -> IO LCID
 
--- ToDo: various enum functions.
+-- TODO: various enum functions.
 
 #if !MIN_VERSION_base(4,15,0)
 type CodePage = UINT
@@ -801,7 +801,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetOEMCP"
 
 -- ----------------------------------------------------------------------------
 
--- | The `System.IO` input functions (e.g. `getLine`) don't
+-- | The `System.IO` input functions (e.g., `getLine`) don't
 -- automatically convert to Unicode, so this function is provided to
 -- make the conversion from a multibyte string in the given code page
 -- to a proper Unicode string.  To get the code page for the console,

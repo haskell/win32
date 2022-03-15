@@ -755,7 +755,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetCaretPos"
 --   UpdateWindow   (I think)
 --   RedrawWindow   (I think)
 --
--- The following dont have to be reentrant (according to documentation)
+-- The following don't have to be reentrant (according to documentation)
 --
 --   GetMessage
 --   PeekMessage

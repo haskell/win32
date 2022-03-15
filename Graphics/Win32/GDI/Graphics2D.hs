@@ -102,7 +102,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h AngleArc"
 -- Filled Shapes
 ----------------------------------------------------------------
 
--- ToDo: We ought to be able to specify a colour instead of the
+-- TODO: We ought to be able to specify a colour instead of the
 -- Brush by adding 1 to colour number.
 
 fillRect :: HDC -> RECT -> HBRUSH -> IO ()
