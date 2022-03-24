@@ -32,13 +32,13 @@ module System.Win32.Shell (
   sHGFP_TYPE_DEFAULT
  ) where
 
+import System.Win32.Shell.Internal
 import System.Win32.Types
 import Graphics.Win32.GDI.Types (HWND)
 
 import Foreign
 import Foreign.C
 import Control.Monad
-import System.IO.Error
 
 ##include "windows_cconv.h"
 
@@ -79,11 +79,3 @@ sHGetFolderPath hwnd csidl hdl flags =
     r <- c_SHGetFolderPath hwnd csidl hdl flags pstr
     when (r < 0) $ raiseUnsupported "sHGetFolderPath"
     peekTString pstr
-
-raiseUnsupported :: String -> IO ()
-raiseUnsupported loc =
-   ioError (ioeSetErrorString (mkIOError illegalOperationErrorType loc Nothing Nothing) "unsupported operation")
-
-foreign import WINDOWS_CCONV unsafe "SHGetFolderPathW"
-  c_SHGetFolderPath :: HWND -> CInt -> HANDLE -> DWORD -> LPTSTR
-                    -> IO HRESULT
