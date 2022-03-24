@@ -103,6 +103,18 @@ Library
         System.Win32.Utils
         System.Win32.Word
 
+    other-modules:
+        System.Win32.DebugApi.Internal
+        System.Win32.DLL.Internal
+        System.Win32.File.Internal
+        System.Win32.FileMapping.Internal
+        System.Win32.HardLink.Internal
+        System.Win32.Info.Internal
+        System.Win32.Path.Internal
+        System.Win32.Shell.Internal
+        System.Win32.SymbolicLink.Internal
+        System.Win32.Time.Internal
+
     extra-libraries:
         "user32", "gdi32", "winmm", "advapi32", "shell32", "shfolder", "shlwapi", "msimg32", "imm32"
     ghc-options:      -Wall

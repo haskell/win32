@@ -21,9 +21,10 @@ module System.Win32.HardLink
   , createHardLink'
   ) where
 
-import System.Win32.File   ( LPSECURITY_ATTRIBUTES, failIfFalseWithRetry_ )
-import System.Win32.String ( LPCTSTR, withTString )
-import System.Win32.Types  ( BOOL, nullPtr )
+import System.Win32.HardLink.Internal
+import System.Win32.File   ( failIfFalseWithRetry_ )
+import System.Win32.String ( withTString )
+import System.Win32.Types  ( nullPtr )
 
 #include "windows_cconv.h"
 
@@ -44,11 +45,6 @@ createHardLink' link target =
         failIfFalseWithRetry_ (unwords ["CreateHardLinkW",show link,show target]) $
           c_CreateHardLink c_link c_target nullPtr
 
-foreign import WINDOWS_CCONV unsafe "windows.h CreateHardLinkW"
-  c_CreateHardLink :: LPCTSTR -- ^ Hard link name
-                   -> LPCTSTR -- ^ Target file path
-                   -> LPSECURITY_ATTRIBUTES -- ^ This parameter is reserved. You should pass just /nullPtr/.
-                   -> IO BOOL
 
 {-
 -- We plan to check file system type internally.
