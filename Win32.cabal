@@ -28,7 +28,8 @@ Library
         build-depends: unbuildable<0
         buildable: False
 
-    build-depends:      base >= 4.5 && < 5, filepath
+    build-depends:      base >= 4.5 && < 5
+                      , filepath    >= 1.4.99.0
     -- Black list hsc2hs 0.68.6 which is horribly broken.
     build-tool-depends: hsc2hs:hsc2hs > 0 && < 0.68.6 || > 0.68.6
     ghc-options:        -Wall -fno-warn-name-shadowing
@@ -102,6 +103,20 @@ Library
         System.Win32.Thread
         System.Win32.Utils
         System.Win32.Word
+
+        System.Win32.WindowsString.Types
+        System.Win32.WindowsString.DebugApi
+        System.Win32.WindowsString.DLL
+        System.Win32.WindowsString.Shell
+        System.Win32.WindowsString.String
+        System.Win32.WindowsString.File
+        System.Win32.WindowsString.Time
+        System.Win32.WindowsString.Info
+        System.Win32.WindowsString.FileMapping
+        System.Win32.WindowsString.HardLink
+        System.Win32.WindowsString.Path
+        System.Win32.WindowsString.SymbolicLink
+        System.Win32.WindowsString.Utils
 
     other-modules:
         System.Win32.DebugApi.Internal
