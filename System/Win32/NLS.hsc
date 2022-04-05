@@ -101,7 +101,7 @@ type LCTYPE = UINT
 -- LOCALE_INEGATIVEPERCENT -- Introduced in Windows 7 but not supported.
 -- LOCALE_IPOSITIVEPERCENT -- Introduced in Windows 7 but not supported.
 -- LOCALE_IREADINGLAYOUT -- Introduced in Windows 7 but not supported.
--- LOCALE_SAM -- Introduced by Windows 10 but not supported. Synonyn for
+-- LOCALE_SAM -- Introduced by Windows 10 but not supported. Synonym for
               -- LOCALE_S1159.
 -- LOCALE_SENGLISHDISPLAYNAME -- Introduced in Windows 7 but not supported.
 -- LOCALE_SIETFLANGUAGE -- Not supported (deprecated from Windows Vista).
