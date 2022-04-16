@@ -232,6 +232,9 @@ nullFinalHANDLE = unsafePerformIO (newForeignPtr_ nullPtr)
 iNVALID_HANDLE_VALUE :: HANDLE
 iNVALID_HANDLE_VALUE = castUINTPtrToPtr maxBound
 
+iNVALID_SET_FILE_POINTER :: DWORD
+iNVALID_SET_FILE_POINTER = #const INVALID_SET_FILE_POINTER
+
 foreign import ccall "_open_osfhandle"
   _open_osfhandle :: CIntPtr -> CInt -> IO CInt
 
