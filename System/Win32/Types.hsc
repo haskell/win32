@@ -57,13 +57,20 @@ finiteBitSize = bitSize
 #endif
 
 ##if defined(__IO_MANAGER_WINIO__)
-import GHC.IO.Exception (ioException, IOException(..), IOErrorType(InappropriateType))
+import Control.Monad (when, liftM2)
+import Foreign.C.Types (CUIntPtr(..))
+import Foreign.Marshal.Utils (fromBool, with)
+import Foreign (peek)
+import Foreign.Ptr (ptrToWordPtr)
+import GHC.IO.Exception (ioException, IOException(..),
+                         IOErrorType(InappropriateType, ResourceBusy))
 import GHC.IO.SubSystem ((<!>))
 import GHC.IO.Handle.Windows
+import GHC.IO.IOMode
 import GHC.IO.Windows.Handle (fromHANDLE, Io(), NativeHandle(), ConsoleHandle(),
                               toHANDLE, handleToMode, optimizeFileAccess)
 import qualified GHC.Event.Windows as Mgr
-import GHC.IO.Device (IODeviceType(..))
+import GHC.IO.Device (IODeviceType(..), devType)
 ##endif
 
 #include <fcntl.h>
@@ -264,14 +271,52 @@ hANDLEToHandle handle = posix
       -- Attach the handle to the I/O manager's CompletionPort.  This allows the
       -- I/O manager to service requests for this Handle.
       Mgr.associateHandle' handle
-      optimizeFileAccess handle
       let hwnd = fromHANDLE handle :: Io NativeHandle
-      -- Not sure if I need to use devType here..
+      _type <- devType hwnd
+
+      -- Use the rts to enforce any file locking we may need.
       mode <- handleToMode handle
+      let write_lock = mode /= ReadMode
+
+      case _type of
+        -- Regular files need to be locked.
+        -- See also Note [RTS File locking]
+        RegularFile -> do
+          optimizeFileAccess handle -- Set a few optimization flags on file handles.
+          (unique_dev, unique_ino) <- getUniqueFileInfo handle
+          r <- internal_lockFile
+                  (fromIntegral $ ptrToWordPtr handle) unique_dev unique_ino
+                  (fromBool write_lock)
+          when (r == -1)  $
+               ioException (IOError Nothing ResourceBusy "hANDLEToHandle"
+                                  "file is locked" Nothing Nothing)
+
+        -- I don't see a reason for blocking directories.  So unlike the FD
+        -- implementation I'll allow it.
+        _ -> return ()
       mkHandleFromHANDLE hwnd Stream ("hwnd:" ++ show handle) mode Nothing
+
+    -- | getUniqueFileInfo assumes the C call to getUniqueFileInfo
+    -- succeeds.
+    getUniqueFileInfo :: HANDLE -> IO (Word64, Word64)
+    getUniqueFileInfo hnl = do
+      with 0 $ \devptr -> do
+        with 0 $ \inoptr -> do
+          internal_getUniqueFileInfo hnl devptr inoptr
+          liftM2 (,) (peek devptr) (peek inoptr)
 ##endif
     posix = _open_osfhandle (fromIntegral (ptrToIntPtr handle))
                             (#const _O_BINARY) >>= fdToHandle
+
+##if defined(__IO_MANAGER_WINIO__)
+foreign import ccall unsafe "lockFile"
+  internal_lockFile :: CUIntPtr -> Word64 -> Word64 -> CInt -> IO CInt
+
+-- | Returns -1 on error. Otherwise writes two values representing
+-- the file into the given ptrs.
+foreign import ccall unsafe "get_unique_file_info_hwnd"
+  internal_getUniqueFileInfo :: HANDLE -> Ptr Word64 -> Ptr Word64 -> IO ()
+##endif
 
 foreign import ccall unsafe "_get_osfhandle"
   c_get_osfhandle :: CInt -> IO HANDLE
