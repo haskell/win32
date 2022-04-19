@@ -12,7 +12,7 @@
 
    Note: You should worry about file system type when use this module's function in your application:
 
-     * NTFS only supprts this functionality.
+     * NTFS only supports this functionality.
 
      * ReFS doesn't support hard link currently.
 -}

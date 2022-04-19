@@ -8,7 +8,7 @@
    Stability   :  Provisional
    Portability :  Non-portable (Win32 API)
 
-   Enocode/Decode mutibyte charactor using Win32 API.
+   Enocode/Decode mutibyte character using Win32 API.
 -}
 
 module System.Win32.Encoding
