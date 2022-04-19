@@ -882,7 +882,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h DefineDosDeviceW"
 ----------------------------------------------------------------
 
 -- These functions are very unusual in the Win32 API:
--- They dont return error codes
+-- They don't return error codes
 
 foreign import WINDOWS_CCONV unsafe "windows.h AreFileApisANSI"
   areFileApisANSI :: IO Bool

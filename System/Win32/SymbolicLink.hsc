@@ -16,7 +16,7 @@
 
      * require to use 'Run As Administrator' to run your application.
 
-     * or modify your application's manifect file to add
+     * or modify your application's manifest file to add
        \<requestedExecutionLevel level='requireAdministrator' uiAccess='false'/\>.
 
    Starting from Windows 10 version 1703 (Creators Update), after enabling

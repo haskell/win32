@@ -64,7 +64,7 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     // if BitCount != 0, color table will be retrieved
     //
     bmi.bmiHeader.biSize = 0x28;              // GDI need this to work
-    bmi.bmiHeader.biBitCount = 0;             // dont get the color table
+    bmi.bmiHeader.biBitCount = 0;             // don't get the color table
     if ((GetDIBits(hDC, hBmp, 0, 0, (LPSTR)NULL, &bmi, DIB_RGB_COLORS)) == 0) {
         fprintf(stderr, "GetDIBits failed!");
         return;
@@ -81,7 +81,7 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
     }
 
     //
-    // Note: 24 bits per pixel has no color table.  So, we dont have to
+    // Note: 24 bits per pixel has no color table.  So, we don't have to
     // allocate memory for retrieving that.  Otherwise, we do.
     //
     pbmi = &bmi;                                      // assume no color table
@@ -113,7 +113,7 @@ void CreateBMPFile(LPCTSTR pszFileName, HBITMAP hBmp, HDC hDC)
             goto ErrExit1;
         }
         //
-        // Now that weve a bigger chunk of memory, lets copy the Bitmap
+        // Now that we've a bigger chunk of memory, lets copy the Bitmap
         // info header data over
         //
         pjTmp = (PBYTE)pbmi;

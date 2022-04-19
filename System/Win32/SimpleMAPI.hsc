@@ -107,9 +107,9 @@ mapiErrors =
     , ((#const MAPI_E_TEXT_TOO_LARGE)           , "Text too large")
     , ((#const MAPI_E_INVALID_SESSION)          , "Invalid session")
     , ((#const MAPI_E_TYPE_NOT_SUPPORTED)       , "Type not supported")
-    , ((#const MAPI_E_AMBIGUOUS_RECIPIENT)      , "Ambigious recipient")
+    , ((#const MAPI_E_AMBIGUOUS_RECIPIENT)      , "Ambiguous recipient")
 #ifdef MAPI_E_AMBIGUOUS_RECIP
-    , ((#const MAPI_E_AMBIGUOUS_RECIP)          , "Ambigious recipient")
+    , ((#const MAPI_E_AMBIGUOUS_RECIP)          , "Ambiguous recipient")
 #endif
     , ((#const MAPI_E_MESSAGE_IN_USE)           , "Message in use")
     , ((#const MAPI_E_NETWORK_FAILURE)          , "Network failure")
