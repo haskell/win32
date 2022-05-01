@@ -1,0 +1,6 @@
+packages: .
+
+source-repository-package
+    type: git
+    location: https://gitlab.haskell.org/haskell/filepath.git
+    tag: d7d13206fc641a615680a2b99321ba80b1ebfc57
