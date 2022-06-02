@@ -5,6 +5,8 @@
 * Add function `createIcon` (see #194)
 * Add `WindowMessage` value `wM_SETICON` (see #194)
 * Add `WPARAM` values `iCON_SMALL`, `iCON_BIG` (see #194)
+* Add functions `getConsoleScreenBufferInfoEx` and
+  `getCurrentConsoleScreenBufferInfoEx`
 
 ## 2.13.2.0 November 2021
 
