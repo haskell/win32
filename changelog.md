@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## New - Unreleased
+## 2.13.2.1 July 2022
 
 * Add function `createIcon` (see #194)
 * Add `WindowMessage` value `wM_SETICON` (see #194)
