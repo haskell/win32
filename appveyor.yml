@@ -77,6 +77,7 @@ before_build:
 
 build_script:
  - echo packages:. > cabal.project
+ - cabal configure --allow-newer --ghc-options="-Werror"
  - cabal %CABOPTS% build -j all --ghc-options="-Werror"
  # Build from sdist if required.
  - ps: >-
@@ -84,5 +85,6 @@ build_script:
        cabal sdist
        echo "packages: dist-newstyle/sdist/*.tar.gz" | Out-File -Encoding ASCII cabal.project
        cat cabal.project
+       cabal configure --allow-newer --ghc-options="-Werror"
        cabal $env:CABOPTS build -j pkg:Win32 --ghc-options="-Werror"
     }
