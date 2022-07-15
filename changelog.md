@@ -1,8 +1,11 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.13.2.1 July 2022
+## 2.13.3.0 July 2022
 
 * Add AFPP support (see #198)
+
+## 2.13.2.1 July 2022
+
 * Add function `createIcon` (see #194)
 * Add `WindowMessage` value `wM_SETICON` (see #194)
 * Add `WPARAM` values `iCON_SMALL`, `iCON_BIG` (see #194)
