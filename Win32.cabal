@@ -32,7 +32,7 @@ Library
 
     -- AFPP support
     if impl(ghc >= 8.0)
-        build-depends:      filepath    >= 1.4.99.0
+        build-depends:      filepath    >= 1.4.100.0
 
     -- Black list hsc2hs 0.68.6 which is horribly broken.
     build-tool-depends: hsc2hs:hsc2hs > 0 && < 0.68.6 || > 0.68.6
