@@ -254,7 +254,7 @@ import Control.Concurrent
 -- File operations
 ----------------------------------------------------------------
 
--- | like failIfFalse_, but retried on sharing violations.
+-- | like failIf, but retried on sharing violations.
 -- This is necessary for many file operations; see
 --   http://support.microsoft.com/kb/316609
 --
