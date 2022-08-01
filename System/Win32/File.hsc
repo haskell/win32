@@ -256,7 +256,7 @@ import Control.Concurrent
 
 -- | like failIf, but retried on sharing violations.
 -- This is necessary for many file operations; see
---   http://support.microsoft.com/kb/316609
+--   https://www.betaarchive.com/wiki/index.php/Microsoft_KB_Archive/316609
 --
 failIfWithRetry :: (a -> Bool) -> String -> IO a -> IO a
 failIfWithRetry cond msg action = retryOrFail retries
