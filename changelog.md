@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.13.3.1
+
+* Add function `createFile_NoRetry` (see #208)
+
 ## 2.13.3.0 July 2022
 
 * Add AFPP support (see #198)

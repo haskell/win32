@@ -192,6 +192,7 @@ module System.Win32.File
 
       -- * HANDLE operations
     , createFile
+    , createFile_NoRetry
     , closeHandle
     , getFileType
     , flushFileBuffers
@@ -349,10 +350,18 @@ getBinaryType name =
 ----------------------------------------------------------------
 
 createFile :: String -> AccessMode -> ShareMode -> Maybe LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> Maybe HANDLE -> IO HANDLE
-createFile name access share mb_attr mode flag mb_h =
+createFile = createFile' failIfWithRetry
+
+createFile' :: ((HANDLE -> Bool) -> String -> IO HANDLE -> IO HANDLE) -> String -> AccessMode -> ShareMode -> Maybe LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> Maybe HANDLE -> IO HANDLE
+createFile' f name access share mb_attr mode flag mb_h =
   withTString name $ \ c_name ->
-  failIfWithRetry (==iNVALID_HANDLE_VALUE) (unwords ["CreateFile",show name]) $
+  f (==iNVALID_HANDLE_VALUE) (unwords ["CreateFile",show name]) $
     c_CreateFile c_name access share (maybePtr mb_attr) mode flag (maybePtr mb_h)
+
+-- | Like createFile, but does not use failIfWithRetry. If another
+-- process has the same file open, this will fail.
+createFile_NoRetry :: String -> AccessMode -> ShareMode -> Maybe LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> Maybe HANDLE -> IO HANDLE
+createFile_NoRetry = createFile' failIf
 
 closeHandle :: HANDLE -> IO ()
 closeHandle h =
