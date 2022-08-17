@@ -3,6 +3,11 @@
 ## 2.13.3.1
 
 * Add function `createFile_NoRetry` (see #208)
+* The type signatures for `loadLibrary` and `loadLibraryEx` now refer to
+  `HMODULE` instead of `HINSTANCE` for consistency with the official Win32
+  API documentation. Note that `HMODULE` and `HINSTANCE` are both type synonyms
+  for the same thing, so this only changes the presentation of these functions'
+  type signatures, not their behavior.
 
 ## 2.13.3.0 July 2022
 

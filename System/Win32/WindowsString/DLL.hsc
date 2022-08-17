@@ -49,12 +49,12 @@ getModuleHandle mb_name =
   maybeWith withTString mb_name $ \ c_name ->
   failIfNull "GetModuleHandle" $ c_GetModuleHandle c_name
 
-loadLibrary :: WindowsString -> IO HINSTANCE
+loadLibrary :: WindowsString -> IO HMODULE
 loadLibrary name =
   withTString name $ \ c_name ->
   failIfNull "LoadLibrary" $ c_LoadLibrary c_name
 
-loadLibraryEx :: WindowsString -> HANDLE -> LoadLibraryFlags -> IO HINSTANCE
+loadLibraryEx :: WindowsString -> HANDLE -> LoadLibraryFlags -> IO HMODULE
 loadLibraryEx name h flags =
   withTString name $ \ c_name ->
   failIfNull "LoadLibraryEx" $ c_LoadLibraryEx c_name h flags
