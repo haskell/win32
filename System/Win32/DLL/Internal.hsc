@@ -41,7 +41,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetProcAddress"
   c_GetProcAddress :: HMODULE -> LPCSTR -> IO Addr
 
 foreign import WINDOWS_CCONV unsafe "windows.h LoadLibraryW"
-  c_LoadLibrary :: LPCTSTR -> IO HINSTANCE
+  c_LoadLibrary :: LPCTSTR -> IO HMODULE
 
 type LoadLibraryFlags = DWORD
 
@@ -51,7 +51,7 @@ type LoadLibraryFlags = DWORD
  }
 
 foreign import WINDOWS_CCONV unsafe "windows.h LoadLibraryExW"
-  c_LoadLibraryEx :: LPCTSTR -> HANDLE -> LoadLibraryFlags -> IO HINSTANCE
+  c_LoadLibraryEx :: LPCTSTR -> HANDLE -> LoadLibraryFlags -> IO HMODULE
 
 foreign import WINDOWS_CCONV unsafe "windows.h SetDllDirectoryW"
   c_SetDllDirectory :: LPTSTR -> IO BOOL

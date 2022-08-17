@@ -62,12 +62,12 @@ getProcAddress hmod procname =
   withCAString procname $ \ c_procname ->
   failIfNull "GetProcAddress" $ c_GetProcAddress hmod c_procname
 
-loadLibrary :: String -> IO HINSTANCE
+loadLibrary :: String -> IO HMODULE
 loadLibrary name =
   withTString name $ \ c_name ->
   failIfNull "LoadLibrary" $ c_LoadLibrary c_name
 
-loadLibraryEx :: String -> HANDLE -> LoadLibraryFlags -> IO HINSTANCE
+loadLibraryEx :: String -> HANDLE -> LoadLibraryFlags -> IO HMODULE
 loadLibraryEx name h flags =
   withTString name $ \ c_name ->
   failIfNull "LoadLibraryEx" $ c_LoadLibraryEx c_name h flags
