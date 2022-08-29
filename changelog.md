@@ -1,5 +1,7 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+* Add support for named pipes.
+
 ## 2.13.4.0 October 2022
 
 * Add support for semaphores with `System.Win32.Semaphore` (See #214).
