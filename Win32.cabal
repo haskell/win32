@@ -77,6 +77,7 @@ Library
         System.Win32.Event
         System.Win32.File
         System.Win32.FileMapping
+        System.Win32.NamedPipes
         System.Win32.Info
         System.Win32.Path
         System.Win32.Mem
