@@ -8,3 +8,5 @@ test('lasterror', normal, compile_and_run, ['-package Win32'])
 test('T4452', normal, compile_and_run, ['-package Win32'])
 test('PokeTZI', ignore_stdout, compile_and_run, ['-package Win32'])
 test('HandleConversion', normal, compile_and_run, ['-package Win32'])
+
+test('Semaphores', normal, compile_and_run, ['-threaded -package Win32'])

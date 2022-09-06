@@ -88,6 +88,7 @@ Library
         System.Win32.Time
         System.Win32.Console
         System.Win32.Security
+        System.Win32.Semaphore
         System.Win32.Types
         System.Win32.Shell
         System.Win32.Automation
