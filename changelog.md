@@ -1,5 +1,9 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## Unreleased
+
+* Add support for semaphores with `System.Win32.Semaphore` (See #214).
+
 ## 2.13.3.1
 
 * Add function `createFile_NoRetry` (see #208)
@@ -25,7 +29,6 @@
 
 * Set maximum string size for getComputerName. (See #190)
 * Update withHandleToHANDLENative to handle duplex and console handles (See #191)
-* Add support for semaphores with `System.Win32.Semaphore`.
 
 ## 2.13.1.0 November 2021
 
