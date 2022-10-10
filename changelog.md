@@ -1,11 +1,8 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## Unreleased
+## 2.13.4.0
 
 * Add support for semaphores with `System.Win32.Semaphore` (See #214).
-
-## 2.13.3.1
-
 * Add function `createFile_NoRetry` (see #208)
 * The type signatures for `loadLibrary` and `loadLibraryEx` now refer to
   `HMODULE` instead of `HINSTANCE` for consistency with the official Win32
