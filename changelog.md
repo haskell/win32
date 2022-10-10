@@ -1,6 +1,6 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-## 2.13.4.0
+## 2.13.4.0 October 2022
 
 * Add support for semaphores with `System.Win32.Semaphore` (See #214).
 * Add function `createFile_NoRetry` (see #208)
