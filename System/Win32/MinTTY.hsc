@@ -15,7 +15,12 @@
 -- Stability   :  provisional
 -- Portability :  portable
 --
--- A function to check if the current terminal uses MinTTY.
+-- A function to check if the current terminal uses an old version of MinTTY
+-- that emulates a TTY. Note, however, that this does not check for more recent
+-- versions of MinTTY that use the native Windows console PTY directly. The old
+-- approach (where MinTTY emulates a TTY) sometimes requires different
+-- approaches to handling keyboard inputs.
+--
 -- Much of this code was originally authored by Phil Ruffwind and the
 -- git-for-windows project.
 --
@@ -50,8 +55,9 @@ import Foreign.C.Types
 #include <windows.h>
 #include "winternl_compat.h"
 
--- | Returns 'True' if the current process's standard error is attached to a
--- MinTTY console (e.g., Cygwin or MSYS). Returns 'False' otherwise.
+-- | Returns 'True' if the current process's standard error is attached to an
+-- emulated MinTTY console (e.g., Cygwin or MSYS that use an old version of
+-- MinTTY). Returns 'False' otherwise.
 isMinTTY :: IO Bool
 isMinTTY = do
     h <- getStdHandle sTD_ERROR_HANDLE
@@ -61,8 +67,9 @@ isMinTTY = do
        then return False
        else isMinTTYHandle h
 
--- | Returns 'True' is the given handle is attached to a MinTTY console
--- (e.g., Cygwin or MSYS). Returns 'False' otherwise.
+-- | Returns 'True' is the given handle is attached to an emulated MinTTY
+-- console (e.g., Cygwin or MSYS that use an old version of MinTTY). Returns
+-- 'False' otherwise.
 isMinTTYHandle :: HANDLE -> IO Bool
 isMinTTYHandle h = do
     fileType <- getFileType h
