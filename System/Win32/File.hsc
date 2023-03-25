@@ -287,59 +287,59 @@ failIfFalseWithRetry_ = failIfWithRetry_ not
 
 deleteFile :: String -> IO ()
 deleteFile name =
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
     failIfFalseWithRetry_ (unwords ["DeleteFile",show name]) $
       c_DeleteFile c_name
 
 copyFile :: String -> String -> Bool -> IO ()
 copyFile src dest over =
-  withTString src $ \ c_src ->
-  withTString dest $ \ c_dest ->
+  withFilePath src $ \ c_src ->
+  withFilePath dest $ \ c_dest ->
   failIfFalseWithRetry_ (unwords ["CopyFile",show src,show dest]) $
     c_CopyFile c_src c_dest over
 
 moveFile :: String -> String -> IO ()
 moveFile src dest =
-  withTString src $ \ c_src ->
-  withTString dest $ \ c_dest ->
+  withFilePath src $ \ c_src ->
+  withFilePath dest $ \ c_dest ->
   failIfFalseWithRetry_ (unwords ["MoveFile",show src,show dest]) $
     c_MoveFile c_src c_dest
 
 moveFileEx :: String -> Maybe String -> MoveFileFlag -> IO ()
 moveFileEx src dest flags =
-  withTString src $ \ c_src ->
-  maybeWith withTString dest $ \ c_dest ->
+  withFilePath src $ \ c_src ->
+  maybeWith withFilePath dest $ \ c_dest ->
   failIfFalseWithRetry_ (unwords ["MoveFileEx",show src,show dest]) $
     c_MoveFileEx c_src c_dest flags
 
 setCurrentDirectory :: String -> IO ()
 setCurrentDirectory name =
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
   failIfFalse_ (unwords ["SetCurrentDirectory",show name]) $
     c_SetCurrentDirectory c_name
 
 createDirectory :: String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
 createDirectory name mb_attr =
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
   failIfFalseWithRetry_ (unwords ["CreateDirectory",show name]) $
     c_CreateDirectory c_name (maybePtr mb_attr)
 
 createDirectoryEx :: String -> String -> Maybe LPSECURITY_ATTRIBUTES -> IO ()
 createDirectoryEx template name mb_attr =
-  withTString template $ \ c_template ->
-  withTString name $ \ c_name ->
+  withFilePath template $ \ c_template ->
+  withFilePath name $ \ c_name ->
   failIfFalseWithRetry_ (unwords ["CreateDirectoryEx",show template,show name]) $
     c_CreateDirectoryEx c_template c_name (maybePtr mb_attr)
 
 removeDirectory :: String -> IO ()
 removeDirectory name =
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
   failIfFalseWithRetry_ (unwords ["RemoveDirectory",show name]) $
     c_RemoveDirectory c_name
 
 getBinaryType :: String -> IO BinaryType
 getBinaryType name =
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
   alloca $ \ p_btype -> do
   failIfFalse_ (unwords ["GetBinaryType",show name]) $
     c_GetBinaryType c_name p_btype
@@ -354,7 +354,7 @@ createFile = createFile' failIfWithRetry
 
 createFile' :: ((HANDLE -> Bool) -> String -> IO HANDLE -> IO HANDLE) -> String -> AccessMode -> ShareMode -> Maybe LPSECURITY_ATTRIBUTES -> CreateMode -> FileAttributeOrFlag -> Maybe HANDLE -> IO HANDLE
 createFile' f name access share mb_attr mode flag mb_h =
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
   f (==iNVALID_HANDLE_VALUE) (unwords ["CreateFile",show name]) $
     c_CreateFile c_name access share (maybePtr mb_attr) mode flag (maybePtr mb_h)
 
@@ -379,19 +379,19 @@ setEndOfFile h =
 
 setFileAttributes :: String -> FileAttributeOrFlag -> IO ()
 setFileAttributes name attr =
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
   failIfFalseWithRetry_ (unwords ["SetFileAttributes",show name])
     $ c_SetFileAttributes c_name attr
 
 getFileAttributes :: String -> IO FileAttributeOrFlag
 getFileAttributes name =
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
   failIfWithRetry (== 0xFFFFFFFF) (unwords ["GetFileAttributes",show name]) $
     c_GetFileAttributes c_name
 
 getFileAttributesExStandard :: String -> IO WIN32_FILE_ATTRIBUTE_DATA
 getFileAttributesExStandard name =  alloca $ \res -> do
-  withTString name $ \ c_name ->
+  withFilePath name $ \ c_name ->
     failIfFalseWithRetry_ "getFileAttributesExStandard" $
       c_GetFileAttributesEx c_name getFileExInfoStandard res
   peek res
@@ -435,7 +435,7 @@ setFilePointerEx h dist dir =
 
 findFirstChangeNotification :: String -> Bool -> FileNotificationFlag -> IO HANDLE
 findFirstChangeNotification path watch flag =
-  withTString path $ \ c_path ->
+  withFilePath path $ \ c_path ->
   failIfNull (unwords ["FindFirstChangeNotification",show path]) $
     c_FindFirstChangeNotification c_path watch flag
 
@@ -460,7 +460,7 @@ findFirstFile :: String -> IO (HANDLE, FindData)
 findFirstFile str = do
   fp_finddata <- mallocForeignPtrBytes (# const sizeof(WIN32_FIND_DATAW) )
   withForeignPtr fp_finddata $ \p_finddata -> do
-    handle <- withTString str $ \tstr -> do
+    handle <- withFilePath str $ \tstr -> do
                 failIf (== iNVALID_HANDLE_VALUE) "findFirstFile" $
                   c_FindFirstFile tstr p_finddata
     return (handle, FindData fp_finddata)
@@ -486,8 +486,8 @@ findClose h = failIfFalse_ "findClose" $ c_FindClose h
 
 defineDosDevice :: DefineDosDeviceFlags -> String -> Maybe String -> IO ()
 defineDosDevice flags name path =
-  maybeWith withTString path $ \ c_path ->
-  withTString name $ \ c_name ->
+  maybeWith withFilePath path $ \ c_path ->
+  withFilePath name $ \ c_name ->
   failIfFalse_ "DefineDosDevice" $ c_DefineDosDevice flags c_name c_path
 
 ----------------------------------------------------------------
@@ -500,7 +500,7 @@ getLogicalDrives =
 
 getDiskFreeSpace :: Maybe String -> IO (DWORD,DWORD,DWORD,DWORD)
 getDiskFreeSpace path =
-  maybeWith withTString path $ \ c_path ->
+  maybeWith withFilePath path $ \ c_path ->
   alloca $ \ p_sectors ->
   alloca $ \ p_bytes ->
   alloca $ \ p_nfree ->
@@ -515,8 +515,8 @@ getDiskFreeSpace path =
 
 setVolumeLabel :: Maybe String -> Maybe String -> IO ()
 setVolumeLabel path name =
-  maybeWith withTString path $ \ c_path ->
-  maybeWith withTString name $ \ c_name ->
+  maybeWith withFilePath path $ \ c_path ->
+  maybeWith withFilePath name $ \ c_name ->
   failIfFalse_ "SetVolumeLabel" $ c_SetVolumeLabel c_path c_name
 
 ----------------------------------------------------------------
