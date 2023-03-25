@@ -1,6 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE PackageImports #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ViewPatterns #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  System.Win32.Types
@@ -37,13 +39,23 @@ import System.Win32.Types hiding (
   , errorWin
   , failWith
   , try
+  , withFilePath
+  , useAsCWStringSafe
   )
 
+import Foreign.C.Types (CUIntPtr(..))
+import Foreign.C.String (CWString)
+import qualified System.OsPath.Windows as WS
+import System.OsPath.Windows (WindowsPath)
 import System.OsString.Windows (decodeWith, encodeWith)
 import System.OsString.Internal.Types
 #if MIN_VERSION_filepath(1, 5, 0)
+import "os-string" System.OsString.Encoding.Internal (decodeWithBaseWindows)
+import qualified "os-string" System.OsString.Data.ByteString.Short.Word16 as SBS
 import "os-string" System.OsString.Data.ByteString.Short.Word16 (
 #else
+import "filepath" System.OsPath.Encoding.Internal (decodeWithBaseWindows)
+import qualified "filepath" System.OsPath.Data.ByteString.Short.Word16 as SBS
 import "filepath" System.OsPath.Data.ByteString.Short.Word16 (
 #endif
   packCWString,
@@ -61,7 +73,9 @@ import Foreign (allocaArray)
 import Foreign.Ptr ( Ptr )
 import Foreign.C.Error ( errnoToIOError )
 import Control.Exception ( throwIO )
+import qualified Control.Exception as EX
 import GHC.Ptr (castPtr)
+import GHC.IO.Exception
 
 #if !MIN_VERSION_base(4,8,0)
 import Data.Word (Word)
@@ -72,6 +86,7 @@ import GHC.IO.Encoding.Failure ( CodingFailureMode(..) )
 
 #include <fcntl.h>
 #include <windows.h>
+#include <wchar.h>
 ##include "windows_cconv.h"
 
 
@@ -80,6 +95,7 @@ import GHC.IO.Encoding.Failure ( CodingFailureMode(..) )
 ----------------------------------------------------------------
 
 withTString    :: WindowsString -> (LPTSTR -> IO a) -> IO a
+withFilePath   :: WindowsPath -> (LPTSTR -> IO a) -> IO a
 withTStringLen :: WindowsString -> ((LPTSTR, Int) -> IO a) -> IO a
 peekTString    :: LPCTSTR -> IO WindowsString
 peekTStringLen :: (LPCTSTR, Int) -> IO WindowsString
@@ -88,10 +104,37 @@ newTString     :: WindowsString -> IO LPCTSTR
 -- UTF-16 version:
 -- the casts are from 'Ptr Word16' to 'Ptr CWchar', which is safe
 withTString (WindowsString str) f    = useAsCWString str (\ptr -> f (castPtr ptr))
+withFilePath path = useAsCWStringSafe path
 withTStringLen (WindowsString str) f = useAsCWStringLen str (\(ptr, len) -> f (castPtr ptr, len))
 peekTString    = fmap WindowsString . packCWString . castPtr
 peekTStringLen = fmap WindowsString . packCWStringLen . first castPtr
 newTString (WindowsString str) = fmap castPtr $ newCWString str
+
+foreign import ccall unsafe "wchar.h wcslen" c_wcslen
+    :: CWString -> IO SIZE_T
+
+-- | Wrapper around 'useAsCString', checking the encoded 'FilePath' for internal NUL codepoints as these are
+-- disallowed in Windows filepaths. See https://gitlab.haskell.org/ghc/ghc/-/issues/13660
+useAsCWStringSafe :: WindowsPath -> (CWString -> IO a) -> IO a
+useAsCWStringSafe wp@(WS path) f = useAsCWString path $ \(castPtr -> ptr) -> do
+    let len = SBS.numWord16 path
+    clen <- c_wcslen ptr
+    if clen == fromIntegral len
+        then f ptr
+        else do
+          path' <- either (const (_toStr wp)) id <$> (EX.try @IOException) (decodeWithBaseWindows path)
+          ioError (err path')
+  where
+    _toStr = fmap WS.toChar . WS.unpack
+    err path' =
+        IOError
+          { ioe_handle = Nothing
+          , ioe_type = InvalidArgument
+          , ioe_location = "useAsCWStringSafe"
+          , ioe_description = "Windows filepaths must not contain internal NUL codepoints."
+          , ioe_errno = Nothing
+          , ioe_filename = Just path'
+          }
 
 ----------------------------------------------------------------
 -- Errors

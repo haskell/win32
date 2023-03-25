@@ -1,6 +1,7 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
 * Add support for named pipes.
+* Ensure that FilePaths don't contain interior NULs wrt [#218](https://github.com/haskell/win32/pull/218)
 
 ## 2.13.4.0 October 2022
 
