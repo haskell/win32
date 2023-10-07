@@ -113,6 +113,7 @@ Library
     -- AFPP support
     if impl(ghc >= 8.0)
         exposed-modules:
+            System.Win32.WindowsString.Console
             System.Win32.WindowsString.Types
             System.Win32.WindowsString.DebugApi
             System.Win32.WindowsString.DLL
@@ -128,6 +129,7 @@ Library
             System.Win32.WindowsString.Utils
 
     other-modules:
+        System.Win32.Console.Internal
         System.Win32.DebugApi.Internal
         System.Win32.DLL.Internal
         System.Win32.File.Internal
