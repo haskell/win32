@@ -35,10 +35,3 @@ git clone git@github.com:haskell/win32.git
 cd win32
 cabal v2-repl
 ```
-
-Testsuite
----------
-The tests in the `Win32` package are designed to run as part of the GHC testsuite.
-As such, should you want to add a new test, you will need the testsuite drivers.
-
-See https://ghc.haskell.org/trac/ghc/wiki/Building/RunningTests/Adding for details.
