@@ -63,14 +63,9 @@ import System.Win32.WindowsString.Types
 import System.Win32.Console.Internal
 import System.Win32.Console hiding (getArgs, commandLineToArgv)
 import System.OsString.Windows
-import Graphics.Win32.Misc
-import Graphics.Win32.GDI.Types (COLORREF)
 
-import Foreign.C.Types (CInt(..))
-import Foreign.C.String (withCWString, CWString)
-import Foreign.Ptr (Ptr, plusPtr)
 import Foreign.Storable (Storable(..))
-import Foreign.Marshal.Array (peekArray, pokeArray)
+import Foreign.Marshal.Array (peekArray)
 import Foreign.Marshal.Alloc (alloca)
 
 
