@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE PackageImports #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  System.Win32.Types
@@ -38,9 +39,13 @@ import System.Win32.Types hiding (
   , try
   )
 
-import System.OsString.Windows
+import System.OsString.Windows (decodeWith, encodeWith)
 import System.OsString.Internal.Types
-import System.OsPath.Data.ByteString.Short.Word16 (
+#if MIN_VERSION_filepath(1, 5, 0)
+import "os-string" System.OsString.Data.ByteString.Short.Word16 (
+#else
+import "filepath" System.OsPath.Data.ByteString.Short.Word16 (
+#endif
   packCWString,
   packCWStringLen,
   useAsCWString,

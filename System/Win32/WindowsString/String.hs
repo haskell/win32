@@ -1,3 +1,5 @@
+{-# LANGUAGE PackageImports #-}
+
 {- |
    Module      :  System.Win32.String
    Copyright   :  2013 shelarcy
@@ -28,7 +30,11 @@ import System.Win32.String hiding
   )
 import System.Win32.WindowsString.Types
 import System.OsString.Internal.Types
-import qualified System.OsPath.Data.ByteString.Short as SBS
+#if MIN_VERSION_filepath(1, 5, 0)
+import qualified "os-string" System.OsString.Data.ByteString.Short as SBS
+#else
+import qualified "filepath" System.OsPath.Data.ByteString.Short as SBS
+#endif
 import Data.Word (Word8)
 
 -- | Marshal a dummy Haskell string into a NUL terminated C wide string
