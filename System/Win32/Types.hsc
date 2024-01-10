@@ -63,7 +63,6 @@ import Foreign.C.Types (CUIntPtr(..))
 import Foreign.Marshal.Utils (fromBool, with)
 import Foreign (peek)
 import Foreign.Ptr (ptrToWordPtr)
-import GHC.IO.Exception (ioException, IOException(..))
 import GHC.IO.SubSystem ((<!>))
 import GHC.IO.Handle.Windows
 import GHC.IO.IOMode
