@@ -1,7 +1,12 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
-* Add support for named pipes.
+## 2.14.0.0 January 2023
+
+* Add support for named pipes [#220](https://github.com/haskell/win32/pull/220)
 * Ensure that FilePaths don't contain interior NULs wrt [#218](https://github.com/haskell/win32/pull/218)
+* Add support for GetCommandLineW [#218](https://github.com/haskell/win32/pull/221)
+* Support filepath >= 1.5.0.0 and os-string [#226](https://github.com/haskell/win32/pull/226)
+* Remove unused imports [#225](https://github.com/haskell/win32/pull/225)
 
 ## 2.13.4.0 October 2022
 

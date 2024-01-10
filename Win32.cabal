@@ -1,6 +1,6 @@
 cabal-version:  2.0
 name:           Win32
-version:        2.13.4.0
+version:        2.14.0.0
 license:        BSD3
 license-file:   LICENSE
 author:         Alastair Reid, shelarcy, Tamar Christina
