@@ -1,6 +1,8 @@
 #include <fcntl.h>
 #include <windows.h>
 
+#include "namedpipeapi_compat.h"
+
 {-# LANGUAGE CPP                #-}
 {-# LANGUAGE BangPatterns       #-}
 {-# LANGUAGE MultiWayIf         #-}
