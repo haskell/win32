@@ -4,7 +4,7 @@
  * tlhelp32.h is not included in MinGW, which was shipped with the 32-bit
  * Windows version of GHC prior to the 7.10.3 release.
  */
-#if __GLASGOW_HASKELL__ > 708
+#if __GLASGOW_HASKELL__ >= 710
 #else
 // Declarations from tlhelp32.h that Win32 requires
 #include <windows.h>
