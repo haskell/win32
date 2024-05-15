@@ -66,6 +66,15 @@ foreign import WINDOWS_CCONV unsafe "Shellapi.h CommandLineToArgvW"
 foreign import WINDOWS_CCONV unsafe "processenv.h GetCommandLineW"
         getCommandLineW :: IO LPWSTR
 
+foreign import WINDOWS_CCONV unsafe "processenv.h GetEnvironmentVariableW"
+        c_GetEnvironmentVariableW :: LPCWSTR -> LPWSTR -> DWORD -> IO DWORD
+
+foreign import WINDOWS_CCONV unsafe "processenv.h GetEnvironmentStringsW"
+        c_GetEnvironmentStringsW :: IO LPWSTR
+
+foreign import WINDOWS_CCONV unsafe "processenv.h FreeEnvironmentStringsW"
+  c_FreeEnvironmentStrings :: LPWSTR -> IO Bool
+
 data CONSOLE_SCREEN_BUFFER_INFO = CONSOLE_SCREEN_BUFFER_INFO
     { dwSize              :: COORD
     , dwCursorPosition    :: COORD
