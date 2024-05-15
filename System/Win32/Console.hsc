@@ -1,5 +1,5 @@
 #if __GLASGOW_HASKELL__ >= 709
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Trustworthy #-}
 #else
 {-# LANGUAGE Trustworthy #-}
 #endif
@@ -56,7 +56,11 @@ module System.Win32.Console (
         getConsoleScreenBufferInfo,
         getCurrentConsoleScreenBufferInfo,
         getConsoleScreenBufferInfoEx,
-        getCurrentConsoleScreenBufferInfoEx
+        getCurrentConsoleScreenBufferInfoEx,
+
+        -- * Env
+        getEnv,
+        getEnvironment
   ) where
 
 #include <windows.h>
@@ -64,14 +68,19 @@ module System.Win32.Console (
 ##include "windows_cconv.h"
 #include "wincon_compat.h"
 
+import Data.Char (chr)
 import System.Win32.Types
+import System.Win32.String
 import System.Win32.Console.Internal
 import Graphics.Win32.Misc
 import Graphics.Win32.GDI.Types (COLORREF)
 
-import Foreign.C.String (withCWString)
+import GHC.IO (bracket)
+import Foreign.Ptr (plusPtr)
+import Foreign.C.Types (CWchar)
+import Foreign.C.String (withCWString, CWString)
 import Foreign.Storable (Storable(..))
-import Foreign.Marshal.Array (peekArray)
+import Foreign.Marshal.Array (peekArray, peekArray0)
 import Foreign.Marshal.Alloc (alloca)
 
 
@@ -154,3 +163,65 @@ getCurrentConsoleScreenBufferInfoEx :: IO CONSOLE_SCREEN_BUFFER_INFOEX
 getCurrentConsoleScreenBufferInfoEx = do
     h <- failIf (== nullHANDLE) "getStdHandle" $ getStdHandle sTD_OUTPUT_HANDLE
     getConsoleScreenBufferInfoEx h
+
+
+-- c_GetEnvironmentVariableW :: LPCWSTR -> LPWSTR -> DWORD -> IO DWORD
+getEnv :: String -> IO (Maybe String)
+getEnv name =
+  withCWString name $ \c_name -> withTStringBufferLen maxLength $ \(buf, len) -> do
+    let c_len = fromIntegral len
+    c_len' <- c_GetEnvironmentVariableW c_name buf c_len
+    if c_len' == 0
+    then do
+      err_code <- getLastError
+      if err_code  == eERROR_ENVVAR_NOT_FOUND
+      then return Nothing
+      else errorWin "GetEnvironmentVariableW"
+    else do
+      let len' = fromIntegral c_len'
+      Just <$> peekTStringLen (buf, len')
+ where
+  -- according to https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getenvironmentvariablew
+  maxLength :: Int
+  maxLength = 32767
+
+
+getEnvironment :: IO [(String, String)]
+getEnvironment = bracket c_GetEnvironmentStringsW c_FreeEnvironmentStrings $ \lpwstr -> do
+    strs <- builder lpwstr
+    return (divvy <$> strs)
+ where
+  divvy :: String -> (String, String)
+  divvy str =
+    case break (=='=') str of
+      (xs,[])        -> (xs,[]) -- don't barf (like Posix.getEnvironment)
+      (name,_:value) -> (name,value)
+
+  builder :: LPWSTR -> IO [String]
+  builder ptr = go 0
+   where
+    go :: Int -> IO [String]
+    go off = do
+      (str, l) <- peekCWStringOff ptr off
+      if l == 0
+      then pure []
+      else (str:) <$> go (((l + 1) * 2) + off)
+
+
+peekCWStringOff :: CWString -> Int -> IO (String, Int)
+peekCWStringOff cp off = do
+  cs <- peekArray0 wNUL (cp `plusPtr` off)
+  return (cWcharsToChars cs, length cs)
+
+wNUL :: CWchar
+wNUL = 0
+
+cWcharsToChars :: [CWchar] -> [Char]
+cWcharsToChars = map chr . fromUTF16 . map fromIntegral
+ where
+  fromUTF16 (c1:c2:wcs)
+    | 0xd800 <= c1 && c1 <= 0xdbff && 0xdc00 <= c2 && c2 <= 0xdfff =
+      ((c1 - 0xd800)*0x400 + (c2 - 0xdc00) + 0x10000) : fromUTF16 wcs
+  fromUTF16 (c:wcs) = c : fromUTF16 wcs
+  fromUTF16 [] = []
+
