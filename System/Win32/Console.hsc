@@ -76,6 +76,7 @@ import Graphics.Win32.Misc
 import Graphics.Win32.GDI.Types (COLORREF)
 
 import GHC.IO (bracket)
+import GHC.IO.Exception (IOException(..), IOErrorType(OtherError), ioError)
 import Foreign.Ptr (plusPtr)
 import Foreign.C.Types (CWchar)
 import Foreign.C.String (withCWString, CWString)
@@ -171,15 +172,18 @@ getEnv name =
   withCWString name $ \c_name -> withTStringBufferLen maxLength $ \(buf, len) -> do
     let c_len = fromIntegral len
     c_len' <- c_GetEnvironmentVariableW c_name buf c_len
-    if c_len' == 0
-    then do
-      err_code <- getLastError
-      if err_code  == eERROR_ENVVAR_NOT_FOUND
-      then return Nothing
-      else errorWin "GetEnvironmentVariableW"
-    else do
-      let len' = fromIntegral c_len'
-      Just <$> peekTStringLen (buf, len')
+    case c_len' of
+      0 -> do
+        err_code <- getLastError
+        if err_code  == eERROR_ENVVAR_NOT_FOUND
+        then return Nothing
+        else errorWin "GetEnvironmentVariableW"
+      _ | c_len' > fromIntegral maxLength ->
+            -- shouldn't happen, because we provide maxLength
+            ioError (IOError Nothing OtherError "GetEnvironmentVariableW" ("Unexpected return code: " <> show c_len') Nothing Nothing)
+        | otherwise -> do
+            let len' = fromIntegral c_len'
+            Just <$> peekTStringLen (buf, len')
  where
   -- according to https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getenvironmentvariablew
   maxLength :: Int
