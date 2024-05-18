@@ -186,8 +186,11 @@ getEnv name =
             Just <$> peekTStringLen (buf, len')
  where
   -- according to https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getenvironmentvariablew
+  -- max characters (wide chars): 32767
+  -- => bytes = 32767 * 2 = 65534
+  -- +1 byte for NUL (although not needed I think)
   maxLength :: Int
-  maxLength = 32767
+  maxLength = 65535
 
 
 getEnvironment :: IO [(String, String)]
