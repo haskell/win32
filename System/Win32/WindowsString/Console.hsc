@@ -1,3 +1,6 @@
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE ViewPatterns #-}
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  System.Win32.WindowsString.Console
@@ -51,7 +54,11 @@ module System.Win32.WindowsString.Console (
         getConsoleScreenBufferInfo,
         getCurrentConsoleScreenBufferInfo,
         getConsoleScreenBufferInfoEx,
-        getCurrentConsoleScreenBufferInfoEx
+        getCurrentConsoleScreenBufferInfoEx,
+
+        -- * Env
+        getEnv,
+        getEnvironment
   ) where
 
 #include <windows.h>
@@ -60,13 +67,23 @@ module System.Win32.WindowsString.Console (
 #include "wincon_compat.h"
 
 import System.Win32.WindowsString.Types
+import System.Win32.WindowsString.String (withTStringBufferLen)
 import System.Win32.Console.Internal
-import System.Win32.Console hiding (getArgs, commandLineToArgv)
+import System.Win32.Console hiding (getArgs, commandLineToArgv, getEnv, getEnvironment)
 import System.OsString.Windows
+import System.OsString.Internal.Types
 
+import Foreign.C.Types (CWchar)
+import Foreign.C.String (CWString)
+import Foreign.Ptr (plusPtr)
 import Foreign.Storable (Storable(..))
-import Foreign.Marshal.Array (peekArray)
+import Foreign.Marshal.Array (peekArray, peekArray0)
 import Foreign.Marshal.Alloc (alloca)
+import GHC.IO (bracket)
+import GHC.IO.Exception (IOException(..), IOErrorType(OtherError))
+
+import Prelude hiding (break, length, tail)
+import qualified Prelude as P
 
 
 -- | This function can be used to parse command line arguments and return
@@ -88,4 +105,65 @@ commandLineToArgv arg
 getArgs :: IO [WindowsString]
 getArgs = do
   getCommandLineW >>= peekTString >>= commandLineToArgv
+
+
+-- c_GetEnvironmentVariableW :: LPCWSTR -> LPWSTR -> DWORD -> IO DWORD
+getEnv :: WindowsString -> IO (Maybe WindowsString)
+getEnv name =
+  withTString name $ \c_name -> withTStringBufferLen maxLength $ \(buf, len) -> do
+    let c_len = fromIntegral len
+    c_len' <- c_GetEnvironmentVariableW c_name buf c_len
+    case c_len' of
+      0 -> do
+        err_code <- getLastError
+        if err_code  == eERROR_ENVVAR_NOT_FOUND
+        then return Nothing
+        else errorWin "GetEnvironmentVariableW"
+      _ | c_len' > fromIntegral maxLength ->
+            -- shouldn't happen, because we provide maxLength
+            ioError (IOError Nothing OtherError "GetEnvironmentVariableW" ("Unexpected return code: " <> show c_len') Nothing Nothing)
+        | otherwise -> do
+            let len' = fromIntegral c_len'
+            Just <$> peekTStringLen (buf, len')
+ where
+  -- according to https://learn.microsoft.com/en-us/windows/win32/api/processenv/nf-processenv-getenvironmentvariablew
+  -- max characters (wide chars): 32767
+  -- => bytes = 32767 * 2 = 65534
+  -- +1 byte for NUL (although not needed I think)
+  maxLength :: Int
+  maxLength = 65535
+
+
+getEnvironment :: IO [(WindowsString, WindowsString)]
+getEnvironment = bracket c_GetEnvironmentStringsW c_FreeEnvironmentStrings $ \lpwstr -> do
+    strs <- builder lpwstr
+    return (divvy <$> strs)
+ where
+  divvy :: WindowsString -> (WindowsString, WindowsString)
+  divvy str =
+    case break (== unsafeFromChar '=') str of
+      (xs,[pstr||]) -> (xs,[pstr||]) -- don't barf (like Posix.getEnvironment)
+      (name, ys) -> let value = tail ys in (name,value)
+
+  builder :: LPWSTR -> IO [WindowsString]
+  builder ptr = go 0
+   where
+    go :: Int -> IO [WindowsString]
+    go off = do
+      (str, l) <- peekCWStringOff ptr off
+      if l == 0
+      then pure []
+      else (str:) <$> go (((l + 1) * 2) + off)
+
+
+peekCWStringOff :: CWString -> Int -> IO (WindowsString, Int)
+peekCWStringOff cp off = do
+  cs <- peekArray0 wNUL (cp `plusPtr` off)
+  return (cWcharsToChars cs, P.length cs)
+
+wNUL :: CWchar
+wNUL = 0
+
+cWcharsToChars :: [CWchar] -> WindowsString
+cWcharsToChars = pack . fmap (WindowsChar . fromIntegral)
 
