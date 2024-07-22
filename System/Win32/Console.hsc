@@ -76,7 +76,7 @@ import Graphics.Win32.Misc
 import Graphics.Win32.GDI.Types (COLORREF)
 
 import GHC.IO (bracket)
-import GHC.IO.Exception (IOException(..), IOErrorType(OtherError), ioError)
+import GHC.IO.Exception (IOException(..), IOErrorType(OtherError))
 import Foreign.Ptr (plusPtr)
 import Foreign.C.Types (CWchar)
 import Foreign.C.String (withCWString, CWString)
