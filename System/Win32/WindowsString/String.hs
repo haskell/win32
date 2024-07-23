@@ -30,7 +30,7 @@ import System.Win32.String hiding
   )
 import System.Win32.WindowsString.Types
 import System.OsString.Internal.Types
-#if MIN_VERSION_filepath(1, 5, 0)
+#if MIN_VERSION_filepath(1,5,0)
 import qualified "os-string" System.OsString.Data.ByteString.Short as SBS
 #else
 import qualified "filepath" System.OsPath.Data.ByteString.Short as SBS
