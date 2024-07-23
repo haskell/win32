@@ -1,5 +1,4 @@
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE PackageImports #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -85,6 +84,17 @@ import GHC.IO.Exception (IOException(..), IOErrorType(OtherError))
 import Prelude hiding (break, length, tail)
 import qualified Prelude as P
 
+#if !MIN_VERSION_filepath(1,5,0)
+import Data.Coerce
+import qualified "filepath" System.OsPath.Data.ByteString.Short.Word16 as BC
+
+tail :: WindowsString -> WindowsString
+tail = coerce BC.tail
+
+break :: (WindowsChar -> Bool) -> WindowsString -> (WindowsString, WindowsString)
+break = coerce BC.break
+#endif
+
 
 -- | This function can be used to parse command line arguments and return
 --   the split up arguments as elements in a list.
@@ -142,7 +152,8 @@ getEnvironment = bracket c_GetEnvironmentStringsW c_FreeEnvironmentStrings $ \lp
   divvy :: WindowsString -> (WindowsString, WindowsString)
   divvy str =
     case break (== unsafeFromChar '=') str of
-      (xs,[pstr||]) -> (xs,[pstr||]) -- don't barf (like Posix.getEnvironment)
+      (xs,ys)
+        | ys == mempty -> (xs,ys) -- don't barf (like Posix.getEnvironment)
       (name, ys) -> let value = tail ys in (name,value)
 
   builder :: LPWSTR -> IO [WindowsString]

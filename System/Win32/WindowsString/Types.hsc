@@ -49,7 +49,7 @@ import qualified System.OsPath.Windows as WS
 import System.OsPath.Windows (WindowsPath)
 import System.OsString.Windows (decodeWith, encodeWith)
 import System.OsString.Internal.Types
-#if MIN_VERSION_filepath(1, 5, 0)
+#if MIN_VERSION_filepath(1,5,0)
 import "os-string" System.OsString.Encoding.Internal (decodeWithBaseWindows)
 import qualified "os-string" System.OsString.Data.ByteString.Short.Word16 as SBS
 import "os-string" System.OsString.Data.ByteString.Short.Word16 (
