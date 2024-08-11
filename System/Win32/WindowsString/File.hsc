@@ -26,6 +26,7 @@ module System.Win32.WindowsString.File
     , setFileAttributes
     , getFileAttributes
     , getFileAttributesExStandard
+    , getTempFileName
     , findFirstChangeNotification
     , getFindDataFileName
     , findFirstFile
@@ -52,6 +53,7 @@ import System.Win32.File hiding (
   , setFileAttributes
   , getFileAttributes
   , getFileAttributesExStandard
+  , getTempFileName
   , findFirstChangeNotification
   , getFindDataFileName
   , findFirstFile
@@ -64,6 +66,7 @@ import System.Win32.File hiding (
 import System.Win32.WindowsString.Types
 import System.OsString.Windows
 import Unsafe.Coerce (unsafeCoerce)
+import Data.Maybe (fromMaybe)
 
 import Foreign hiding (void)
 
@@ -160,6 +163,23 @@ getFileAttributesExStandard name =  alloca $ \res -> do
     failIfFalseWithRetry_ "getFileAttributesExStandard" $
       c_GetFileAttributesEx c_name (unsafeCoerce getFileExInfoStandard) res
   peek res
+
+-- | Get a unique temporary filename.
+--
+-- Calls 'GetTempFileNameW'.
+getTempFileName :: WindowsString     -- ^ directory for the temporary file (must be at most MAX_PATH - 14 characters long)
+                -> WindowsString     -- ^ prefix for the temporary file name
+                -> Maybe UINT        -- ^ if 'Nothing', a unique name is generated
+                                     --   otherwise a non-zero value is used as the unique part
+                -> IO (WindowsString, UINT)
+getTempFileName dir prefix unique = allocaBytes ((#const MAX_PATH) * sizeOf (undefined :: TCHAR)) $ \c_buf -> do
+  uid <- withFilePath dir $ \c_dir ->
+    withFilePath prefix $ \ c_prefix -> do
+      failIfZero "getTempFileName" $
+        c_GetTempFileNameW c_dir c_prefix (fromMaybe 0 unique) c_buf
+  fname <- peekTString c_buf
+  pure (fname, uid)
+
 
 
 ----------------------------------------------------------------
