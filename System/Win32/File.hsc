@@ -189,6 +189,7 @@ module System.Win32.File
     , createDirectoryEx
     , removeDirectory
     , getBinaryType
+    , getTempFileName
 
       -- * HANDLE operations
     , createFile
@@ -245,6 +246,7 @@ import System.Win32.Types
 import Foreign hiding (void)
 import Control.Monad
 import Control.Concurrent
+import Data.Maybe (fromMaybe)
 
 ##include "windows_cconv.h"
 
@@ -344,6 +346,22 @@ getBinaryType name =
   failIfFalse_ (unwords ["GetBinaryType",show name]) $
     c_GetBinaryType c_name p_btype
   peek p_btype
+
+-- | Get a unique temporary filename.
+--
+-- Calls 'GetTempFileNameW'.
+getTempFileName :: String     -- ^ directory for the temporary file (must be at most MAX_PATH - 14 characters long)
+                -> String     -- ^ prefix for the temporary file name
+                -> Maybe UINT -- ^ if 'Nothing', a unique name is generated
+                              --   otherwise a non-zero value is used as the unique part
+                -> IO (String, UINT)
+getTempFileName dir prefix unique = allocaBytes ((#const MAX_PATH) * sizeOf (undefined :: TCHAR)) $ \c_buf -> do
+  uid <- withFilePath dir $ \c_dir ->
+    withFilePath prefix $ \ c_prefix -> do
+      failIfZero "getTempFileName" $
+        c_GetTempFileNameW c_dir c_prefix (fromMaybe 0 unique) c_buf
+  fname <- peekTString c_buf
+  return (fname, uid)
 
 ----------------------------------------------------------------
 -- HANDLE operations

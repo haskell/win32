@@ -399,6 +399,9 @@ foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesExW"
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileInformationByHandle"
     c_GetFileInformationByHandle :: HANDLE -> Ptr BY_HANDLE_FILE_INFORMATION -> IO BOOL
 
+foreign import WINDOWS_CCONV unsafe "windows.h GetTempFileNameW"
+    c_GetTempFileNameW :: LPCWSTR -> LPCWSTR -> UINT -> LPWSTR -> IO UINT
+
 ----------------------------------------------------------------
 -- Read/write files
 ----------------------------------------------------------------
