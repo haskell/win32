@@ -1,5 +1,11 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.14.1.0 November 2024
+
+* Add getTempFileName
+* Add WindowsString variant for getEnv etc
+* Implement getEnv and getEnvironment
+
 ## 2.14.0.0 January 2023
 
 * Add support for named pipes [#220](https://github.com/haskell/win32/pull/220)
