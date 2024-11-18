@@ -27,7 +27,7 @@ module System.Win32.Console.Internal where
 import System.Win32.Types
 import Graphics.Win32.GDI.Types (COLORREF)
 
-import Foreign.C.Types (CInt(..))
+import Foreign.C.Types (CInt(..), CWchar)
 import Foreign.C.String (CWString)
 import Foreign.Ptr (Ptr, plusPtr)
 import Foreign.Storable (Storable(..))
@@ -188,3 +188,149 @@ foreign import WINDOWS_CCONV safe "windows.h GetConsoleScreenBufferInfo"
 foreign import WINDOWS_CCONV safe "windows.h GetConsoleScreenBufferInfoEx"
     c_GetConsoleScreenBufferInfoEx :: HANDLE -> Ptr CONSOLE_SCREEN_BUFFER_INFOEX -> IO BOOL
 
+-- | This type represents a keyboard input event. The structure is documented here:
+-- https://learn.microsoft.com/en-us/windows/console/key-event-record-str
+data KEY_EVENT_RECORD = KEY_EVENT_RECORD
+    { keyDown          :: BOOL
+    , repeatCount      :: WORD
+    , virtualKeyCode   :: WORD
+    , virtualScanCode  :: WORD
+    , uChar            :: CWchar
+    , controlKeyStateK :: DWORD
+    } deriving (Eq, Show)
+
+-- | This type represents a mouse event. The structure is documented here:
+-- https://learn.microsoft.com/en-us/windows/console/mouse-event-record-str
+data MOUSE_EVENT_RECORD = MOUSE_EVENT_RECORD
+  { mousePosition    :: COORD
+  , buttonState      :: DWORD
+  , controlKeyStateM :: DWORD
+  , eventFlags       :: DWORD
+  } deriving (Eq, Show)
+
+-- | This type represents a window size change event. The structure is documented here:
+-- https://learn.microsoft.com/en-us/windows/console/window-buffer-size-record-str
+newtype WINDOW_BUFFER_SIZE_RECORD = WINDOW_BUFFER_SIZE_RECORD
+  { windowSize :: COORD
+  } deriving (Eq, Show)
+
+-- | This type represents a window menu event. (Current ignored by VTY). The structure
+-- is documented here: https://learn.microsoft.com/en-us/windows/console/menu-event-record-str
+newtype MENU_EVENT_RECORD = MENU_EVENT_RECORD
+  { commandId :: UINT
+  } deriving (Eq, Show)
+
+-- | This type represents a window focus change event. The structure is documented here:
+-- https://learn.microsoft.com/en-us/windows/console/focus-event-record-str
+newtype FOCUS_EVENT_RECORD = FOCUS_EVENT_RECORD
+  { setFocus :: BOOL
+  } deriving (Eq, Show)
+
+-- | Description of a Windows console input event. Documented here:
+-- https://learn.microsoft.com/en-us/windows/console/input-record-str
+data INPUT_RECORD =
+    KeyEvent KEY_EVENT_RECORD
+  | MouseEvent MOUSE_EVENT_RECORD
+  | WindowBufferSizeEvent WINDOW_BUFFER_SIZE_RECORD
+  | MenuEvent MENU_EVENT_RECORD
+  | FocusEvent FOCUS_EVENT_RECORD
+  deriving (Eq, Show)
+
+instance Storable KEY_EVENT_RECORD where
+    sizeOf = const #{size KEY_EVENT_RECORD}
+    alignment _ = #alignment KEY_EVENT_RECORD
+    poke buf input = do
+        (#poke KEY_EVENT_RECORD, bKeyDown)          buf (keyDown input)
+        (#poke KEY_EVENT_RECORD, wRepeatCount)      buf (repeatCount input)
+        (#poke KEY_EVENT_RECORD, wVirtualKeyCode)   buf (virtualKeyCode input)
+        (#poke KEY_EVENT_RECORD, wVirtualScanCode)  buf (virtualScanCode input)
+        (#poke KEY_EVENT_RECORD, uChar)             buf (uChar input)
+        (#poke KEY_EVENT_RECORD, dwControlKeyState) buf (controlKeyStateK input)
+    peek buf = do
+        keyDown'          <- (#peek KEY_EVENT_RECORD, bKeyDown) buf
+        repeatCount'      <- (#peek KEY_EVENT_RECORD, wRepeatCount) buf
+        virtualKeyCode'   <- (#peek KEY_EVENT_RECORD, wVirtualKeyCode) buf
+        virtualScanCode'  <- (#peek KEY_EVENT_RECORD, wVirtualScanCode) buf
+        uChar'            <- (#peek KEY_EVENT_RECORD, uChar) buf
+        controlKeyStateK' <- (#peek KEY_EVENT_RECORD, dwControlKeyState) buf
+        return $ KEY_EVENT_RECORD keyDown' repeatCount' virtualKeyCode' virtualScanCode' uChar' controlKeyStateK'
+
+instance Storable MOUSE_EVENT_RECORD where
+    sizeOf = const #{size MOUSE_EVENT_RECORD}
+    alignment _ = #alignment MOUSE_EVENT_RECORD
+    poke buf input = do
+        (#poke MOUSE_EVENT_RECORD, dwMousePosition)   buf (mousePosition input)
+        (#poke MOUSE_EVENT_RECORD, dwButtonState)     buf (buttonState input)
+        (#poke MOUSE_EVENT_RECORD, dwControlKeyState) buf (controlKeyStateM input)
+        (#poke MOUSE_EVENT_RECORD, dwEventFlags)      buf (eventFlags input)
+    peek buf = do
+        mousePosition'    <- (#peek MOUSE_EVENT_RECORD, dwMousePosition) buf
+        buttonState'      <- (#peek MOUSE_EVENT_RECORD, dwButtonState) buf
+        controlKeyStateM' <- (#peek MOUSE_EVENT_RECORD, dwControlKeyState) buf
+        eventFlags'       <- (#peek MOUSE_EVENT_RECORD, dwEventFlags) buf
+        return $ MOUSE_EVENT_RECORD mousePosition' buttonState' controlKeyStateM' eventFlags'
+
+instance Storable WINDOW_BUFFER_SIZE_RECORD where
+    sizeOf = const #{size WINDOW_BUFFER_SIZE_RECORD}
+    alignment _ = #alignment WINDOW_BUFFER_SIZE_RECORD
+    poke buf input = do
+        (#poke WINDOW_BUFFER_SIZE_RECORD, dwSize) buf (windowSize input)
+    peek buf = do
+        size' <- (#peek WINDOW_BUFFER_SIZE_RECORD, dwSize) buf
+        return $ WINDOW_BUFFER_SIZE_RECORD size'
+
+instance Storable MENU_EVENT_RECORD where
+    sizeOf = const #{size MENU_EVENT_RECORD}
+    alignment _ = #alignment MENU_EVENT_RECORD
+    poke buf input = do
+        (#poke MENU_EVENT_RECORD, dwCommandId) buf (commandId input)
+    peek buf = do
+        commandId' <- (#peek MENU_EVENT_RECORD, dwCommandId) buf
+        return $ MENU_EVENT_RECORD commandId'
+
+instance Storable FOCUS_EVENT_RECORD where
+    sizeOf = const #{size FOCUS_EVENT_RECORD}
+    alignment _ = #alignment FOCUS_EVENT_RECORD
+    poke buf input = do
+        (#poke FOCUS_EVENT_RECORD, bSetFocus) buf (setFocus input)
+    peek buf = do
+        setFocus' <- (#peek FOCUS_EVENT_RECORD, bSetFocus) buf
+        return $ FOCUS_EVENT_RECORD setFocus'
+
+instance Storable INPUT_RECORD where
+    sizeOf = const #{size INPUT_RECORD}
+    alignment _ = #alignment INPUT_RECORD
+
+    poke buf (KeyEvent key) = do
+        (#poke INPUT_RECORD, EventType) buf (#{const KEY_EVENT} :: WORD)
+        (#poke INPUT_RECORD, Event) buf key
+    poke buf (MouseEvent mouse) = do
+        (#poke INPUT_RECORD, EventType) buf (#{const MOUSE_EVENT} :: WORD)
+        (#poke INPUT_RECORD, Event) buf mouse
+    poke buf (WindowBufferSizeEvent window) = do
+        (#poke INPUT_RECORD, EventType) buf (#{const WINDOW_BUFFER_SIZE_EVENT} :: WORD)
+        (#poke INPUT_RECORD, Event) buf window
+    poke buf (MenuEvent menu) = do
+        (#poke INPUT_RECORD, EventType) buf (#{const MENU_EVENT} :: WORD)
+        (#poke INPUT_RECORD, Event) buf menu
+    poke buf (FocusEvent focus) = do
+        (#poke INPUT_RECORD, EventType) buf (#{const FOCUS_EVENT} :: WORD)
+        (#poke INPUT_RECORD, Event) buf focus
+
+    peek buf = do
+        event <- (#peek INPUT_RECORD, EventType) buf :: IO WORD
+        case event of
+          #{const KEY_EVENT} ->
+              KeyEvent `fmap` (#peek INPUT_RECORD, Event) buf
+          #{const MOUSE_EVENT} ->
+              MouseEvent `fmap` (#peek INPUT_RECORD, Event) buf
+          #{const WINDOW_BUFFER_SIZE_EVENT} ->
+              WindowBufferSizeEvent `fmap` (#peek INPUT_RECORD, Event) buf
+          #{const MENU_EVENT} ->
+              MenuEvent `fmap` (#peek INPUT_RECORD, Event) buf
+          #{const FOCUS_EVENT} ->
+              FocusEvent `fmap` (#peek INPUT_RECORD, Event) buf
+          _ -> error $ "Unknown input event type " ++ show event
+
+foreign import ccall unsafe "windows.h ReadConsoleInputW"
+    c_ReadConsoleInput :: HANDLE -> Ptr INPUT_RECORD -> DWORD -> LPDWORD -> IO BOOL

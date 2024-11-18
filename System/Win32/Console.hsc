@@ -60,7 +60,15 @@ module System.Win32.Console (
 
         -- * Env
         getEnv,
-        getEnvironment
+        getEnvironment,
+        -- * Console I/O
+        KEY_EVENT_RECORD(..),
+        MOUSE_EVENT_RECORD(..),
+        WINDOW_BUFFER_SIZE_RECORD(..),
+        MENU_EVENT_RECORD(..),
+        FOCUS_EVENT_RECORD(..),
+        INPUT_RECORD(..),
+        readConsoleInput
   ) where
 
 #include <windows.h>
@@ -77,7 +85,7 @@ import Graphics.Win32.GDI.Types (COLORREF)
 
 import GHC.IO (bracket)
 import GHC.IO.Exception (IOException(..), IOErrorType(OtherError))
-import Foreign.Ptr (plusPtr)
+import Foreign.Ptr (plusPtr, Ptr)
 import Foreign.C.Types (CWchar)
 import Foreign.C.String (withCWString, CWString)
 import Foreign.Storable (Storable(..))
@@ -232,3 +240,13 @@ cWcharsToChars = map chr . fromUTF16 . map fromIntegral
   fromUTF16 (c:wcs) = c : fromUTF16 wcs
   fromUTF16 [] = []
 
+-- | Reads all available input records up to the amount specified by the
+-- len parameter.
+readConsoleInput :: HANDLE -> Int -> Ptr INPUT_RECORD -> IO Int
+readConsoleInput handle len inputRecordPtr =
+  alloca $ \numEventsReadPtr -> do
+    poke numEventsReadPtr 0
+    failIfFalse_ "ReadConsoleInput" $
+      c_ReadConsoleInput handle inputRecordPtr (fromIntegral len) numEventsReadPtr
+    numEvents <- peek numEventsReadPtr
+    return $ fromIntegral numEvents
