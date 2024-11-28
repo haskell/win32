@@ -332,5 +332,5 @@ instance Storable INPUT_RECORD where
               FocusEvent `fmap` (#peek INPUT_RECORD, Event) buf
           _ -> error $ "Unknown input event type " ++ show event
 
-foreign import ccall unsafe "windows.h ReadConsoleInputW"
+foreign import WINDOWS_CCONV unsafe "windows.h ReadConsoleInputW"
     c_ReadConsoleInput :: HANDLE -> Ptr INPUT_RECORD -> DWORD -> LPDWORD -> IO BOOL
