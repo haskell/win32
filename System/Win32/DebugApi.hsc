@@ -54,14 +54,22 @@ module System.Win32.DebugApi
     , useAllRegs
     , withThreadContext
 
-#if __i386__
+#if defined(i386_HOST_ARCH)
     , eax, ebx, ecx, edx, esi, edi, ebp, eip, esp
-#elif __x86_64__
+#elif defined(x86_64_HOST_ARCH)
     , rax, rbx, rcx, rdx, rsi, rdi, rbp, rip, rsp
 #endif
+#if defined(x86_64_HOST_ARCH) || defined(i386_HOST_ARCH)
     , segCs, segDs, segEs, segFs, segGs
     , eFlags
     , dr
+#endif
+#if defined(aarch64_HOST_ARCH)
+    , x0,   x1,  x2,  x3,  x4,  x5,  x6,  x7,  x8
+    , x9,  x10, x11, x12, x13, x14, x15, x16, x17
+    , x18, x19, x20, x21, x22, x23, x24, x25, x26
+    , x27, x28,  fp,  lr,  sp,  pc
+#endif
     , setReg, getReg, modReg
     , makeModThreadContext
     , modifyThreadContext
@@ -331,7 +339,7 @@ withThreadContext t act =
             (act buf)
 
 
-#if __i386__
+#if defined(i386_HOST_ARCH)
 eax, ebx, ecx, edx :: Int
 esi, edi :: Int
 ebp, eip, esp :: Int
@@ -344,7 +352,7 @@ edi = (#offset CONTEXT, Edi)
 ebp = (#offset CONTEXT, Ebp)
 eip = (#offset CONTEXT, Eip)
 esp = (#offset CONTEXT, Esp)
-#elif __x86_64__
+#elif defined(x86_64_HOST_ARCH)
 rax, rbx, rcx, rdx :: Int
 rsi, rdi :: Int
 rbp, rip, rsp :: Int
@@ -357,10 +365,49 @@ rdi = (#offset CONTEXT, Rdi)
 rbp = (#offset CONTEXT, Rbp)
 rip = (#offset CONTEXT, Rip)
 rsp = (#offset CONTEXT, Rsp)
+#elif defined(aarch64_HOST_ARCH)
+x0,   x1,  x2,  x3,  x4,  x5,  x6,  x7,  x8 :: Int
+x9,  x10, x11, x12, x13, x14, x15, x16, x17 :: Int
+x18, x19, x20, x21, x22, x23, x24, x25, x26 :: Int
+x27, x28,  fp,  lr,  sp,  pc                :: Int
+x0  = (#offset CONTEXT, X0 )
+x1  = (#offset CONTEXT, X1 )
+x2  = (#offset CONTEXT, X2 )
+x3  = (#offset CONTEXT, X3 )
+x4  = (#offset CONTEXT, X4 )
+x5  = (#offset CONTEXT, X5 )
+x6  = (#offset CONTEXT, X6 )
+x7  = (#offset CONTEXT, X7 )
+x8  = (#offset CONTEXT, X8 )
+x9  = (#offset CONTEXT, X9 )
+x10 = (#offset CONTEXT, X10)
+x11 = (#offset CONTEXT, X11)
+x12 = (#offset CONTEXT, X12)
+x13 = (#offset CONTEXT, X13)
+x14 = (#offset CONTEXT, X14)
+x15 = (#offset CONTEXT, X15)
+x16 = (#offset CONTEXT, X16)
+x17 = (#offset CONTEXT, X17)
+x18 = (#offset CONTEXT, X18)
+x19 = (#offset CONTEXT, X19)
+x20 = (#offset CONTEXT, X20)
+x21 = (#offset CONTEXT, X21)
+x22 = (#offset CONTEXT, X22)
+x23 = (#offset CONTEXT, X23)
+x24 = (#offset CONTEXT, X24)
+x25 = (#offset CONTEXT, X25)
+x26 = (#offset CONTEXT, X26)
+x27 = (#offset CONTEXT, X27)
+x28 = (#offset CONTEXT, X28)
+fp  = (#offset CONTEXT, Fp)
+lr  = (#offset CONTEXT, Lr)
+sp  = (#offset CONTEXT, Sp)
+pc  = (#offset CONTEXT, Pc)
 #else
-#error Unsupported architecture
+#error Unknown mingw32 arch
 #endif
 
+#if defined(x86_64_HOST_ARCH) || defined(i386_HOST_ARCH)
 segCs, segDs, segEs, segFs, segGs :: Int
 segCs = (#offset CONTEXT, SegCs)
 segDs = (#offset CONTEXT, SegDs)
@@ -380,6 +427,7 @@ dr n = case n of
     6 -> (#offset CONTEXT, Dr6)
     7 -> (#offset CONTEXT, Dr7)
     _ -> undefined
+#endif
 
 setReg :: Ptr a -> Int -> DWORD -> IO ()
 setReg = pokeByteOff

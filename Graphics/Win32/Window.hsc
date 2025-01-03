@@ -238,7 +238,7 @@ Until a better solution is presented each version is provided explicitly here.
 -}
 #if defined(i386_HOST_ARCH)
 foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongW"
-#elif defined(x86_64_HOST_ARCH)
+#elif defined(x86_64_HOST_ARCH) || defined(aarch64_HOST_ARCH)
 foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongPtrW"
 #else
 # error Unknown mingw32 arch
@@ -247,7 +247,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetWindowLongPtrW"
 
 #if defined(i386_HOST_ARCH)
 foreign import WINDOWS_CCONV unsafe "windows.h GetWindowLongW"
-#elif defined(x86_64_HOST_ARCH)
+#elif defined(x86_64_HOST_ARCH) || defined(aarch64_HOST_ARCH)
 foreign import WINDOWS_CCONV unsafe "windows.h GetWindowLongPtrW"
 #else
 # error Unknown mingw32 arch
