@@ -148,7 +148,7 @@ pIPE_UNLIMITED_INSTANCES = #const PIPE_UNLIMITED_INSTANCES
 -- >                        NothinROR
 --
 --
-createNamedPipe :: String   -- ^ A unique pipe name of the form @\\.\pipe\{pipename}@
+createNamedPipe :: String   -- ^ A unique pipe name of the form @\\\\.\\pipe\\{pipename}@
                             -- The `pipename` part of the name can include any
                             -- character other than a backslash, including
                             -- numbers and special characters. The entire pipe
