@@ -190,6 +190,7 @@ module System.Win32.File
     , removeDirectory
     , getBinaryType
     , getTempFileName
+    , replaceFile
 
       -- * HANDLE operations
     , createFile
@@ -418,6 +419,10 @@ getFileInformationByHandle :: HANDLE -> IO BY_HANDLE_FILE_INFORMATION
 getFileInformationByHandle h = alloca $ \res -> do
     failIfFalseWithRetry_ "GetFileInformationByHandle" $ c_GetFileInformationByHandle h res
     peek res
+
+replaceFile :: LPCWSTR -> LPCWSTR -> LPCWSTR -> DWORD -> IO ()
+replaceFile replacedFile replacementFile backupFile replaceFlags =
+  failIfFalse_ "ReplaceFile" $ c_ReplaceFile replacedFile replacementFile backupFile replaceFlags nullPtr nullPtr
 
 ----------------------------------------------------------------
 -- Read/write files
