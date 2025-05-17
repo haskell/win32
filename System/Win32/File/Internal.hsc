@@ -193,6 +193,16 @@ type BinaryType = DWORD
 
 ----------------------------------------------------------------
 
+type ReplaceType = DWORD
+
+#{enum ReplaceType,
+ , rEPLACEFILE_WRITE_THROUGH       = REPLACEFILE_WRITE_THROUGH
+ , rEPLACEFILE_IGNORE_MERGE_ERRORS = REPLACEFILE_IGNORE_MERGE_ERRORS
+ , rEPLACEFILE_IGNORE_ACL_ERRORS   = REPLACEFILE_IGNORE_ACL_ERRORS
+ }
+
+----------------------------------------------------------------
+
 type FileNotificationFlag = DWORD
 
 #{enum FileNotificationFlag,
@@ -366,6 +376,9 @@ foreign import WINDOWS_CCONV unsafe "windows.h RemoveDirectoryW"
 
 foreign import WINDOWS_CCONV unsafe "windows.h GetBinaryTypeW"
   c_GetBinaryType :: LPCTSTR -> Ptr DWORD -> IO Bool
+
+foreign import WINDOWS_CCONV unsafe "windows.h ReplaceFileW"
+  c_ReplaceFile :: LPCWSTR -> LPCWSTR -> LPCWSTR -> DWORD -> LPVOID -> LPVOID -> IO Bool
 
 ----------------------------------------------------------------
 -- HANDLE operations

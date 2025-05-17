@@ -35,6 +35,7 @@ module System.Win32.WindowsString.File
     , setVolumeLabel
     , getFileExInfoStandard
     , getFileExMaxInfoLevel
+    , replaceFile
     , module System.Win32.File
     ) where
 
@@ -62,6 +63,7 @@ import System.Win32.File hiding (
   , setVolumeLabel
   , getFileExInfoStandard
   , getFileExMaxInfoLevel
+  , replaceFile
   )
 import System.Win32.WindowsString.Types
 import System.OsString.Windows
@@ -180,7 +182,16 @@ getTempFileName dir prefix unique = allocaBytes ((#const MAX_PATH) * sizeOf (und
   fname <- peekTString c_buf
   pure (fname, uid)
 
-
+replaceFile :: WindowsString -> WindowsString -> Maybe WindowsString -> DWORD -> IO ()
+replaceFile replacedFile replacementFile mBackupFile replaceFlags =
+  withFilePath replacedFile $ \ c_replacedFile ->
+    withFilePath replacementFile $ \ c_replacementFile ->
+      let getResult f = 
+            case mBackupFile of
+              Nothing -> f nullPtr
+              Just backupFile -> withFilePath backupFile f
+      in getResult $ \ c_backupFile ->
+           failIfFalse_ "ReplaceFile" $ c_ReplaceFile c_replacedFile c_replacementFile c_backupFile replaceFlags nullPtr nullPtr
 
 ----------------------------------------------------------------
 -- File Notifications
