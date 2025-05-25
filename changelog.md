@@ -1,5 +1,11 @@
 # Changelog for [`Win32` package](http://hackage.haskell.org/package/Win32)
 
+## 2.14.2.0 May 2025
+
+* Add ReplaceFileW
+* Add support for Windows ARM
+* Add ReadConsoleInput to the API
+
 ## 2.14.1.0 November 2024
 
 * Add getTempFileName
