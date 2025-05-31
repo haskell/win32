@@ -6,7 +6,6 @@
 {-# LANGUAGE CPP                #-}
 {-# LANGUAGE BangPatterns       #-}
 {-# LANGUAGE MultiWayIf         #-}
-{-# LANGUAGE NumericUnderscores #-}
 
 -- | For full details on the Windows named pipes API see
 -- <https://docs.microsoft.com/en-us/windows/desktop/ipc/named-pipes>
@@ -261,7 +260,7 @@ connect fileName dwDesiredAccess dwSharedMode lpSecurityAttributes dwCreationDis
             $ throwIO e
           -- all pipe instance were busy, wait 20s and retry; we ignore the
           -- result
-          _ <- waitNamedPipe fileName 5_000
+          _ <- waitNamedPipe fileName 5000
           connectLoop
 
         Right h -> pure h
