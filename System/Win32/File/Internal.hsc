@@ -286,6 +286,10 @@ fILE_FLAG_BACKUP_SEMANTICS = #const FILE_FLAG_BACKUP_SEMANTICS
 fILE_FLAG_POSIX_SEMANTICS :: FileAttributeOrFlag
 fILE_FLAG_POSIX_SEMANTICS = #const FILE_FLAG_POSIX_SEMANTICS
 
+-- | (INVALID_FILE_ATTRIBUTES = 0xFFFFFFFF) Returned by GetFileAttributesW on failure.
+iNVALID_FILE_ATTRIBUTES :: FileAttributeOrFlag
+iNVALID_FILE_ATTRIBUTES = 0xFFFFFFFF
+
 #ifndef __WINE_WINDOWS_H
 -- | (SECURITY_ANONYMOUS = 0x0) The security anonymous level is set.
 sECURITY_ANONYMOUS :: FileAttributeOrFlag
@@ -671,313 +675,145 @@ instance Storable WIN32_FILE_ATTRIBUTE_DATA where
 ----------------------------------------------------------------
 
 -- | Deletes an existing file.
---------------------------------------------------------------------------------
--- Deletes the specified file. If the file is open or in use, the function fails.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpFileName
--- The name of the file to be deleted.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND      2   (0x2)
+-- ERROR_PATH_NOT_FOUND      3   (0x3)
+-- ERROR_ACCESS_DENIED       5   (0x5)
+-- ERROR_CURRENT_DIRECTORY  16   (0x10)
+-- ERROR_WRITE_PROTECT      19   (0x13)
+-- ERROR_SHARING_VIOLATION  32   (0x20)
+-- ERROR_LOCK_VIOLATION     33   (0x21)
+-- ERROR_INVALID_PARAMETER  87   (0x57)
+-- ERROR_USER_MAPPED_FILE 1224   (0x4C8)
 --
--- ERROR_SHARING_VIOLATION  32  (0x20)
--- The file is being used by another process.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-deletefilew
 foreign import WINDOWS_CCONV unsafe "windows.h DeleteFileW"
   c_DeleteFile :: LPCTSTR -> IO Bool
 
 -- | Copies an existing file to a new file.
---------------------------------------------------------------------------------
--- Copies an existing file to a new file. The copy fails if the destination file
--- already exists, unless the failIfExists parameter is set to FALSE.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpExistingFileName
--- The name of an existing file.
---------------------------------------------------------------------------------
--- [in] lpNewFileName
--- The name of the new file.
---------------------------------------------------------------------------------
--- [in] bFailIfExists
--- If this parameter is TRUE and the new file specified by lpNewFileName already
--- exists, the function fails. If this parameter is FALSE and the new file
--- already exists, the function overwrites the existing file and succeeds.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
---
--- ERROR_FILE_EXISTS        80  (0x50)
--- The destination file already exists and bFailIfExists is TRUE.
---
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND      2   (0x2)
+-- ERROR_PATH_NOT_FOUND      3   (0x3)
+-- ERROR_ACCESS_DENIED       5   (0x5)
 -- ERROR_SHARING_VIOLATION  32  (0x20)
--- The file is being used by another process.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- ERROR_FILE_EXISTS        80  (0x50)
+-- ERROR_ALREADY_EXISTS    183  (0xB7)
+-- ERROR_INVALID_PARAMETER  87  (0x57)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfilew
 foreign import WINDOWS_CCONV unsafe "windows.h CopyFileW"
   c_CopyFile :: LPCTSTR -> LPCTSTR -> Bool -> IO Bool
 
 -- | Moves an existing file or directory to a new location.
---------------------------------------------------------------------------------
--- Moves an existing file or directory to a new location. The move fails if the
--- destination already exists.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpExistingFileName
--- The current name of the file or directory.
---------------------------------------------------------------------------------
--- [in] lpNewFileName
--- The new name for the file or directory.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND      2   (0x2)
+-- ERROR_PATH_NOT_FOUND      3   (0x3)
+-- ERROR_ACCESS_DENIED       5   (0x5)
+-- ERROR_ALREADY_EXISTS    183  (0xB7)
+-- ERROR_SHARING_VIOLATION  32  (0x20)
+-- ERROR_NOT_SAME_DEVICE    17  (0x11)
+-- ERROR_INVALID_PARAMETER  87  (0x57)
 --
--- ERROR_ALREADY_EXISTS      183 (0xB7)
--- The destination already exists and cannot be replaced.
---
--- ERROR_SHARING_VIOLATION   32 (0x20)
--- The file is being used by another process.
---
--- ERROR_NOT_SAME_DEVICE     17 (0x11)
--- The file cannot be moved to a different disk drive.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefilew
 foreign import WINDOWS_CCONV unsafe "windows.h MoveFileW"
   c_MoveFile :: LPCTSTR -> LPCTSTR -> IO Bool
 
 -- | Moves an existing file or directory, including its children.
---------------------------------------------------------------------------------
--- Moves an existing file or directory to a new location, with the option to
--- replace the destination file or directory if it already exists.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpExistingFileName
--- The current name of the file or directory.
---------------------------------------------------------------------------------
--- [in] lpNewFileName
--- The new name for the file or directory.
---------------------------------------------------------------------------------
--- [in] dwFlags
--- Move options. This parameter can be one or more of the following values:
---   MOVEFILE_REPLACE_EXISTING    0x00000001
---   MOVEFILE_COPY_ALLOWED        0x00000002
---   MOVEFILE_DELAY_UNTIL_REBOOT  0x00000004
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND      2   (0x2)
+-- ERROR_PATH_NOT_FOUND      3   (0x3)
+-- ERROR_ACCESS_DENIED       5   (0x5)
+-- ERROR_ALREADY_EXISTS    183  (0xB7)
+-- ERROR_SHARING_VIOLATION  32  (0x20)
+-- ERROR_NOT_SAME_DEVICE    17  (0x11)
+-- ERROR_INVALID_PARAMETER  87  (0x57)
+-- ERROR_WRITE_PROTECT      19  (0x13)
+-- ERROR_LOCK_VIOLATION     33  (0x21)
 --
--- ERROR_ALREADY_EXISTS      183 (0xB7)
--- The destination already exists and cannot be replaced.
---
--- ERROR_SHARING_VIOLATION   32 (0x20)
--- The file is being used by another process.
---
--- ERROR_NOT_SAME_DEVICE     17 (0x11)
--- The file cannot be moved to a different disk drive.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefileexw
 foreign import WINDOWS_CCONV unsafe "windows.h MoveFileExW"
   c_MoveFileEx :: LPCTSTR -> LPCTSTR -> MoveFileFlag -> IO Bool
 
 -- | Changes the current directory for the current process.
---------------------------------------------------------------------------------
--- Sets the current directory for the current process to the specified path.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpPathName
--- The path to the new current directory.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
--- Or returns common errors.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND      2   (0x2)
+-- ERROR_PATH_NOT_FOUND      3   (0x3)
+-- ERROR_ACCESS_DENIED       5   (0x5)
+-- ERROR_INVALID_PARAMETER  87   (0x57)
+-- ERROR_DIRECTORY         267   (0x10B)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setcurrentdirectory
 foreign import WINDOWS_CCONV unsafe "windows.h SetCurrentDirectoryW"
   c_SetCurrentDirectory :: LPCTSTR -> IO Bool
 
 -- | Creates a new directory.
---------------------------------------------------------------------------------
--- Creates a new directory with the specified name. The security descriptor of
--- the new directory can be specified.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpPathName
--- The path of the directory to be created.
---------------------------------------------------------------------------------
--- [in, optional] lpSecurityAttributes
--- A pointer to a SECURITY_ATTRIBUTES structure that determines whether the
--- returned handle can be inherited by child processes. Can be NULL.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_ALREADY_EXISTS         183  (0xB7)
+-- ERROR_PATH_NOT_FOUND           3  (0x3)
+-- ERROR_ACCESS_DENIED            5  (0x5)
+-- ERROR_INVALID_PARAMETER       87  (0x57)
+-- ERROR_FILENAME_EXCED_RANGE   206  (0xCE)
 --
--- ERROR_ALREADY_EXISTS   183 (0xB7)
--- The directory already exists.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createdirectoryw
 foreign import WINDOWS_CCONV unsafe "windows.h CreateDirectoryW"
   c_CreateDirectory :: LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
 
 -- | Creates a directory as a copy of an existing directory.
---------------------------------------------------------------------------------
--- Creates a new directory with the attributes and security descriptor of an existing directory.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpTemplateDirectory
--- The path of an existing directory whose attributes and security descriptor
--- are to be copied to the new directory.
---------------------------------------------------------------------------------
--- [in] lpNewDirectory
--- The path of the directory to be created.
---------------------------------------------------------------------------------
--- [in, optional] lpSecurityAttributes
--- A pointer to a SECURITY_ATTRIBUTES structure that determines whether the
--- returned handle can be inherited by child processes. Can be NULL.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_ALREADY_EXISTS         183  (0xB7)
+-- ERROR_PATH_NOT_FOUND           3  (0x3)
+-- ERROR_ACCESS_DENIED            5  (0x5)
+-- ERROR_INVALID_PARAMETER       87  (0x57)
+-- ERROR_FILENAME_EXCED_RANGE   206  (0xCE)
 --
--- ERROR_ALREADY_EXISTS   183 (0xB7)
--- The directory already exists.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createdirectoryexw
 foreign import WINDOWS_CCONV unsafe "windows.h CreateDirectoryExW"
   c_CreateDirectoryEx :: LPCTSTR -> LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
 
 -- | Removes (deletes) an existing empty directory.
---------------------------------------------------------------------------------
--- Deletes the specified empty directory. If the directory is not empty or is in use,
--- the function fails.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpPathName
--- The path of the directory to be removed. The path must specify an empty directory,
--- and the calling process must have delete access to the directory.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_PATH_NOT_FOUND           3   (0x3)
+-- ERROR_ACCESS_DENIED            5   (0x5)
+-- ERROR_SHARING_VIOLATION       32   (0x20)
+-- ERROR_INVALID_PARAMETER       87   (0x57)
+-- ERROR_DIRECTORY              267   (0x10B)
 --
--- ERROR_DIR_NOT_EMPTY      145 (0x91)
--- The directory is not empty.
---
--- ERROR_SHARING_VIOLATION  32  (0x20)
--- The directory is being used by another process.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectoryw
 foreign import WINDOWS_CCONV unsafe "windows.h RemoveDirectoryW"
   c_RemoveDirectory :: LPCTSTR -> IO Bool
 
 -- | Determines the type of a binary executable file.
---------------------------------------------------------------------------------
--- Determines whether a file is executable, and if so, what type of executable
--- it is (e.g., console application, Windows application, etc.).
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpApplicationName
--- The full path of the binary executable file for which to determine the type.
---------------------------------------------------------------------------------
--- [out] lpBinaryType
--- A pointer to a variable that receives the binary type. This parameter can
--- be one of the following values:
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND           2   (0x2)
+-- ERROR_PATH_NOT_FOUND           3   (0x3)
+-- ERROR_INVALID_PARAMETER       87   (0x57)
+-- ERROR_BAD_EXE_FORMAT         193   (0xC1)
 --
--- SCS_32BIT_BINARY 0 (32-bit Windows-based application)
--- SCS_64BIT_BINARY 6 (64-bit Windows-based application)
--- SCS_DOS_BINARY   1 (MS-DOS-based application)
--- SCS_OS216_BINARY 5 (16-bit OS/2-based application) (not supported on 64-bit Windows)
--- SCS_PIF_BINARY   3 (PIF file that executes an MS-DOS-based application)
--- SCS_POSIX_BINARY 4 (POSIX-based application)
--- SCS_WOW_BINARY   2 (16-bit Windows-based application)
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
---
--- ERROR_BAD_EXE_FORMAT    193 (0xC1)
--- The specified file is not a valid executable file.
---
--- ERROR_INVALID_PARAMETER 87  (0x57)
--- The lpBinaryType parameter is NULL or the specified file is not a valid executable file.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getbinarytypew
 foreign import WINDOWS_CCONV unsafe "windows.h GetBinaryTypeW"
   c_GetBinaryType :: LPCTSTR -> Ptr DWORD -> IO Bool
 
 -- | Replaces one file with another file.
---------------------------------------------------------------------------------
--- Replaces one file with another file, with the option of creating a backup
--- copy of the original file. The replacement file assumes the name of the
--- replaced file and its identity.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpReplacedFileName
--- The name of the file to be replaced.
---------------------------------------------------------------------------------
--- [in] lpReplacementFileName
--- The name of the file that will replace the lpReplacedFileName file.
---------------------------------------------------------------------------------
--- [in, optional] lpBackupFileName
--- The name of the file that will serve as a backup copy of the lpReplacedFileName file.
---------------------------------------------------------------------------------
--- [in] dwReplaceFlags
--- The replacement options. This parameter can be one or more of the following values.
--- 
--- REPLACEFILE_WRITE_THROUGH 0x00000001
--- This value is not supported.
--- 
--- REPLACEFILE_IGNORE_MERGE_ERRORS 0x00000002
--- Ignores errors that occur while merging information.
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND                  2   (0x2)
+-- ERROR_PATH_NOT_FOUND                  3   (0x3)
+-- ERROR_ACCESS_DENIED                   5   (0x5)
+-- ERROR_SHARING_VIOLATION              32   (0x20)
+-- ERROR_INVALID_PARAMETER              87   (0x57)
+-- ERROR_UNABLE_TO_REMOVE_REPLACED    1175   (0x497)
+-- ERROR_UNABLE_TO_MOVE_REPLACEMENT   1176   (0x498)
+-- ERROR_UNABLE_TO_MOVE_REPLACEMENT_2 1177   (0x499)
 --
--- REPLACEFILE_IGNORE_ACL_ERRORS 0x00000004
--- Ignores errors that occur while merging ACL information.
---------------------------------------------------------------------------------
--- lpExclude
--- Reserved for future use.
---------------------------------------------------------------------------------
--- lpReserved
--- Reserved for future use.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
---
--- ERROR_UNABLE_TO_MOVE_REPLACEMENT   1176 (0x498)
--- The replacement file could not be renamed.
---
--- ERROR_UNABLE_TO_MOVE_REPLACEMENT_2 1177 (0x499)
--- The replacement file could not be moved.
---
--- ERROR_UNABLE_TO_REMOVE_REPLACED    1175 (0x497)
--- The replaced file could not be deleted.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-replacefilew
 foreign import WINDOWS_CCONV unsafe "windows.h ReplaceFileW"
   c_ReplaceFile :: LPCWSTR -> LPCWSTR -> LPCWSTR -> DWORD -> LPVOID -> LPVOID -> IO Bool
@@ -987,264 +823,117 @@ foreign import WINDOWS_CCONV unsafe "windows.h ReplaceFileW"
 ----------------------------------------------------------------
 
 -- | Creates or opens a file or I/O device.
---------------------------------------------------------------------------------
--- Creates or opens a file, directory, physical disk, volume, console buffer,
--- tape drive, communications resource, or other I/O device.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpFileName
--- The name of the file or device to be created or opened.
---------------------------------------------------------------------------------
--- [in] dwDesiredAccess
--- The requested access to the file or device (see AccessMode).
---------------------------------------------------------------------------------
--- [in] dwShareMode
--- The requested sharing mode of the file or device (see ShareMode).
---------------------------------------------------------------------------------
--- [in, optional] lpSecurityAttributes
--- A pointer to a SECURITY_ATTRIBUTES structure that determines whether the
--- returned handle can be inherited by child processes. Can be NULL.
---------------------------------------------------------------------------------
--- [in] dwCreationDisposition
--- An action to take on files that exist or do not exist (see CreateMode).
---------------------------------------------------------------------------------
--- [in] dwFlagsAndAttributes
--- The file or device attributes and flags (see FileAttributeOrFlag).
---------------------------------------------------------------------------------
--- [in, optional] hTemplateFile
--- A valid handle to a template file with the GENERIC_READ access right.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is an open handle to the specified
--- file, device, or I/O resource.
--- If the function fails, the return value is INVALID_HANDLE_VALUE.
---
+-- Possible errors:
 -- ERROR_ALREADY_EXISTS    183   (0xB7)
--- The file already exists and cannot be created.
---------------------------------------------------------------------------------
--- link to original documentation:
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
 foreign import WINDOWS_CCONV unsafe "windows.h CreateFileW"
   c_CreateFile :: LPCTSTR -> AccessMode -> ShareMode -> LPSECURITY_ATTRIBUTES
                -> CreateMode -> FileAttributeOrFlag -> HANDLE -> IO HANDLE
 
 -- | Closes an open object handle.
---------------------------------------------------------------------------------
--- Closes an open handle to an object, such as a file, process, thread, or
--- registry key.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hObject
--- A valid handle to an open object.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND           2   (0x2)
+-- ERROR_PATH_NOT_FOUND           3   (0x3)
+-- ERROR_ACCESS_DENIED            5   (0x5)
+-- ERROR_WRITE_PROTECT           19   (0x13)
+-- ERROR_INVALID_HANDLE           6   (0x6)
+-- ERROR_SHARING_VIOLATION       32   (0x20)
+-- ERROR_FILE_EXISTS             80   (0x50)
+-- ERROR_ALREADY_EXISTS         183   (0xB7)
+-- ERROR_INVALID_PARAMETER       87   (0x57)
+-- ERROR_INVALID_NAME           123   (0x7B)
+-- ERROR_DISK_FULL              112   (0x70)
+-- ERROR_DIRECTORY              267   (0x10B)
 --
--- ERROR_INVALID_HANDLE    6   (0x6)
--- The handle is invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
 foreign import WINDOWS_CCONV unsafe "windows.h CloseHandle"
   c_CloseHandle :: HANDLE -> IO Bool
 
 -- | Retrieves the file type of the specified file.
---------------------------------------------------------------------------------
--- Determines the type of a file (disk file, character file, pipe, etc.) based
--- on the specified file handle.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the file whose type is to be determined.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value indicates the FileType.
--- If the function fails, the return value is FILE_TYPE_UNKNOWN.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- Possible errors:
+-- FILE_TYPE_UNKNOWN       0   (0x0)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfiletype
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileType"
   getFileType :: HANDLE -> IO FileType
 
 -- | Flushes the buffers of a specified file and causes all buffered data to be written to disk.
---------------------------------------------------------------------------------
--- Writes all buffered data for the specified file to disk. This ensures that
--- all data written to the file so far is physically stored on the disk device.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the open file whose buffers are to be flushed. The handle must
--- have write access.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
---
+-- Possible errors:
 -- ERROR_INVALID_HANDLE    6   (0x6)
--- The handle is invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers
 foreign import WINDOWS_CCONV unsafe "windows.h FlushFileBuffers"
   c_FlushFileBuffers :: HANDLE -> IO Bool
 
 -- | Sets the physical end of a file.
---------------------------------------------------------------------------------
--- Moves the end-of-file (EOF) position for the specified file to the current
--- position of the file pointer. This function can be used to truncate or extend
--- a file.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the file. The file handle must have GENERIC_WRITE access.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
---
+-- Possible errors:
 -- ERROR_INVALID_HANDLE    6   (0x6)
--- The handle is invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- ERROR_ACCESS_DENIED     5   (0x5)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setendoffile
 foreign import WINDOWS_CCONV unsafe "windows.h SetEndOfFile"
   c_SetEndOfFile :: HANDLE -> IO Bool
 
 -- | Sets the attributes for a file or directory.
---------------------------------------------------------------------------------
--- Sets the file system attributes for a specified file or directory.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpFileName
--- The name of the file or directory whose attributes are to be set.
---------------------------------------------------------------------------------
--- [in] dwFileAttributes
--- The file attributes to set for the file or directory. This parameter can be
--- a combination of FileAttributeOrFlag values.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND            2   (0x2)
+-- ERROR_PATH_NOT_FOUND            3   (0x3)
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
 --
--- ERROR_INVALID_PARAMETER   87  (0x57)
--- One or more parameters are invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileattributesw
 foreign import WINDOWS_CCONV unsafe "windows.h SetFileAttributesW"
   c_SetFileAttributes :: LPCTSTR -> FileAttributeOrFlag -> IO Bool
 
 -- | Retrieves file system attributes for a specified file or directory.
---------------------------------------------------------------------------------
--- Retrieves attribute information for a specified file or directory.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpFileName
--- The name of the file or directory.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is the attributes of the file or directory.
--- If the function fails, the return value is INVALID_FILE_ATTRIBUTES.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND            2   (0x2)
+-- ERROR_PATH_NOT_FOUND            3   (0x3)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesw
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesW"
   c_GetFileAttributes :: LPCTSTR -> IO FileAttributeOrFlag
 
 -- | Retrieves extended information about the specified file or directory.
---------------------------------------------------------------------------------
--- Retrieves attributes for a specified file or directory, including times and
--- file size, and stores them in a WIN32_FILE_ATTRIBUTE_DATA structure.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpFileName
--- The name of the file or directory.
---------------------------------------------------------------------------------
--- [in] fInfoLevelId
--- The information level to retrieve. Must be GetFileExInfoStandard.
---------------------------------------------------------------------------------
--- [out] lpFileInformation
--- A pointer to a buffer that receives the attribute data (typically a
--- WIN32_FILE_ATTRIBUTE_DATA structure).
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND            2   (0x2)
+-- ERROR_PATH_NOT_FOUND            3   (0x3)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
 --
--- ERROR_INVALID_PARAMETER   87  (0x57)
--- One or more parameters are invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesexw
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesExW"
   c_GetFileAttributesEx :: LPCTSTR -> GET_FILEEX_INFO_LEVELS -> Ptr a -> IO BOOL
 
 -- | Retrieves file information for the specified file.
---------------------------------------------------------------------------------
--- Retrieves information about a file based on the file handle. The information
--- includes attributes, times, size, and more.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the file for which information is to be retrieved.
---------------------------------------------------------------------------------
--- [out] lpFileInformation
--- A pointer to a BY_HANDLE_FILE_INFORMATION structure that receives the file
--- information.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
--- Or returns common errors.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- Possible errors:
+-- ERROR_INVALID_HANDLE            6   (0x6)
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileinformationbyhandle
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileInformationByHandle"
     c_GetFileInformationByHandle :: HANDLE -> Ptr BY_HANDLE_FILE_INFORMATION -> IO BOOL
 
 -- | Creates a name for a temporary file and optionally creates the file.
---------------------------------------------------------------------------------
--- Generates a unique temporary file name, and optionally creates the file in
--- the specified directory.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpPathName
--- The directory in which the temporary file will be created.
---------------------------------------------------------------------------------
--- [in] lpPrefixString
--- The prefix of the temporary file name. The function uses the first three
--- characters of this string as the prefix.
---------------------------------------------------------------------------------
--- [in] uUnique
--- If this parameter is zero, the function creates the file. If it is nonzero,
--- the function only generates a unique file name.
---------------------------------------------------------------------------------
--- [out] lpTempFileName
--- A buffer that receives the temporary file name.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is the length, in characters, of
--- the string copied to lpTempFileName, not including the terminating null
--- character.
+-- Possible errors:
+-- ERROR_DIRECTORY              267   (0x10B)
+-- ERROR_ACCESS_DENIED            5   (0x5)
+-- ERROR_INVALID_PARAMETER       87   (0x57)
+-- ERROR_BUFFER_OVERFLOW        111   (0x6F)
+-- ERROR_FILE_EXISTS             80   (0x50)
 --
--- ERROR_BUFFER_OVERFLOW   111 (0x6F)
--- The buffer is too small to hold the generated file name.
---
--- ERROR_DIRECTORY         267 (0x10B)
--- The specified path is invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettempfilenamew
 foreign import WINDOWS_CCONV unsafe "windows.h GetTempFileNameW"
     c_GetTempFileNameW :: LPCWSTR -> LPCWSTR -> UINT -> LPWSTR -> IO UINT
@@ -1285,100 +974,41 @@ type LPOVERLAPPED = Ptr OVERLAPPED
 type MbLPOVERLAPPED = Maybe LPOVERLAPPED
 
 -- | Reads data from a file or input/output (I/O) device.
---------------------------------------------------------------------------------
--- Reads data from the specified file or input/output device into a buffer.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the file or I/O device to be read.
---------------------------------------------------------------------------------
--- [out] lpBuffer
--- A pointer to the buffer that receives the data read from the file or device.
---------------------------------------------------------------------------------
--- [in] nNumberOfBytesToRead
--- The maximum number of bytes to be read.
---------------------------------------------------------------------------------
--- [out, optional] lpNumberOfBytesRead
--- A pointer to the variable that receives the number of bytes read.
---------------------------------------------------------------------------------
--- [in, optional] lpOverlapped
--- A pointer to an OVERLAPPED structure for asynchronous operations. Can be NULL
--- for synchronous operations.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_INVALID_HANDLE            6   (0x6)
+-- ERROR_HANDLE_EOF               38   (0x26)
+-- ERROR_BROKEN_PIPE             109   (0x6D)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+-- ERROR_IO_PENDING              997   (0x3E5)
 --
--- ERROR_IO_PENDING        997 (0x3E5)
--- An overlapped I/O operation is in progress.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile
 foreign import WINDOWS_CCONV unsafe "windows.h ReadFile"
   c_ReadFile :: HANDLE -> Ptr a -> DWORD -> Ptr DWORD -> LPOVERLAPPED -> IO Bool
 
 -- | Writes data to a file or input/output (I/O) device.
---------------------------------------------------------------------------------
--- Writes data from a buffer to the specified file or input/output device.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the file or I/O device to be written to.
---------------------------------------------------------------------------------
--- [in] lpBuffer
--- A pointer to the buffer containing the data to be written.
---------------------------------------------------------------------------------
--- [in] nNumberOfBytesToWrite
--- The number of bytes to be written.
---------------------------------------------------------------------------------
--- [out, optional] lpNumberOfBytesWritten
--- A pointer to the variable that receives the number of bytes written.
---------------------------------------------------------------------------------
--- [in, optional] lpOverlapped
--- A pointer to an OVERLAPPED structure for asynchronous operations. Can be NULL
--- for synchronous operations.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_INVALID_HANDLE            6   (0x6)
+-- ERROR_HANDLE_EOF               38   (0x26)
+-- ERROR_BROKEN_PIPE             109   (0x6D)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+-- ERROR_DISK_FULL               112   (0x70)
+-- ERROR_IO_PENDING              997   (0x3E5)
 --
--- ERROR_IO_PENDING        997 (0x3E5)
--- An overlapped I/O operation is in progress.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile
 foreign import WINDOWS_CCONV unsafe "windows.h WriteFile"
   c_WriteFile :: HANDLE -> Ptr a -> DWORD -> Ptr DWORD -> LPOVERLAPPED -> IO Bool
 
 -- | Moves the file pointer of an open file.
---------------------------------------------------------------------------------
--- Sets the file pointer for the specified file to a new position, which can be
--- specified as an offset from the beginning, current position, or end of the file.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the file whose file pointer is to be moved.
---------------------------------------------------------------------------------
--- [in] liDistanceToMove
--- The number of bytes to move the file pointer.
---------------------------------------------------------------------------------
--- [out, optional] lpNewFilePointer
--- A pointer to a variable that receives the new file pointer value. Can be NULL.
---------------------------------------------------------------------------------
--- [in] dwMoveMethod
--- The starting point for the file pointer move (see FilePtrDirection).
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_INVALID_HANDLE            6   (0x6)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+-- ERROR_NEGATIVE_SEEK           131   (0x83)
 --
--- ERROR_INVALID_PARAMETER 87  (0x57)
--- One or more parameters are invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfilepointerex
 foreign import WINDOWS_CCONV unsafe "windows.h SetFilePointerEx"
   c_SetFilePointerEx :: HANDLE -> LARGE_INTEGER -> Ptr LARGE_INTEGER -> FilePtrDirection -> IO Bool
@@ -1391,76 +1021,30 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetFilePointerEx"
 ----------------------------------------------------------------
 
 -- | Creates a change notification handle and sets up initial change notification filter conditions.
---------------------------------------------------------------------------------
--- Creates a handle that can be used to monitor a directory or subtree for
--- changes such as file creation, deletion, or modification.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpPathName
--- The path of the directory to be monitored.
---------------------------------------------------------------------------------
--- [in] bWatchSubtree
--- If TRUE, the function monitors the directory tree rooted at the specified
--- directory; if FALSE, it monitors only the specified directory.
---------------------------------------------------------------------------------
--- [in] dwNotifyFilter
--- The filter conditions that satisfy a change notification wait. This parameter
--- can be one or more FileNotificationFlag values.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is a handle to the change
--- notification object. If the function fails, the return value is
--- INVALID_HANDLE_VALUE.
+-- Possible errors:
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+-- ERROR_PATH_NOT_FOUND            3   (0x3)
+-- ERROR_ACCESS_DENIED             5   (0x5)
 --
--- ERROR_INVALID_PARAMETER   87  (0x57)
--- One or more parameters are invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationw
 foreign import WINDOWS_CCONV unsafe "windows.h FindFirstChangeNotificationW"
   c_FindFirstChangeNotification :: LPCTSTR -> Bool -> FileNotificationFlag -> IO HANDLE
 
 -- | Requests that the operating system signal a change notification handle when a change occurs.
---------------------------------------------------------------------------------
--- Continues monitoring a directory or subtree for changes after a previous
--- change notification has been received.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hChangeHandle
--- A handle to a change notification object returned by FindFirstChangeNotificationW.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
---
+-- Possible errors:
 -- ERROR_INVALID_HANDLE    6   (0x6)
--- The handle is invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findnextchangenotification
 foreign import WINDOWS_CCONV unsafe "windows.h FindNextChangeNotification"
   c_FindNextChangeNotification :: HANDLE -> IO Bool
 
 -- | Closes a change notification handle.
---------------------------------------------------------------------------------
--- Closes a handle created by FindFirstChangeNotificationW and releases any
--- associated resources.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hChangeHandle
--- A handle to a change notification object returned by FindFirstChangeNotificationW.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
---
+-- Possible errors:
 -- ERROR_INVALID_HANDLE    6   (0x6)
--- The handle is invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findclosechangenotification
 foreign import WINDOWS_CCONV unsafe "windows.h FindCloseChangeNotification"
   c_FindCloseChangeNotification :: HANDLE -> IO Bool
@@ -1474,75 +1058,35 @@ type WIN32_FIND_DATA = ()
 newtype FindData = FindData (ForeignPtr WIN32_FIND_DATA)
 
 -- | Searches a directory for a file or subdirectory with a name that matches a specified pattern.
---------------------------------------------------------------------------------
--- Begins a file search in a directory, returning information about the first
--- file or subdirectory found that matches the specified pattern.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpFileName
--- The directory or path, and the file name, which can include wildcard
--- characters (* and ?).
---------------------------------------------------------------------------------
--- [out] lpFindFileData
--- A pointer to a WIN32_FIND_DATA structure that receives information about the
--- found file or directory.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is a search handle used in
--- subsequent calls to FindNextFile or FindClose. If the function fails, the
--- return value is INVALID_HANDLE_VALUE.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- Possible errors:
+-- ERROR_FILE_NOT_FOUND            2   (0x2)
+-- ERROR_PATH_NOT_FOUND            3   (0x3)
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+-- ERROR_INVALID_HANDLE            6   (0x6)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfilew
 foreign import WINDOWS_CCONV unsafe "windows.h FindFirstFileW"
   c_FindFirstFile :: LPCTSTR -> Ptr WIN32_FIND_DATA -> IO HANDLE
 
 -- | Continues a file search from a previous call to FindFirstFileW.
---------------------------------------------------------------------------------
--- Retrieves information about the next file or directory that matches the
--- search criteria specified in a previous call to FindFirstFileW.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFindFile
--- The search handle returned by a previous call to FindFirstFileW.
---------------------------------------------------------------------------------
--- [out] lpFindFileData
--- A pointer to a WIN32_FIND_DATA structure that receives information about the
--- found file or directory.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero, and no more files are found
--- or an error occurred.
+-- Possible errors:
+-- ERROR_NO_MORE_FILES            18   (0x12)
+-- ERROR_INVALID_HANDLE            6   (0x6)
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
 --
--- ERROR_NO_MORE_FILES      18  (0x12)
--- No more files were found.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findnextfilew
 foreign import WINDOWS_CCONV unsafe "windows.h FindNextFileW"
   c_FindNextFile :: HANDLE -> Ptr WIN32_FIND_DATA -> IO BOOL
 
 -- | Closes a file search handle.
---------------------------------------------------------------------------------
--- Closes a search handle opened by FindFirstFileW or FindNextFileW and releases
--- any associated resources.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFindFile
--- The search handle returned by FindFirstFileW.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
---
+-- Possible errors:
 -- ERROR_INVALID_HANDLE    6   (0x6)
--- The handle is invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findclose
 foreign import WINDOWS_CCONV unsafe "windows.h FindClose"
   c_FindClose :: HANDLE -> IO BOOL
@@ -1552,30 +1096,12 @@ foreign import WINDOWS_CCONV unsafe "windows.h FindClose"
 ----------------------------------------------------------------
 
 -- | Defines, modifies, or deletes MS-DOS device names.
---------------------------------------------------------------------------------
--- Creates, modifies, or deletes a symbolic link for a DOS device name.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] dwFlags
--- Control flags that specify the function's behavior. This parameter can be a
--- combination of DefineDosDeviceFlags values.
---------------------------------------------------------------------------------
--- [in] lpDeviceName
--- The device name string (for example, "COM1").
---------------------------------------------------------------------------------
--- [in, optional] lpTargetPath
--- The path to which the device name refers. This can be NULL when removing a
--- definition.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_FILE_NOT_FOUND            2   (0x2)
 --
--- ERROR_INVALID_PARAMETER   87  (0x57)
--- One or more parameters are invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-definedosdevicew
 foreign import WINDOWS_CCONV unsafe "windows.h DefineDosDeviceW"
   c_DefineDosDevice :: DefineDosDeviceFlags -> LPCTSTR -> LPCTSTR -> IO Bool
@@ -1586,53 +1112,37 @@ foreign import WINDOWS_CCONV unsafe "windows.h DefineDosDeviceW"
 -- They don't return error codes
 
 -- | Determines whether the file I/O functions are using the ANSI or OEM character set.
---------------------------------------------------------------------------------
--- Indicates whether the file APIs are set to use the ANSI character set or the
--- OEM character set for file names and other string parameters.
 --
--- Return value
--- If the function succeeds, the return value is nonzero if the file APIs are
--- using the ANSI character set, or zero if they are using the OEM character set.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- Possible errors:
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-arefileapisansi
 foreign import WINDOWS_CCONV unsafe "windows.h AreFileApisANSI"
   areFileApisANSI :: IO Bool
 
 -- | Sets the file I/O functions to use the OEM character set.
---------------------------------------------------------------------------------
--- Configures the file APIs to use the OEM character set for file names and
--- other string parameters instead of the ANSI character set.
---------------------------------------------------------------------------------
--- link to original documentation:
+--
+-- Possible errors:
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileapistooem
 foreign import WINDOWS_CCONV unsafe "windows.h SetFileApisToOEM"
   setFileApisToOEM :: IO ()
 
 -- | Sets the file I/O functions to use the ANSI character set.
---------------------------------------------------------------------------------
--- Configures the file APIs to use the ANSI character set for file names and
--- other string parameters instead of the OEM character set.
---------------------------------------------------------------------------------
--- link to original documentation:
+--
+-- Possible errors:
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileapistoansi
 foreign import WINDOWS_CCONV unsafe "windows.h SetFileApisToANSI"
   setFileApisToANSI :: IO ()
 
 -- | Sets the maximum number of files that a process can have open simultaneously.
---------------------------------------------------------------------------------
--- Sets the size of the per-process file handle table, which determines the
--- maximum number of files that the process can have open at the same time.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] uNumber
--- The maximum number of open file handles for the process.
---------------------------------------------------------------------------------
--- Return value
--- The return value is the previous maximum number of open file handles.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- Possible errors:
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-sethandlecount
 foreign import WINDOWS_CCONV unsafe "windows.h SetHandleCount"
   setHandleCount :: UINT -> IO UINT
@@ -1640,78 +1150,35 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetHandleCount"
 ----------------------------------------------------------------
 
 -- | Retrieves a bitmask representing the currently available disk drives.
---------------------------------------------------------------------------------
--- Returns a bitmask in which each bit represents one logical drive present on
--- the system.
 --
--- Return value
--- If the function succeeds, the return value is a bitmask representing the
--- currently available disk drives. If the function fails, the return value is
--- zero.
---------------------------------------------------------------------------------
--- link to original documentation:
+-- Possible errors:
+-- ERROR_INVALID_FUNCTION          1   (0x1)
+--
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlogicaldrives
 foreign import WINDOWS_CCONV unsafe "windows.h GetLogicalDrives"
   c_GetLogicalDrives :: IO DWORD
 
 -- | Retrieves information about the amount of free and total space on a disk.
---------------------------------------------------------------------------------
--- Retrieves information about the specified disk, including the number of
--- sectors per cluster, bytes per sector, number of free clusters, and total
--- number of clusters.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpRootPathName
--- The root directory of the disk to return information about (for example,
--- "C:\").
---------------------------------------------------------------------------------
--- [out] lpSectorsPerCluster
--- A pointer to a variable that receives the number of sectors per cluster.
---------------------------------------------------------------------------------
--- [out] lpBytesPerSector
--- A pointer to a variable that receives the number of bytes per sector.
---------------------------------------------------------------------------------
--- [out] lpNumberOfFreeClusters
--- A pointer to a variable that receives the total number of free clusters on
--- the disk.
---------------------------------------------------------------------------------
--- [out] lpTotalNumberOfClusters
--- A pointer to a variable that receives the total number of clusters on the
--- disk.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_INVALID_FUNCTION          1   (0x1)
+-- ERROR_PATH_NOT_FOUND            3   (0x3)
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
 --
--- ERROR_INVALID_PARAMETER   87  (0x57)
--- One or more parameters are invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdiskfreespacew
 foreign import WINDOWS_CCONV unsafe "windows.h GetDiskFreeSpaceW"
   c_GetDiskFreeSpace :: LPCTSTR -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> IO Bool
 
 -- | Sets the volume label for a specified disk volume.
---------------------------------------------------------------------------------
--- Assigns a new label to a disk volume.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] lpRootPathName
--- The root directory of the volume to be labeled (for example, "C:\").
---------------------------------------------------------------------------------
--- [in, optional] lpVolumeName
--- The new label for the volume. If this parameter is NULL, the label is deleted.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_ACCESS_DENIED             5   (0x5)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
+-- ERROR_LABEL_TOO_LONG          154   (0x9A)
+-- ERROR_INVALID_NAME            123   (0x7B)
+-- ERROR_DIRECTORY               267   (0x10B)
 --
--- ERROR_INVALID_PARAMETER   87  (0x57)
--- One or more parameters are invalid.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setvolumelabelw
 foreign import WINDOWS_CCONV unsafe "windows.h SetVolumeLabelW"
   c_SetVolumeLabel :: LPCTSTR -> LPCTSTR -> IO Bool
@@ -1721,76 +1188,25 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetVolumeLabelW"
 ----------------------------------------------------------------
 
 -- | Locks a region of a file for exclusive or shared access.
---------------------------------------------------------------------------------
--- Locks a specified region of a file, preventing access by other processes
--- depending on the requested lock mode.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the file to be locked.
---------------------------------------------------------------------------------
--- [in] dwFlags
--- Specifies the lock mode. This parameter can be a combination of LockMode
--- values.
---------------------------------------------------------------------------------
--- [in] dwReserved
--- Reserved; must be zero.
---------------------------------------------------------------------------------
--- [in] nNumberOfBytesToLockLow
--- The low-order part of the length of the byte range to lock.
---------------------------------------------------------------------------------
--- [in] nNumberOfBytesToLockHigh
--- The high-order part of the length of the byte range to lock.
---------------------------------------------------------------------------------
--- [in, out] lpOverlapped
--- A pointer to an OVERLAPPED structure that specifies the starting offset of
--- the lock.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_INVALID_HANDLE            6   (0x6)
+-- ERROR_LOCK_VIOLATION           33   (0x21)
+-- ERROR_NOT_ENOUGH_MEMORY        8    (0x8)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
 --
--- ERROR_LOCK_VIOLATION     33  (0x21)
--- The process cannot access the file because another process has locked a
--- portion of the file.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-lockfileex
 foreign import WINDOWS_CCONV unsafe "LockFileEx"
   c_LockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED
                -> IO BOOL
 
 -- | Unlocks a region of a file previously locked by LockFileEx.
---------------------------------------------------------------------------------
--- Unlocks a specified region of a file, allowing access by other processes.
 --
--- Parameters:
---------------------------------------------------------------------------------
--- [in] hFile
--- A handle to the file to be unlocked.
---------------------------------------------------------------------------------
--- [in] dwReserved
--- Reserved; must be zero.
---------------------------------------------------------------------------------
--- [in] nNumberOfBytesToUnlockLow
--- The low-order part of the length of the byte range to unlock.
---------------------------------------------------------------------------------
--- [in] nNumberOfBytesToUnlockHigh
--- The high-order part of the length of the byte range to unlock.
---------------------------------------------------------------------------------
--- [in, out] lpOverlapped
--- A pointer to an OVERLAPPED structure that specifies the starting offset of
--- the unlock.
---------------------------------------------------------------------------------
--- Return value
--- If the function succeeds, the return value is nonzero.
--- If the function fails, the return value is zero.
+-- Possible errors:
+-- ERROR_INVALID_HANDLE            6   (0x6)
+-- ERROR_NOT_LOCKED              158   (0x9E)
+-- ERROR_INVALID_PARAMETER        87   (0x57)
 --
--- ERROR_NOT_LOCKED         158 (0x9E)
--- The region specified is not locked by the calling process.
---------------------------------------------------------------------------------
--- link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-unlockfileex
 foreign import WINDOWS_CCONV unsafe "UnlockFileEx"
   c_UnlockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED -> IO BOOL
