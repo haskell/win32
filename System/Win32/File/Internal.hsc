@@ -286,10 +286,6 @@ fILE_FLAG_BACKUP_SEMANTICS = #const FILE_FLAG_BACKUP_SEMANTICS
 fILE_FLAG_POSIX_SEMANTICS :: FileAttributeOrFlag
 fILE_FLAG_POSIX_SEMANTICS = #const FILE_FLAG_POSIX_SEMANTICS
 
--- | (INVALID_FILE_ATTRIBUTES = 0xFFFFFFFF) Returned by GetFileAttributesW on failure.
-iNVALID_FILE_ATTRIBUTES :: FileAttributeOrFlag
-iNVALID_FILE_ATTRIBUTES = 0xFFFFFFFF
-
 #ifndef __WINE_WINDOWS_H
 -- | (SECURITY_ANONYMOUS = 0x0) The security anonymous level is set.
 sECURITY_ANONYMOUS :: FileAttributeOrFlag
@@ -674,146 +670,42 @@ instance Storable WIN32_FILE_ATTRIBUTE_DATA where
 -- File operations
 ----------------------------------------------------------------
 
--- | Deletes an existing file.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND      2   (0x2)
--- ERROR_PATH_NOT_FOUND      3   (0x3)
--- ERROR_ACCESS_DENIED       5   (0x5)
--- ERROR_CURRENT_DIRECTORY  16   (0x10)
--- ERROR_WRITE_PROTECT      19   (0x13)
--- ERROR_SHARING_VIOLATION  32   (0x20)
--- ERROR_LOCK_VIOLATION     33   (0x21)
--- ERROR_INVALID_PARAMETER  87   (0x57)
--- ERROR_USER_MAPPED_FILE 1224   (0x4C8)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-deletefilew
 foreign import WINDOWS_CCONV unsafe "windows.h DeleteFileW"
   c_DeleteFile :: LPCTSTR -> IO Bool
 
--- | Copies an existing file to a new file.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND      2   (0x2)
--- ERROR_PATH_NOT_FOUND      3   (0x3)
--- ERROR_ACCESS_DENIED       5   (0x5)
--- ERROR_SHARING_VIOLATION  32  (0x20)
--- ERROR_FILE_EXISTS        80  (0x50)
--- ERROR_ALREADY_EXISTS    183  (0xB7)
--- ERROR_INVALID_PARAMETER  87  (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-copyfilew
 foreign import WINDOWS_CCONV unsafe "windows.h CopyFileW"
   c_CopyFile :: LPCTSTR -> LPCTSTR -> Bool -> IO Bool
 
--- | Moves an existing file or directory to a new location.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND      2   (0x2)
--- ERROR_PATH_NOT_FOUND      3   (0x3)
--- ERROR_ACCESS_DENIED       5   (0x5)
--- ERROR_ALREADY_EXISTS    183  (0xB7)
--- ERROR_SHARING_VIOLATION  32  (0x20)
--- ERROR_NOT_SAME_DEVICE    17  (0x11)
--- ERROR_INVALID_PARAMETER  87  (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefilew
 foreign import WINDOWS_CCONV unsafe "windows.h MoveFileW"
   c_MoveFile :: LPCTSTR -> LPCTSTR -> IO Bool
 
--- | Moves an existing file or directory, including its children.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND      2   (0x2)
--- ERROR_PATH_NOT_FOUND      3   (0x3)
--- ERROR_ACCESS_DENIED       5   (0x5)
--- ERROR_ALREADY_EXISTS    183  (0xB7)
--- ERROR_SHARING_VIOLATION  32  (0x20)
--- ERROR_NOT_SAME_DEVICE    17  (0x11)
--- ERROR_INVALID_PARAMETER  87  (0x57)
--- ERROR_WRITE_PROTECT      19  (0x13)
--- ERROR_LOCK_VIOLATION     33  (0x21)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefileexw
 foreign import WINDOWS_CCONV unsafe "windows.h MoveFileExW"
   c_MoveFileEx :: LPCTSTR -> LPCTSTR -> MoveFileFlag -> IO Bool
 
--- | Changes the current directory for the current process.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND      2   (0x2)
--- ERROR_PATH_NOT_FOUND      3   (0x3)
--- ERROR_ACCESS_DENIED       5   (0x5)
--- ERROR_INVALID_PARAMETER  87   (0x57)
--- ERROR_DIRECTORY         267   (0x10B)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setcurrentdirectory
 foreign import WINDOWS_CCONV unsafe "windows.h SetCurrentDirectoryW"
   c_SetCurrentDirectory :: LPCTSTR -> IO Bool
 
--- | Creates a new directory.
---
--- Possible errors:
--- ERROR_ALREADY_EXISTS         183  (0xB7)
--- ERROR_PATH_NOT_FOUND           3  (0x3)
--- ERROR_ACCESS_DENIED            5  (0x5)
--- ERROR_INVALID_PARAMETER       87  (0x57)
--- ERROR_FILENAME_EXCED_RANGE   206  (0xCE)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createdirectoryw
 foreign import WINDOWS_CCONV unsafe "windows.h CreateDirectoryW"
   c_CreateDirectory :: LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
 
--- | Creates a directory as a copy of an existing directory.
---
--- Possible errors:
--- ERROR_ALREADY_EXISTS         183  (0xB7)
--- ERROR_PATH_NOT_FOUND           3  (0x3)
--- ERROR_ACCESS_DENIED            5  (0x5)
--- ERROR_INVALID_PARAMETER       87  (0x57)
--- ERROR_FILENAME_EXCED_RANGE   206  (0xCE)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createdirectoryexw
 foreign import WINDOWS_CCONV unsafe "windows.h CreateDirectoryExW"
   c_CreateDirectoryEx :: LPCTSTR -> LPCTSTR -> LPSECURITY_ATTRIBUTES -> IO Bool
 
--- | Removes (deletes) an existing empty directory.
---
--- Possible errors:
--- ERROR_PATH_NOT_FOUND           3   (0x3)
--- ERROR_ACCESS_DENIED            5   (0x5)
--- ERROR_SHARING_VIOLATION       32   (0x20)
--- ERROR_INVALID_PARAMETER       87   (0x57)
--- ERROR_DIRECTORY              267   (0x10B)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-removedirectoryw
 foreign import WINDOWS_CCONV unsafe "windows.h RemoveDirectoryW"
   c_RemoveDirectory :: LPCTSTR -> IO Bool
 
--- | Determines the type of a binary executable file.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND           2   (0x2)
--- ERROR_PATH_NOT_FOUND           3   (0x3)
--- ERROR_INVALID_PARAMETER       87   (0x57)
--- ERROR_BAD_EXE_FORMAT         193   (0xC1)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-getbinarytypew
 foreign import WINDOWS_CCONV unsafe "windows.h GetBinaryTypeW"
   c_GetBinaryType :: LPCTSTR -> Ptr DWORD -> IO Bool
 
--- | Replaces one file with another file.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND                  2   (0x2)
--- ERROR_PATH_NOT_FOUND                  3   (0x3)
--- ERROR_ACCESS_DENIED                   5   (0x5)
--- ERROR_SHARING_VIOLATION              32   (0x20)
--- ERROR_INVALID_PARAMETER              87   (0x57)
--- ERROR_UNABLE_TO_REMOVE_REPLACED    1175   (0x497)
--- ERROR_UNABLE_TO_MOVE_REPLACEMENT   1176   (0x498)
--- ERROR_UNABLE_TO_MOVE_REPLACEMENT_2 1177   (0x499)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-replacefilew
 foreign import WINDOWS_CCONV unsafe "windows.h ReplaceFileW"
   c_ReplaceFile :: LPCWSTR -> LPCWSTR -> LPCWSTR -> DWORD -> LPVOID -> LPVOID -> IO Bool
@@ -822,32 +714,11 @@ foreign import WINDOWS_CCONV unsafe "windows.h ReplaceFileW"
 -- HANDLE operations
 ----------------------------------------------------------------
 
--- | Creates or opens a file or I/O device.
---
--- Possible errors:
--- ERROR_ALREADY_EXISTS    183   (0xB7)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
 foreign import WINDOWS_CCONV unsafe "windows.h CreateFileW"
   c_CreateFile :: LPCTSTR -> AccessMode -> ShareMode -> LPSECURITY_ATTRIBUTES
                -> CreateMode -> FileAttributeOrFlag -> HANDLE -> IO HANDLE
 
--- | Closes an open object handle.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND           2   (0x2)
--- ERROR_PATH_NOT_FOUND           3   (0x3)
--- ERROR_ACCESS_DENIED            5   (0x5)
--- ERROR_WRITE_PROTECT           19   (0x13)
--- ERROR_INVALID_HANDLE           6   (0x6)
--- ERROR_SHARING_VIOLATION       32   (0x20)
--- ERROR_FILE_EXISTS             80   (0x50)
--- ERROR_ALREADY_EXISTS         183   (0xB7)
--- ERROR_INVALID_PARAMETER       87   (0x57)
--- ERROR_INVALID_NAME           123   (0x7B)
--- ERROR_DISK_FULL              112   (0x70)
--- ERROR_DIRECTORY              267   (0x10B)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
 foreign import WINDOWS_CCONV unsafe "windows.h CloseHandle"
   c_CloseHandle :: HANDLE -> IO Bool
@@ -861,79 +732,30 @@ foreign import WINDOWS_CCONV unsafe "windows.h CloseHandle"
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileType"
   getFileType :: HANDLE -> IO FileType
 
--- | Flushes the buffers of a specified file and causes all buffered data to be written to disk.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE    6   (0x6)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers
 foreign import WINDOWS_CCONV unsafe "windows.h FlushFileBuffers"
   c_FlushFileBuffers :: HANDLE -> IO Bool
 
--- | Sets the physical end of a file.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE    6   (0x6)
--- ERROR_ACCESS_DENIED     5   (0x5)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setendoffile
 foreign import WINDOWS_CCONV unsafe "windows.h SetEndOfFile"
   c_SetEndOfFile :: HANDLE -> IO Bool
 
--- | Sets the attributes for a file or directory.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND            2   (0x2)
--- ERROR_PATH_NOT_FOUND            3   (0x3)
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_INVALID_PARAMETER        87   (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileattributesw
 foreign import WINDOWS_CCONV unsafe "windows.h SetFileAttributesW"
   c_SetFileAttributes :: LPCTSTR -> FileAttributeOrFlag -> IO Bool
 
--- | Retrieves file system attributes for a specified file or directory.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND            2   (0x2)
--- ERROR_PATH_NOT_FOUND            3   (0x3)
--- ERROR_INVALID_PARAMETER        87   (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesw
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesW"
   c_GetFileAttributes :: LPCTSTR -> IO FileAttributeOrFlag
 
--- | Retrieves extended information about the specified file or directory.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND            2   (0x2)
--- ERROR_PATH_NOT_FOUND            3   (0x3)
--- ERROR_INVALID_PARAMETER        87   (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileattributesexw
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileAttributesExW"
   c_GetFileAttributesEx :: LPCTSTR -> GET_FILEEX_INFO_LEVELS -> Ptr a -> IO BOOL
 
--- | Retrieves file information for the specified file.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE            6   (0x6)
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_INVALID_PARAMETER        87   (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfileinformationbyhandle
 foreign import WINDOWS_CCONV unsafe "windows.h GetFileInformationByHandle"
     c_GetFileInformationByHandle :: HANDLE -> Ptr BY_HANDLE_FILE_INFORMATION -> IO BOOL
 
--- | Creates a name for a temporary file and optionally creates the file.
---
--- Possible errors:
--- ERROR_DIRECTORY              267   (0x10B)
--- ERROR_ACCESS_DENIED            5   (0x5)
--- ERROR_INVALID_PARAMETER       87   (0x57)
--- ERROR_BUFFER_OVERFLOW        111   (0x6F)
--- ERROR_FILE_EXISTS             80   (0x50)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-gettempfilenamew
 foreign import WINDOWS_CCONV unsafe "windows.h GetTempFileNameW"
     c_GetTempFileNameW :: LPCWSTR -> LPCWSTR -> UINT -> LPWSTR -> IO UINT
@@ -973,42 +795,14 @@ type LPOVERLAPPED = Ptr OVERLAPPED
 
 type MbLPOVERLAPPED = Maybe LPOVERLAPPED
 
--- | Reads data from a file or input/output (I/O) device.
---
--- Possible errors:
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_INVALID_HANDLE            6   (0x6)
--- ERROR_HANDLE_EOF               38   (0x26)
--- ERROR_BROKEN_PIPE             109   (0x6D)
--- ERROR_INVALID_PARAMETER        87   (0x57)
--- ERROR_IO_PENDING              997   (0x3E5)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile
 foreign import WINDOWS_CCONV unsafe "windows.h ReadFile"
   c_ReadFile :: HANDLE -> Ptr a -> DWORD -> Ptr DWORD -> LPOVERLAPPED -> IO Bool
 
--- | Writes data to a file or input/output (I/O) device.
---
--- Possible errors:
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_INVALID_HANDLE            6   (0x6)
--- ERROR_HANDLE_EOF               38   (0x26)
--- ERROR_BROKEN_PIPE             109   (0x6D)
--- ERROR_INVALID_PARAMETER        87   (0x57)
--- ERROR_DISK_FULL               112   (0x70)
--- ERROR_IO_PENDING              997   (0x3E5)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile
 foreign import WINDOWS_CCONV unsafe "windows.h WriteFile"
   c_WriteFile :: HANDLE -> Ptr a -> DWORD -> Ptr DWORD -> LPOVERLAPPED -> IO Bool
 
--- | Moves the file pointer of an open file.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE            6   (0x6)
--- ERROR_INVALID_PARAMETER        87   (0x57)
--- ERROR_NEGATIVE_SEEK           131   (0x83)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfilepointerex
 foreign import WINDOWS_CCONV unsafe "windows.h SetFilePointerEx"
   c_SetFilePointerEx :: HANDLE -> LARGE_INTEGER -> Ptr LARGE_INTEGER -> FilePtrDirection -> IO Bool
@@ -1020,31 +814,14 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetFilePointerEx"
 -- on.
 ----------------------------------------------------------------
 
--- | Creates a change notification handle and sets up initial change notification filter conditions.
---
--- Possible errors:
--- ERROR_INVALID_PARAMETER        87   (0x57)
--- ERROR_PATH_NOT_FOUND            3   (0x3)
--- ERROR_ACCESS_DENIED             5   (0x5)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationw
 foreign import WINDOWS_CCONV unsafe "windows.h FindFirstChangeNotificationW"
   c_FindFirstChangeNotification :: LPCTSTR -> Bool -> FileNotificationFlag -> IO HANDLE
 
--- | Requests that the operating system signal a change notification handle when a change occurs.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE    6   (0x6)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findnextchangenotification
 foreign import WINDOWS_CCONV unsafe "windows.h FindNextChangeNotification"
   c_FindNextChangeNotification :: HANDLE -> IO Bool
 
--- | Closes a change notification handle.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE    6   (0x6)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findclosechangenotification
 foreign import WINDOWS_CCONV unsafe "windows.h FindCloseChangeNotification"
   c_FindCloseChangeNotification :: HANDLE -> IO Bool
@@ -1057,36 +834,14 @@ type WIN32_FIND_DATA = ()
 
 newtype FindData = FindData (ForeignPtr WIN32_FIND_DATA)
 
--- | Searches a directory for a file or subdirectory with a name that matches a specified pattern.
---
--- Possible errors:
--- ERROR_FILE_NOT_FOUND            2   (0x2)
--- ERROR_PATH_NOT_FOUND            3   (0x3)
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_INVALID_PARAMETER        87   (0x57)
--- ERROR_INVALID_HANDLE            6   (0x6)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstfilew
 foreign import WINDOWS_CCONV unsafe "windows.h FindFirstFileW"
   c_FindFirstFile :: LPCTSTR -> Ptr WIN32_FIND_DATA -> IO HANDLE
 
--- | Continues a file search from a previous call to FindFirstFileW.
---
--- Possible errors:
--- ERROR_NO_MORE_FILES            18   (0x12)
--- ERROR_INVALID_HANDLE            6   (0x6)
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_INVALID_PARAMETER        87   (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findnextfilew
 foreign import WINDOWS_CCONV unsafe "windows.h FindNextFileW"
   c_FindNextFile :: HANDLE -> Ptr WIN32_FIND_DATA -> IO BOOL
 
--- | Closes a file search handle.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE    6   (0x6)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findclose
 foreign import WINDOWS_CCONV unsafe "windows.h FindClose"
   c_FindClose :: HANDLE -> IO BOOL
@@ -1095,13 +850,6 @@ foreign import WINDOWS_CCONV unsafe "windows.h FindClose"
 -- DOS Device flags
 ----------------------------------------------------------------
 
--- | Defines, modifies, or deletes MS-DOS device names.
---
--- Possible errors:
--- ERROR_INVALID_PARAMETER        87   (0x57)
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_FILE_NOT_FOUND            2   (0x2)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-definedosdevicew
 foreign import WINDOWS_CCONV unsafe "windows.h DefineDosDeviceW"
   c_DefineDosDevice :: DefineDosDeviceFlags -> LPCTSTR -> LPCTSTR -> IO Bool
@@ -1116,6 +864,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h DefineDosDeviceW"
 -- Possible errors:
 -- ERROR_INVALID_PARAMETER        87   (0x57)
 --
+-- Link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-arefileapisansi
 foreign import WINDOWS_CCONV unsafe "windows.h AreFileApisANSI"
   areFileApisANSI :: IO Bool
@@ -1125,6 +874,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h AreFileApisANSI"
 -- Possible errors:
 -- ERROR_INVALID_PARAMETER        87   (0x57)
 --
+-- Link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileapistooem
 foreign import WINDOWS_CCONV unsafe "windows.h SetFileApisToOEM"
   setFileApisToOEM :: IO ()
@@ -1134,6 +884,7 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetFileApisToOEM"
 -- Possible errors:
 -- ERROR_INVALID_PARAMETER        87   (0x57)
 --
+-- Link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfileapistoansi
 foreign import WINDOWS_CCONV unsafe "windows.h SetFileApisToANSI"
   setFileApisToANSI :: IO ()
@@ -1143,42 +894,21 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetFileApisToANSI"
 -- Possible errors:
 -- ERROR_INVALID_PARAMETER        87   (0x57)
 --
+-- Link to original documentation:
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-sethandlecount
 foreign import WINDOWS_CCONV unsafe "windows.h SetHandleCount"
   setHandleCount :: UINT -> IO UINT
 
 ----------------------------------------------------------------
 
--- | Retrieves a bitmask representing the currently available disk drives.
---
--- Possible errors:
--- ERROR_INVALID_FUNCTION          1   (0x1)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getlogicaldrives
 foreign import WINDOWS_CCONV unsafe "windows.h GetLogicalDrives"
   c_GetLogicalDrives :: IO DWORD
 
--- | Retrieves information about the amount of free and total space on a disk.
---
--- Possible errors:
--- ERROR_INVALID_FUNCTION          1   (0x1)
--- ERROR_PATH_NOT_FOUND            3   (0x3)
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_INVALID_PARAMETER        87   (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getdiskfreespacew
 foreign import WINDOWS_CCONV unsafe "windows.h GetDiskFreeSpaceW"
   c_GetDiskFreeSpace :: LPCTSTR -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> Ptr DWORD -> IO Bool
 
--- | Sets the volume label for a specified disk volume.
---
--- Possible errors:
--- ERROR_ACCESS_DENIED             5   (0x5)
--- ERROR_INVALID_PARAMETER        87   (0x57)
--- ERROR_LABEL_TOO_LONG          154   (0x9A)
--- ERROR_INVALID_NAME            123   (0x7B)
--- ERROR_DIRECTORY               267   (0x10B)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setvolumelabelw
 foreign import WINDOWS_CCONV unsafe "windows.h SetVolumeLabelW"
   c_SetVolumeLabel :: LPCTSTR -> LPCTSTR -> IO Bool
@@ -1187,26 +917,11 @@ foreign import WINDOWS_CCONV unsafe "windows.h SetVolumeLabelW"
 -- File locks
 ----------------------------------------------------------------
 
--- | Locks a region of a file for exclusive or shared access.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE            6   (0x6)
--- ERROR_LOCK_VIOLATION           33   (0x21)
--- ERROR_NOT_ENOUGH_MEMORY        8    (0x8)
--- ERROR_INVALID_PARAMETER        87   (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-lockfileex
 foreign import WINDOWS_CCONV unsafe "LockFileEx"
   c_LockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED
                -> IO BOOL
 
--- | Unlocks a region of a file previously locked by LockFileEx.
---
--- Possible errors:
--- ERROR_INVALID_HANDLE            6   (0x6)
--- ERROR_NOT_LOCKED              158   (0x9E)
--- ERROR_INVALID_PARAMETER        87   (0x57)
---
 -- https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-unlockfileex
 foreign import WINDOWS_CCONV unsafe "UnlockFileEx"
   c_UnlockFileEx :: HANDLE -> DWORD -> DWORD -> DWORD -> LPOVERLAPPED -> IO BOOL
