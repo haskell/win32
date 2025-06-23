@@ -26,6 +26,9 @@ import Foreign hiding (void)
 
 ##include "windows_cconv.h"
 
+-- For REPLACEFILE_IGNORE_ACL_ERRORS
+#define  _WIN32_WINNT 0x0600
+
 #include <windows.h>
 #include "alignment.h"
 
