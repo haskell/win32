@@ -17,6 +17,13 @@ extra-source-files:
     include/Win32Aux.h include/win32debug.h include/alignment.h
 extra-doc-files:
     changelog.md
+tested-with:
+    GHC == 9.2.7,
+    GHC == 9.4.5,
+    GHC == 9.6.7,
+    GHC == 9.8.4,
+    GHC == 9.10.1,
+    GHC == 9.12.1
 
 flag os-string
   description: Use the new os-string package
