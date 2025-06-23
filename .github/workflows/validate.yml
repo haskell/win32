@@ -1,0 +1,57 @@
+name: Validate
+
+# See: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#concurrency.
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  release:
+    types:
+      - created
+
+jobs:
+  validate:
+    name: Validate ${{ matrix.sys.os }} ghc-${{ matrix.ghc }}
+    runs-on: ${{ matrix.sys.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        sys:
+          - { os: windows-latest, shell: "C:/msys64/usr/bin/bash.exe -e {0}" }
+        ghc:
+          [
+            "9.12.2",
+            "9.10.1",
+            "9.8.4",
+            "9.6.7",
+            "9.4.8",
+            "9.2.8",
+            "9.0.2",
+            "8.10.7",
+            "8.8.4",
+            "8.6.5",
+          ]
+    defaults:
+      run:
+        shell: ${{ matrix.sys.shell }}
+    steps:
+      - name: "WIN: Setup TMP environment variable"
+        run: |
+           echo "TMP=${{ runner.temp }}" >> "$GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+
+      - uses: haskell-actions/setup@v2
+        id: setup-haskell
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: 3.12.1.0
+          ghcup-release-channel: https://raw.githubusercontent.com/haskell/ghcup-metadata/master/ghcup-prereleases-0.0.8.yaml
+
+      - name: Validate build
+        run: cabal build
