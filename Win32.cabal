@@ -175,4 +175,4 @@ Library
 
 source-repository head
     type:     git
-    location: git://github.com/haskell/win32
+    location: https://github.com/haskell/win32
